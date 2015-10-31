@@ -1,0 +1,7 @@
+platform :ios, '7.0'
+pod 'AFNetworking', '~> 2.6.0'
+pod 'SVProgressHUD', :head
+pod 'SDWebImage-Category', '~> 1.4'
+pod 'FrameAccessor', '~> 1.3.2'
+pod 'pop', '~> 1.0'
+pod 'Reachability', '~> 3.2'
