@@ -11,5 +11,73 @@
 
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+#import <AFNetworking.h>
+#import <Reachability.h>
+#import <BlocksKit.h>
+#import <BlocksKit+UIKit.h>
+#import <SDWebImageManager.h>
+#import <UIImageView+WebCache.h>
+#import <FrameAccessor.h>
+#import "EXTScope.h"
+#import "CCSettingManager.h"
+#import "UIImage+Tint.h"
+#import "SCNavigation.h"
+
+//app delegate
+#define AppDelegate ((CoCodeAppDelegate *)[UIApplication sharedApplication].delegate)
+
+//screen size
+#define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
+#define kScreenWidth ([UIScreen mainScreen].bounds.size.width)
+
+//background
+#define kBackgroundColorGray ([UIColor colorWithRed:247/255.0 green:247/255.0 blue:247/255.0 alpha:1.0])
+
+//color
+#define kWhiteColor [UIColor whiteColor]
+#define kBlackColor [UIColor blackColor]
+#define kPurpleColor ([UIColor colorWithRed:107/255.0 green:110/255.0 blue:230/255.0 alpha:1.0])
+
+//color method
+#define RGB(c,a)    [UIColor colorWithRed:((c>>16)&0xFF)/255.0  green:((c>>8)&0xFF)/255.0   blue:((c)&0xFF)/255.0   alpha:a]
+
+//method
+#define kUserDefaults   [NSUserDefaults standardUserDefaults]
+#define kSetting        [CCSettingManager sharedManager]
+
+//theme
+#define kCurrentTheme kSetting.theme
+#define kNavigationBarTintColor    kSetting.navigationBarTintColor
+#define kNavigationBarColor        kSetting.navigationBarColor
+#define kNavigationBarLineColor    kSetting.navigationBarLineColor
+
+#define kBackgroundColorWhite      kSetting.backgroundColorWhite
+#define kBackgroundColorWhiteDark  kSetting.backgroundColorWhiteDark
+
+#define kLineColorBlackDark        kSetting.lineColorBlackDark
+#define kLineColorBlackLight       kSetting.lineColorBlackLight
+
+#define kFontColorBlackDark        kSetting.fontColorBlackDark
+#define kFontColorBlackMid         kSetting.fontColorBlackMid
+#define kFontColorBlackLight       kSetting.fontColorBlackLight
+#define kFontColorBlackBlue        kSetting.fontColorBlackBlue
+
+#define kColorBlue                 kSetting.colorBlue
+#define kCellHighlightedColor      kSetting.cellHighlightedColor
+#define kMenuCellHighlightedColor  kSetting.menuCellHighlightedColor
+
+#define kCurrentTheme              kSetting.theme
+
+
+//constant
+static CGFloat const kMenuWidth = 240.0;
+
+static NSString * const kThemeDidChangeNotification = @"ThemeDidChangeNotification";
+static NSString * const kStatusBarTappedNotification = @"StatusBarTappedNotification";
+static NSString * const kShowMenuNotification = @"ShowMenuNotificaion";
+
 
 #endif
