@@ -8,6 +8,8 @@
 
 #import "CCRootViewController.h"
 
+#import "SCNavigationController.h"
+
 #import "CCMenuView.h"
 
 #import "CCNewestViewController.h"
@@ -17,7 +19,7 @@
 #import "CCTagsViewController.h"
 #import "CCProfileViewController.h"
 
-#import "SCNavigationController.h"
+#import "CCLoginViewController.h"
 
 #import "UIView+REFrosted.h"
 #import "UIImage+REFrosted.h"
@@ -82,7 +84,7 @@
     [super viewDidLoad];
     
     [self configureGestures];
-    //TODO configureNotification
+    [self configureNotifications];
 }
 
 #pragma mark - View Life Cycle
@@ -261,22 +263,22 @@
     UIViewController *viewController;
     switch (index) {
         case 0:
-            viewController = self.newestViewController;
+            viewController = self.newestNavigationController;
             break;
         case 1:
-            viewController = self.latestViewController;
+            viewController = self.latestNavigationController;
             break;
         case 2:
-            viewController = self.hotViewController;
+            viewController = self.hotNavigationController;
             break;
         case 3:
-            viewController = self.catViewController;
+            viewController = self.catNavigationController;
             break;
         case 4:
-            viewController = self.tagViewController;
+            viewController = self.tagNavigationController;
             break;
         case 5:
-            viewController = self.profileViewController;
+            viewController = self.profileNavigationController;
             break;
             
         default:
@@ -386,9 +388,36 @@
     return NO;
 }
 
+#pragma mark - Notification
 
+- (void)configureNotifications{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveShowMenuNotification) name:kShowMenuNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveResetInactiveDelegateNotification) name:kRootViewControllerResetDelegateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCancelInactiveDelegateNotification) name:kRootViewControllerCancelDelegateNotification object:nil];
+    
+    @weakify(self);
+    [[NSNotificationCenter defaultCenter] addObserverForName:kShowLoginVCNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        @strongify(self);
+        CCLoginViewController *loginViewController = [[CCLoginViewController alloc] init];
+        [self presentViewController:loginViewController animated:YES completion:^{
+            
+        }];
+    }];
+}
 
+- (void)didReceiveShowMenuNotification{
+    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:3.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+        [self setMenuOffset:kMenuWidth];
+        self.rootBackgroundButton.hidden = NO;
+    } completion:nil];
+}
 
+- (void)didReceiveResetInactiveDelegateNotification{
+    self.panGestureRecognizer.enabled = YES;
+}
 
+- (void)didReceiveCancelInactiveDelegateNotification{
+    self.panGestureRecognizer.enabled = NO;
+}
 
 @end

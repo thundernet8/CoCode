@@ -9,9 +9,6 @@
 #import "SCNavigationPushAnimation.h"
 
 @interface SCNavigationPushAnimation ()
-//
-//@property (nonatomic, strong) UIView *leftView;
-//@property (nonatomic, strong) UIView *rightView;
 
 @end
 

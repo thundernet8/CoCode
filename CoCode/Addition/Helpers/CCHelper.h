@@ -1,11 +1,18 @@
 
 #import <Foundation/Foundation.h>
 
-@interface V2Helper : NSObject
+@interface CCHelper : NSObject
 
 /**
  *  Time & date
  */
+
++ (NSDate *)localDateWithString:(NSString *)dateString;
++ (NSString *)timeIntervalStringWithDate:(NSDate *)date;
+
+//SVProgressHud
++ (void)showBlackHudWithImage:(UIImage *)image withText:(NSString *)text;
+
 + (NSArray *)localDateStringWithUTCString:(NSString *)dateString;
 
 + (NSArray *)localDateStringWithUTCString:(NSString *)dateString Separation:(NSString *)separation;

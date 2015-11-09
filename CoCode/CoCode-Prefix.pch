@@ -66,6 +66,7 @@
 #define kFontColorBlackBlue        kSetting.fontColorBlackBlue
 
 #define kColorBlue                 kSetting.colorBlue
+#define kColorPurple               kSetting.colorPurple
 #define kCellHighlightedColor      kSetting.cellHighlightedColor
 #define kMenuCellHighlightedColor  kSetting.menuCellHighlightedColor
 
@@ -73,11 +74,15 @@
 
 
 //constant
-static CGFloat const kMenuWidth = 240.0;
+static CGFloat const kMenuWidth = 200.0;
 
 static NSString * const kThemeDidChangeNotification = @"ThemeDidChangeNotification";
 static NSString * const kStatusBarTappedNotification = @"StatusBarTappedNotification";
 static NSString * const kShowMenuNotification = @"ShowMenuNotificaion";
+
+static NSString * const kShowLoginVCNotification = @"ShowLoginVCNotification";
+static NSString * const kLoginSuccessNotification = @"LoginSuccessNotification";
+static NSString * const kLogoutSuccessNotification = @"LogoutSuccessNotification";
 
 
 #endif

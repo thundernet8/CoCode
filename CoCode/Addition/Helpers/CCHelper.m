@@ -1,7 +1,101 @@
 
-#import "V2Helper.h"
+#import "CCHelper.h"
+#import <SVProgressHUD.h>
 
-@implementation V2Helper
+@implementation CCHelper
+
++ (NSDate *)localDateWithString:(NSString *)dateString{
+    if (!dateString) {
+        return nil;
+    }
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss"];
+    dateString = [dateString substringWithRange:NSMakeRange(0, 19)];
+    return [dateFormatter dateFromString:dateString];
+}
+
++ (NSString *)timeIntervalStringWithDate:(NSDate *)date{
+    NSString *timeString;
+    NSDate *now = [NSDate date];
+    now = [now dateByAddingTimeInterval:-3600*8];
+    NSTimeInterval diff = [now timeIntervalSinceDate:date];
+    if ((int)diff < 60) {
+        timeString = NSLocalizedString(@"Just now", @"Time interval in 60 seconds");
+    }else if ((int)diff < 3600){
+        timeString = [NSString stringWithFormat:@"%d %@", (int)diff/60, NSLocalizedString(@"minutes ago", @"Time interval in 1 hour")];
+    }else if ((int)diff < 3600*24){
+        timeString = [NSString stringWithFormat:@"%d %@", (int)diff/3600, NSLocalizedString(@"hours ago", @"Time interval in 1 day")];
+    }else if ((int)diff < 3600*24*10){
+        timeString = [NSString stringWithFormat:@"%d %@", (int)diff/(3600*24), NSLocalizedString(@"days ago", @"Time interval in 10 days")];
+    }else{
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"yy-MM-dd"];
+        NSString *dateStr = [dateFormatter stringFromDate:date];
+        NSString *nowStr = [dateFormatter stringFromDate:now];
+        if ([[dateStr substringWithRange:NSMakeRange(0, 2)] isEqualToString:[nowStr substringWithRange:NSMakeRange(0, 2)]]) {
+            timeString = [dateStr substringWithRange:NSMakeRange(3, 5)];
+        }else{
+            timeString = dateStr;
+        }
+    }
+    return timeString;
+}
+
+//SVProgressHud
++ (void)showBlackHudWithImage:(UIImage *)image withText:(NSString *)text{
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
+    [SVProgressHUD setForegroundColor:kWhiteColor];
+    [SVProgressHUD setBackgroundColor:[UIColor colorWithWhite:0.0 alpha:0.8]];
+    [SVProgressHUD setSuccessImage:image];
+    [SVProgressHUD showSuccessWithStatus:text];
+}
+
+//Evaluate title height for topic cell
++ (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width {
+    
+    NSDictionary *attributes = @{
+                                 NSFontAttributeName: font,
+                                 };
+    CGRect expectedLabelRect = [text boundingRectWithSize:(CGSize){width, CGFLOAT_MAX}
+                                                  options:NSStringDrawingUsesLineFragmentOrigin
+                                               attributes:attributes
+                                                  context:nil];
+    return CGRectGetHeight(expectedLabelRect);
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 + (NSArray *)localDateStringWithUTCString:(NSString *)dateString {
     
@@ -156,7 +250,7 @@
     [utcDateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
     NSString *dateString = [utcDateFormatter stringFromDate:timesp];
 
-    return [V2Helper timeRemainDescriptionWithUTCString:dateString];
+    return [CCHelper timeRemainDescriptionWithUTCString:dateString];
 }
 
 + (CGFloat)getTextWidthWithText:(NSString *)text Font:(UIFont *)font {
@@ -172,18 +266,7 @@
     
 }
 
-+ (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width {
-    
-    NSDictionary *attributes = @{
-                                 NSFontAttributeName: font,
-                                 };
-    CGRect expectedLabelRect = [text boundingRectWithSize:(CGSize){width, CGFLOAT_MAX}
-                                                  options:NSStringDrawingUsesLineFragmentOrigin
-                                               attributes:attributes
-                                                  context:nil];
-    return CGRectGetHeight(expectedLabelRect);
-    
-}
+
 
 
 + (NSString *)encodeUrlString:(NSString *)urlString {

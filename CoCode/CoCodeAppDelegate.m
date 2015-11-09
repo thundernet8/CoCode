@@ -29,7 +29,8 @@
     //Configure Window
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor whiteColor];
-    self.window.rootViewController = [[CCRootViewController alloc] init];
+    self.rootViewController = [[CCRootViewController alloc] init];
+    self.window.rootViewController = self.rootViewController;
     [self.window makeKeyAndVisible];
     
     return YES;

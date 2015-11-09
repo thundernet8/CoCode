@@ -10,4 +10,10 @@
 
 @interface CCMenuSectionCell : UITableViewCell
 
+@property (nonatomic, copy) NSString *iconName;
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString *badge;
+
++ (CGFloat)getCellHeight;
+
 @end

@@ -16,7 +16,7 @@
 
 #import "CCNavigationBar.h"
 
-@interface SCNavigationController ()  <UIGestureRecognizerDelegate, UINavigationControllerDelegate>
+@interface SCNavigationController ()<UIGestureRecognizerDelegate, UINavigationControllerDelegate>
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panRecognizer;
 @property (nonatomic, strong) UIPercentDrivenInteractiveTransition *interactivePopTransition;
@@ -32,7 +32,7 @@
     if (self) {
         
         self.enableInnerInactiveGesture = YES;
-        
+
     }
     return self;
 }
@@ -55,13 +55,11 @@
 {
     [super viewDidLoad];
     
-//    self.navigationBar.barStyle = UIBarStyleBlack;
-//    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     self.navigationBarHidden = YES;
     
     self.interactivePopGestureRecognizer.delegate = self;
     super.delegate = self;
-    
+
     self.panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanRecognizer:)];
     CoCodeAppDelegate *appDelegate = (CoCodeAppDelegate *)[UIApplication sharedApplication].delegate;
     appDelegate.currentNavigationController = self;
@@ -94,14 +92,13 @@
 #pragma mark UINavigationControllerDelegate
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    
+
 }
 
 - (void)navigationController:(UINavigationController *)navigationController
        didShowViewController:(UIViewController *)viewController
                     animated:(BOOL)animate
 {
-
     [viewController.view bringSubviewToFront:viewController.sc_navigationBar];
     
     if ([self respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
@@ -177,8 +174,6 @@
     CGFloat progress = (location.x - startLocationX) / kScreenWidth;
     progress = MIN(1.0, MAX(0.0, progress));
     
-//    NSLog(@"progress:   %.2f", progress);
-    
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         startLocationX = location.x;
         self.interactivePopTransition = [[UIPercentDrivenInteractiveTransition alloc] init];
@@ -203,56 +198,6 @@
         self.interactivePopTransition = nil;
     }
 }
-
-/*
- - (void)handleEdgePanRecognizer:(UIScreenEdgePanGestureRecognizer *)recognizer {
- CGFloat progress = [recognizer translationInView:self.view].x / (self.view.bounds.size.width);
- progress = MIN(1.0, MAX(0.0, progress));
- NSLog(@"percent:  %.2f", progress);
- 
- if (recognizer.state == UIGestureRecognizerStateBegan) {
- 
- self.interactivePopTransition = [[UIPercentDrivenInteractiveTransition alloc] init];
- [self popViewControllerAnimated:YES];
- 
- }
- else if (recognizer.state == UIGestureRecognizerStateChanged) {
- 
- [self.interactivePopTransition updateInteractiveTransition:progress];
- 
- }
- else if (recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateCancelled) {
- 
- if (progress > 0.4) {
- self.interactivePopTransition.completionSpeed = 0.4;
- [self.interactivePopTransition finishInteractiveTransition];
- }
- else {
- self.interactivePopTransition.completionSpeed = 0.4;
- [self.interactivePopTransition cancelInteractiveTransition];
- }
- 
- self.interactivePopTransition = nil;
- 
- }
- 
- }
- 
- */
-
-#pragma mark - Private Helper
-
-//- (UIView *)createNavigationBar {
-//    
-//    V2NavigationBar *navigationBar = [[V2NavigationBar alloc] initWithFrame:(CGRect){0, 0, 320, 64}];
-//    navigationBar.backgroundColor = kNavigationBarColor;
-//    
-//    UIView *lineView = [[UIView alloc] initWithFrame:(CGRect){0, 64, 320, 0.5}];
-//    lineView.backgroundColor = kNavigationBarLineColor;
-//    [navigationBar addSubview:lineView];
-//
-//    return navigationBar;
-//}
 
 - (void)configureNavigationBarForViewController:(UIViewController *)viewController {
     

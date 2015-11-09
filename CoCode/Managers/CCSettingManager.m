@@ -16,6 +16,7 @@
 #define kFontColorBlackLightDefault   RGB(0x999999, 1.0)
 #define kFontColorBlackBlueDefault    RGB(0x778087, 1.0)
 #define kColorBlueDefault             RGB(0x3fb7fc, 1.0)
+#define kColorPurpleDefault           RGB(0x6b6ee6, 1.0)
 
 #define kCellHighlightColor           RGB(0xdbdbdb, 0.6)
 #define kMenuCellHighlightColor       RGB(0xf6f6f6, 1.0)
@@ -32,8 +33,10 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
 @implementation CCSettingManager
 
 - (instancetype)init{
-    //TODO
     if (self = [super init]) {
+        self.selectedSectionIndex = [[kUserDefaults objectForKey:kSelectedSectionIndex] unsignedIntegerValue];
+        //TODO
+        
         _theme = [[kUserDefaults objectForKey:kTheme] integerValue];
         id themeAutoChange = [kUserDefaults objectForKey:kThemeAutoChange];
         if (themeAutoChange) {
@@ -41,6 +44,8 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         }else{
             _themeAutoChange = YES;
         }
+        
+        [self configureTheme:_theme];
     }
     return self;
 }
@@ -71,43 +76,14 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
     [kUserDefaults setObject:@(theme) forKey:kTheme];
     [kUserDefaults synchronize];
     
-    //[self configureTheme:theme];
+    [self configureTheme:theme];
     
     //Notification
     [[NSNotificationCenter defaultCenter] postNotificationName:kThemeDidChangeNotification object:nil];
 }
 
 - (void)configureTheme:(CCTheme)theme{
-    if (theme == CCThemeDefault) {
-        //Navigation Color
-        self.navigationBarTintColor = kBlackColor;
-        self.navigationBarColor = [UIColor colorWithWhite:1.0 alpha:0.98];
-        self.navigationBarLineColor = [UIColor colorWithWhite:0.88 alpha:1.0];
-        
-        //Background Color
-        self.backgroundColorWhite = kWhiteColor;
-        self.backgroundColorWhiteDark = [UIColor colorWithWhite:0.98 alpha:1.0];
-        
-        //Line Color
-        self.lineColorBlackDark = kLineColorBlackDarkDefault;
-        self.lineColorBlackLight = kLineColorBlackLightDefault;
-        
-        //Font Color
-        self.fontColorBlackDark = kFontColorBlackDarkDefault;
-        self.fontColorBlackMid  = kFontColorBlackDarkMiddle;
-        self.fontColorBlackLight = kFontColorBlackLightDefault;
-        self.fontColorBlackBlue = kFontColorBlackBlueDefault;
-        
-        //Color
-        self.colorBlue = kColorBlueDefault;
-        self.cellHighlightedColor = kCellHighlightColor;
-        self.menuCellHighlightedColor = kMenuCellHighlightColor;
-        
-        //Status Bar
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
-        
-    }else{
+    if (theme == CCThemeNight) {
         //Navigation Color
         self.navigationBarTintColor = RGB(0xcccccc, 1.0);
         self.navigationBarColor = [UIColor colorWithWhite:0.000 alpha:0.980];
@@ -128,13 +104,42 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         self.fontColorBlackBlue = RGB(0x778087, 1.0);
         
         //Color
-        self.colorBlue = [UIColor colorWithWhite:1.0 alpha:0.1];
+        self.colorPurple = [UIColor colorWithWhite:1.0 alpha:0.1];
         self.cellHighlightedColor = RGB(0x333333, 1.0);
         self.menuCellHighlightedColor = [UIColor colorWithWhite:0.12 alpha:1.0];
         
         //Notification
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+    }else{
+        //Navigation Color
+        self.navigationBarTintColor = kBlackColor;
+        self.navigationBarColor = [UIColor colorWithWhite:1.0 alpha:0.98];
+        self.navigationBarLineColor = [UIColor colorWithWhite:0.88 alpha:1.0];
+        
+        //Background Color
+        self.backgroundColorWhite = kWhiteColor;
+        self.backgroundColorWhiteDark = [UIColor colorWithWhite:0.98 alpha:1.0];
+        
+        //Line Color
+        self.lineColorBlackDark = kLineColorBlackDarkDefault;
+        self.lineColorBlackLight = kLineColorBlackLightDefault;
+        
+        //Font Color
+        self.fontColorBlackDark = kFontColorBlackDarkDefault;
+        self.fontColorBlackMid  = kFontColorBlackDarkMiddle;
+        self.fontColorBlackLight = kFontColorBlackLightDefault;
+        self.fontColorBlackBlue = kFontColorBlackBlueDefault;
+        
+        //Color
+        self.colorPurple = kColorPurpleDefault;
+        self.cellHighlightedColor = kCellHighlightColor;
+        self.menuCellHighlightedColor = kMenuCellHighlightColor;
+        
+        //Status Bar
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+        
     }
 }
 
@@ -145,7 +150,14 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
     [kUserDefaults synchronize];
 }
 
-
+//Image Alpha
+- (CGFloat)imageViewAlphaForCurrentTheme {
+    if (kCurrentTheme == CCThemeNight) {
+        return 0.4;
+    } else {
+        return 1.0;
+    }
+}
 
 
 

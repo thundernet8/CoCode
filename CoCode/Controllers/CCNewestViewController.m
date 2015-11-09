@@ -7,6 +7,13 @@
 //
 
 #import "CCNewestViewController.h"
+#import <NSString+FontAwesome.h>
+#import "UIImage+Tint.h"
+#import "CCDataManager.h"
+#import "CCHelper.h"
+#import "CCTopicListCell.h"
+#import "CCMemberModel.h"
+#import <SVProgressHUD.h>
 
 @interface CCNewestViewController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -16,7 +23,10 @@
 //Left Navibar Item
 @property (nonatomic, strong) SCBarButtonItem *leftBarItem;
 
+//Get topics block
+@property (nonatomic, copy) NSURLSessionDataTask *(^getTopicListBlock)(NSInteger);
 
+@property (nonatomic, strong) CCTopicList *topicList;
 
 @end
 
@@ -33,8 +43,8 @@
 - (void)loadView{
     [super loadView];
     
-    [self configureNavibarItems];
     [self configureTableView];
+    [self configureNavibarItems];
 }
 
 - (void)viewDidLoad {
@@ -46,6 +56,9 @@
     self.sc_navigationItem.title = NSLocalizedString(@"Recently Active", @"Latest posted, replied, edited");
     
     //TODO Notification
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
+    
 }
 
 #pragma mark - Life Cycle
@@ -85,7 +98,7 @@
 #pragma mark - Configure
 
 - (void)configureNavibarItems{
-    self.leftBarItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_navi_menu_2"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    self.leftBarItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_navi_menu"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kShowMenuNotification object:nil];
     }];
 }
@@ -100,7 +113,66 @@
 }
 
 - (void)configureBlocks{
-    //TODO blocks
+
+    @weakify(self);
+    self.getTopicListBlock = ^(NSInteger page){
+        @strongify(self);
+        
+        self.pageCount = page;
+        
+        return [[CCDataManager sharedManager] getTopicListNewestWithPage:page success:^(CCTopicList *list) {
+            @strongify(self);
+            
+            self.topicList = list;
+            
+            if (self.pageCount > 1) {
+                [self endLoadMore];
+            }else{
+                [self endRefresh];
+                if (list.list.count >= 30) {
+                    self.loadMoreBlock = ^{
+                        @strongify(self);
+                        self.pageCount ++;
+                        
+                        self.getTopicListBlock(self.pageCount);
+                    };
+                }
+            }
+            
+        } failure:^(NSError *error) {
+            @strongify(self);
+            if (self.pageCount > 1) {
+                if (error.code == 104) {
+                    //Reached the end, no more topics
+                    [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"No more topics", @"Cannot loadmore topics, reached the end")];
+                }
+                [self endLoadMore];
+            }else{
+                [self endRefresh];
+            }
+        }];
+    };
+    
+    self.refreshBlock = ^{
+        @strongify(self);
+        self.getTopicListBlock(1);
+    };
+}
+
+#pragma mark - Setter
+
+- (void)setTopicList:(CCTopicList *)topicList{
+    if (self.topicList.list.count > 0 && self.pageCount != 1) {
+        NSMutableArray *list = [[NSMutableArray alloc] initWithArray:self.topicList.list];
+        NSMutableDictionary *posters = [[NSMutableDictionary alloc] initWithDictionary:self.topicList.posters];
+        [list addObjectsFromArray:topicList.list];
+        [posters addEntriesFromDictionary:topicList.posters];
+        topicList.list = list;
+        topicList.posters = posters;
+    }
+    _topicList = topicList;
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark - TableView Datasource
@@ -110,21 +182,52 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 0;
+    return self.topicList.list.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 44.0;
+    return [self heightOfTopicCellForIndexPath:indexPath];
 }
 
 #pragma mark - TableView Delegate
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+- (CCTopicListCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     static NSString *CellIdentifier = @"CellIdentifier";
-    UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    CCTopicListCell *cell = (CCTopicListCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (!cell) {
+        cell = [[CCTopicListCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
+    CCTopicModel *topic = self.topicList.list[indexPath.row];
+    CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", (int)topic.topicAuthorID]];
+    topic.topicAuthorAvatar = author.memberAvatarLarge;
+    topic.topicAuthorName = author.memberName;
+
+    cell.topic = topic;
+    cell.inCategory = NO;
+    
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    
 
+}
+
+
+
+#pragma mark - Configure Cell
+
+- (CGFloat)heightOfTopicCellForIndexPath:(NSIndexPath *)indexPath{
+    CCTopicModel *topic = self.topicList.list[indexPath.row];
+    return [CCTopicListCell getCellHeightWithTopicModel:topic];
+}
+
+
+#pragma mark - Notifications
+
+- (void)didReceiveThemeChangeNotification {
+    self.tableView.backgroundColor = kBackgroundColorWhiteDark;
+}
 
 @end

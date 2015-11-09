@@ -39,9 +39,10 @@ typedef NS_ENUM(NSInteger, CCTheme) {
 @property (nonatomic, copy) UIColor *fontColorBlackLight;
 @property (nonatomic, copy) UIColor *fontColorBlackBlue;
 
-@property (nonatomic, copy) UIColor *colorBlue;
+@property (nonatomic, copy) UIColor *colorPurple;
 @property (nonatomic, copy) UIColor *cellHighlightedColor;
 @property (nonatomic, copy) UIColor *menuCellHighlightedColor;
 
+@property (nonatomic, assign) CGFloat imageViewAlphaForCurrentTheme;
 
 @end

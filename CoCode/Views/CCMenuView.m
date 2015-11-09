@@ -31,9 +31,20 @@
         [self configureViews];
         [self configureShadow];
         
-        //TODO Notification
+        //Notification
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
     }
     return self;
+}
+
+#pragma mark - Notification Selector
+
+- (void)didReceiveThemeChangeNotification{
+    [self setNeedsLayout];
+    UIImage *shadowImage = [UIImage imageNamed:@"Navi_Shadow"];
+    shadowImage = shadowImage.imageForCurrentTheme;
+    self.leftShadowImageView.image = shadowImage;
+    self.backgroundImageView.image = nil;
 }
 
 #pragma mark - Life Cycle

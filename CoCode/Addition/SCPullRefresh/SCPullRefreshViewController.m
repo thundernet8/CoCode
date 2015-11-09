@@ -49,8 +49,8 @@ static CGFloat const kRefreshHeight = 44.0f;
         self.viewShowing = NO;
         self.hiddenEnabled = NO;
         
-        self.tableViewInsertTop = 64;
-        self.tableViewInsertBottom = 0;
+        self.tableViewInsertTop = 64.0;
+        self.tableViewInsertBottom = 0.0;
         
     }
     return self;
