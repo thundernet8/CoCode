@@ -52,6 +52,12 @@
     [SVProgressHUD showSuccessWithStatus:text];
 }
 
+//Category info from plist
++ (NSDictionary *)getCategoryInfoFromPlistForID:(NSNumber *)catID{
+    NSDictionary *categories = [[NSDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Categories" ofType:@"plist"]];
+    return [categories objectForKey:[NSString stringWithFormat:@"Cat%d", catID.intValue]];
+}
+
 //Evaluate title height for topic cell
 + (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width {
     
@@ -66,9 +72,26 @@
     
 }
 
++ (UIImage *)getImageFromView:(UIView *)orgView{
+    if (orgView) {
+        UIGraphicsBeginImageContextWithOptions(orgView.bounds.size, NO, [UIScreen mainScreen].scale);
+        [orgView.layer renderInContext:UIGraphicsGetCurrentContext()];
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return image;
+    } else {
+        return nil;
+    }
+}
 
-
-
++ (NSString *)getAvatarFromTemplate:(NSString *)template withSize:(NSInteger)size{
+    if ([[template substringWithRange:NSMakeRange(0, 30)] isEqualToString:@"https://avatars.discourse.org/"]) {
+        template = [template stringByReplacingOccurrencesOfString:@"{size}" withString:[NSString stringWithFormat:@"%d", (int)size]];
+    }else{
+        template = [@"http://cocode.cc" stringByAppendingString:[template stringByReplacingOccurrencesOfString:@"{size}" withString:[NSString stringWithFormat:@"%d", (int)size]]];
+    }
+    return template;
+}
 
 
 
@@ -277,22 +300,7 @@
                                                                kCFStringEncodingUTF8));
 }
 
-+ (UIImage *)getImageFromView:(UIView *)orgView{
-    if (orgView) {
-//        UIGraphicsBeginImageContext(orgView.bounds.size);
-//        [orgView.layer renderInContext:UIGraphicsGetCurrentContext()];
-//        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-//        UIGraphicsEndImageContext();
-        UIGraphicsBeginImageContextWithOptions(orgView.bounds.size, NO, [UIScreen mainScreen].scale);
-        [orgView.layer renderInContext:UIGraphicsGetCurrentContext()];
-        UIImage*image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
 
-        return image;
-    } else {
-        return nil;
-    }
-}
 
 + (UIImage *)getImageWithColor:(UIColor *)color {
     CGRect rect = CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);

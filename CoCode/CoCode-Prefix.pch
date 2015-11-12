@@ -25,6 +25,7 @@
 #import "CCSettingManager.h"
 #import "UIImage+Tint.h"
 #import "SCNavigation.h"
+#import "CCHelper.h"
 
 //app delegate
 #define AppDelegate ((CoCodeAppDelegate *)[UIApplication sharedApplication].delegate)
@@ -72,6 +73,15 @@
 
 #define kCurrentTheme              kSetting.theme
 
+//Hottopic period
+typedef NS_ENUM(NSInteger, CCHotTopicsPeriod){
+    CCHotTopicsPeriodAll = 0,
+    CCHotTopicsPeriodDaily = 1,
+    CCHotTopicsPeriodWeekly = 2,
+    CCHotTopicsPeriodMonthly = 3,
+    CCHotTopicsPeriodQuarterly = 4,
+    CCHotTopicsPeriodYearly = 5
+};
 
 //constant
 static CGFloat const kMenuWidth = 200.0;

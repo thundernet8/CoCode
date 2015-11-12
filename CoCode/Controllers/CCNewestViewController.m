@@ -10,10 +10,8 @@
 #import <NSString+FontAwesome.h>
 #import "UIImage+Tint.h"
 #import "CCDataManager.h"
-#import "CCHelper.h"
 #import "CCTopicListCell.h"
 #import "CCMemberModel.h"
-#import <SVProgressHUD.h>
 
 @interface CCNewestViewController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -142,7 +140,7 @@
         } failure:^(NSError *error) {
             @strongify(self);
             if (self.pageCount > 1) {
-                if (error.code == 104) {
+                if (error.code == 904) {
                     //Reached the end, no more topics
                     [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"No more topics", @"Cannot loadmore topics, reached the end")];
                 }

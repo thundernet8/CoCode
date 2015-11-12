@@ -13,6 +13,19 @@
 //SVProgressHud
 + (void)showBlackHudWithImage:(UIImage *)image withText:(NSString *)text;
 
+//Category info from plist
++ (NSDictionary *)getCategoryInfoFromPlistForID:(NSNumber *)catID;
+
+//Get view image
++ (UIImage *)getImageFromView:(UIView *)view;
+
+//Get avatar from template
++ (NSString *)getAvatarFromTemplate:(NSString *)template withSize:(NSInteger)size;
+
+
+
+
+
 + (NSArray *)localDateStringWithUTCString:(NSString *)dateString;
 
 + (NSArray *)localDateStringWithUTCString:(NSString *)dateString Separation:(NSString *)separation;
@@ -36,7 +49,7 @@
 
 + (NSString *)encodeUrlString:(NSString *)urlString;
 
-+ (UIImage *)getImageFromView:(UIView *)view;
+
 
 + (UIImage *)getImageWithColor:(UIColor *)color;
 

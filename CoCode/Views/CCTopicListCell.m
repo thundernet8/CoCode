@@ -23,6 +23,8 @@ static CGFloat const kTitleFontSize = 18.0;
 @property (nonatomic, strong) UILabel *leftMetaLabel; //Author and Time
 @property (nonatomic, strong) UILabel *rightMetaLabel; //Category, Views, Comments
 
+@property (nonatomic ,strong) UIView *separatorLine; //Separator line for tableview
+
 @property (nonatomic, assign) NSInteger titleHeight;
 
 @end
@@ -39,7 +41,7 @@ static CGFloat const kTitleFontSize = 18.0;
         self.titleLabel = [[UILabel alloc] init];
         self.titleLabel.backgroundColor = [UIColor clearColor];
         self.titleLabel.textColor = kFontColorBlackDark; // Based on theme
-        self.titleLabel.font = [UIFont boldSystemFontOfSize:kTitleFontSize];
+        self.titleLabel.font = [UIFont systemFontOfSize:kTitleFontSize];
         self.titleLabel.numberOfLines = 0;
         self.titleLabel.lineBreakMode = NSLineBreakByCharWrapping;
         [self addSubview:self.titleLabel];
@@ -55,7 +57,16 @@ static CGFloat const kTitleFontSize = 18.0;
         self.leftMetaLabel.font = [UIFont systemFontOfSize:12.0];
         [self addSubview:self.leftMetaLabel];
         
-        //TODO add rightlabel
+        self.rightMetaLabel = [[UILabel alloc] init];
+        self.rightMetaLabel.backgroundColor = [UIColor clearColor];
+        self.rightMetaLabel.textColor = [UIColor  grayColor];
+        self.rightMetaLabel.font = [UIFont systemFontOfSize:12.0];
+        self.rightMetaLabel.textAlignment = NSTextAlignmentRight;
+        [self addSubview:self.rightMetaLabel];
+        
+        self.separatorLine = [[UIView alloc] init];
+        self.separatorLine.backgroundColor = kLineColorBlackLight;
+        [self addSubview:self.separatorLine];
     }
     return self;
 }
@@ -72,7 +83,11 @@ static CGFloat const kTitleFontSize = 18.0;
     
     self.avatarImageView.alpha = kSetting.imageViewAlphaForCurrentTheme; // Based on theme
     
-    self.leftMetaLabel.frame = CGRectMake(10.0, 30+self.titleHeight, kScreenWidth/2.0-10, 20.0);
+    self.leftMetaLabel.frame = CGRectMake(10.0, 25+self.titleHeight, kScreenWidth*0.68-10, 20.0);
+    
+    self.rightMetaLabel.frame = CGRectMake(kScreenWidth*0.68, 25+self.titleHeight, kScreenWidth*0.32-10, 20.0);
+    
+    self.separatorLine.frame = CGRectMake(0.0, self.titleHeight+49.0, kScreenWidth, 1.0);
 }
 
 - (void)ifUnderCategory:(BOOL)inCategory{
@@ -92,10 +107,19 @@ static CGFloat const kTitleFontSize = 18.0;
     self.titleHeight = [CCHelper getTextHeightWithText:topic.topicTitle Font:[UIFont boldSystemFontOfSize:kTitleFontSize] Width:kTitleLabelWidth] + 2;
     
     NSString *dateString = [CCHelper timeIntervalStringWithDate:topic.topicLastRepliedTime];
-    self.leftMetaLabel.text = [NSString stringWithFormat:@"%@ · %@", topic.topicLastReplier, dateString];
     
-    //NSString *catString = _inCategory ? @"" : topic.topicCategoryID; // TODO add a plist of categories
-    self.rightMetaLabel.text = [NSString stringWithFormat:@"%d %@   %d %@", topic.topicViews.intValue, NSLocalizedString(@"Views", @"TopicListCell meta-Views"), topic.topicPostsCount.intValue, NSLocalizedString(@"Replies", @"TopicListCell meta-Replies")];
+    
+    NSString *catString;
+    if (!_inCategory && topic.topicCategoryID.integerValue > 1) {
+        NSDictionary *cat = [CCHelper getCategoryInfoFromPlistForID:topic.topicCategoryID];
+        catString = [NSString stringWithFormat:@" · %@", [cat objectForKey:@"NAME"]];
+    }else{
+        catString = @"";
+    }
+    
+    self.leftMetaLabel.text = [NSString stringWithFormat:@"%@ · %@%@", topic.topicLastReplier, dateString, catString];
+
+    self.rightMetaLabel.text = [NSString stringWithFormat:@"%d %@   %d %@", topic.topicViews.intValue, NSLocalizedString(@"Views", @"TopicListCell meta-Views"), topic.topicPostsCount.intValue-1, NSLocalizedString(@"Replies", @"TopicListCell meta-Replies")];
     
 }
 

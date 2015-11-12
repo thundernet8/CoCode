@@ -175,7 +175,7 @@ static CGFloat const kRefreshHeight = 44.0f;
     
     // Refresh
     CGFloat refreshOffset = -scrollView.contentOffsetY - scrollView.contentInsetTop;
-    if (refreshOffset > 60 && self.refreshBlock && !self.isRefreshing) {
+    if (refreshOffset >= 85 && self.refreshBlock && !self.isRefreshing) {
         [self beginRefresh];
     }
     

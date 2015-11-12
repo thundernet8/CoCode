@@ -9,19 +9,21 @@
 #import <Foundation/Foundation.h>
 #import "CCUserModel.h"
 #import "CCTopicModel.h"
+#import "CCTopicPostModel.h"
 
 typedef NS_ENUM(NSInteger, CCErrorType) {
     
-    CCErrorTypeNoOnceAndNext          = 100,
-    CCErrorTypeLoginFailure           = 101,
-    CCErrorTypeRequestFailure         = 102,
-    CCErrorTypeGetFeedURLFailure      = 103,
-    CCErrorTypeGetTopicListFailure    = 104,
-    CCErrorTypeGetNotificationFailure = 105,
-    CCErrorTypeGetFavUrlFailure       = 106,
-    CCErrorTypeGetMemberReplyFailure  = 107,
-    CCErrorTypeGetTopicTokenFailure   = 108,
-    CCErrorTypeGetCheckInURLFailure   = 109,
+    CCErrorTypeNoOnceAndNext          = 900,
+    CCErrorTypeLoginFailure           = 901,
+    CCErrorTypeRequestFailure         = 902,
+    CCErrorTypeGetFeedURLFailure      = 903,
+    CCErrorTypeGetTopicListFailure    = 904,
+    CCErrorTypeGetNotificationFailure = 905,
+    CCErrorTypeGetFavUrlFailure       = 906,
+    CCErrorTypeGetMemberReplyFailure  = 907,
+    CCErrorTypeGetTopicTokenFailure   = 908,
+    CCErrorTypeGetCheckInURLFailure   = 909,
+    CCErrorTypeGetTopicError          = 910
     
 };
 
@@ -35,6 +37,18 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
                                          success:(void (^)(CCTopicList *list))success
                                          failure:(void (^)(NSError *error))failure;
 
+- (NSURLSessionDataTask *)getTopicListLatestWithPage:(NSInteger)page
+                                             success:(void (^)(CCTopicList *list))success
+                                             failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)getTopicListHotWithPage:(NSInteger)page
+                                         inPeriod:(NSInteger)period
+                                             success:(void (^)(CCTopicList *list))success
+                                             failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)getTopicWithTopicID:(NSInteger)topicID
+                                      success:(void (^)(CCTopicModel *topic))success
+                                      failure:(void (^)(NSError *error))failure;
 
 
 @end

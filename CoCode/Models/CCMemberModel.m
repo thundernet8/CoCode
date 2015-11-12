@@ -16,16 +16,12 @@
         self.memberID = [dict objectForKey:@"id"];
         self.memberUserName = [dict objectForKey:@"username"];
         NSString *avatar = [dict objectForKey:@"avatar_template"];
-        if ([[avatar substringWithRange:NSMakeRange(0, 30)] isEqualToString:@"https://avatars.discourse.org/"]) {
-            avatar = [avatar stringByReplacingOccurrencesOfString:@"{size}" withString:@"60"];
-        }else{
-            avatar = [@"http://cocode.cc" stringByAppendingString:[avatar stringByReplacingOccurrencesOfString:@"{size}" withString:@"60"]];
-        }
-        self.memberAvatarLarge = avatar;
+        self.memberAvatarLarge = [CCHelper getAvatarFromTemplate:avatar withSize:60];
     }
     return self;
 }
 
+//Info from user profile page
 - (instancetype)initWithUserDictionary:(NSDictionary *)dict{
     if (self = [super init]) {
         self.memberID = [dict objectForKey:@"id"];

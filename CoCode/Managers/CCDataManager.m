@@ -185,7 +185,88 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
 }
 
+- (NSURLSessionDataTask *)getTopicListLatestWithPage:(NSInteger)page
+                                             success:(void (^)(CCTopicList *))success
+                                             failure:(void (^)(NSError *))failure{
+    NSDictionary *parameters;
+    if (page && page > 0) {
+        parameters = @{@"page":@(page-1)};
+    }
+    return [self requestWithMethod:CCRequestMethodJSONGET URLString:@"new.json" parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        CCTopicList *list = [CCTopicList getTopicListFromResponseObject:responseObject];
+        
+        if (list) {
+            success(list);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTopicListFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
 
+- (NSURLSessionDataTask *)getTopicListHotWithPage:(NSInteger)page
+                                         inPeriod:(NSInteger)period
+                                          success:(void (^)(CCTopicList *))success
+                                          failure:(void (^)(NSError *))failure{
+    NSDictionary *parameters;
+    if (page && page > 0) {
+        parameters = @{@"page":@(page-1)};
+    }
+    NSString *urlString;
+    switch ((int)period) {
+        case 1:
+            urlString = @"top/daily.json";
+            break;
+        case 2:
+            urlString = @"top/weekly.json";
+            break;
+        case 3:
+            urlString = @"top/monthly.json";
+            break;
+        case 4:
+            urlString = @"top/quarterly.json";
+            break;
+        case 5:
+            urlString = @"top/yearly.json";
+            break;
+        default:
+            urlString = @"top/all.json";
+            break;
+    }
+    return [self requestWithMethod:CCRequestMethodJSONGET URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        CCTopicList *list = [CCTopicList getTopicListFromResponseObject:responseObject];
+        
+        if (list) {
+            success(list);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTopicListFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
 
+- (NSURLSessionDataTask *)getTopicWithTopicID:(NSInteger)topicID success:(void (^)(CCTopicModel *))success failure:(void (^)(NSError *))failure{
+    //TODO confirm topicID
+    NSString *urlString = [NSString stringWithFormat:@"t/topic/%d.json",(int)topicID];
+    return [self requestWithMethod:CCRequestMethodJSONGET URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        CCTopicModel *topic = [CCTopicModel getTopicModelFromResponseObject:responseObject];
+        if (topic) {
+            success(topic);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTopicError userInfo:nil];
+            failure(error);
+        }
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
 
 @end

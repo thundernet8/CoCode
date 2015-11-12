@@ -13,7 +13,7 @@
 static NSString *const kInitAnimation = @"InitAnimation";
 static NSString *const kGroupAnimation = @"GroupAnimation";
 
-static NSUInteger const kBubbleCout = 5;
+static NSUInteger const kBubbleCout = 8;
 
 #define kLayerPosition ((CGPoint){arc4random() % ((NSInteger)self.width - 240) + 120, arc4random() % ((NSInteger)self.height - 30) + 15})
 

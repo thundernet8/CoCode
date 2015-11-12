@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "CCMemberModel.h"
 
 //typedef NS_ENUM (NSInteger, CCTopicState) {
 //    
@@ -44,6 +45,18 @@
 @property (nonatomic, copy) NSString *topicAuthorName;
 @property (nonatomic, copy) NSString *topicAuthorAvatar;
 
+//Detailed Topic info
+@property (nonatomic, copy) NSDictionary *topicCategory;
+@property (nonatomic, copy) NSArray *topicPostIDs;
+@property (nonatomic, copy) NSArray *topicPosts;
+
+
+//Posts
+@property (nonatomic ,strong) NSArray *posts;
+
+@property (nonatomic, strong) CCMemberModel *author;
+
++ (CCTopicModel *)getTopicModelFromResponseObject:(id)responseObject;
 
 @end
 
@@ -52,9 +65,10 @@
 @property (nonatomic, strong) NSArray *list; //Posts
 @property (nonatomic, strong) NSDictionary *posters;
 
-- (instancetype)initWithTopicsArray:(NSArray *)topics postersArray:(NSArray *)posters;
+//- (instancetype)initWithTopicsArray:(NSArray *)topics postersArray:(NSArray *)posters;
 
 + (CCTopicList *)getTopicListFromResponseObject:(id)responseObject;
+
 
 @end
 

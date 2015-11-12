@@ -9,6 +9,7 @@
 #import "CCTopicModel.h"
 #import "CCHelper.h"
 #import "CCMemberModel.h"
+#import "CCTopicPostModel.h"
 
 @implementation CCTopicModel
 
@@ -31,12 +32,68 @@
         self.topicCategoryID = [dict objectForKey:@"category_id"];
         self.topicTags = [dict objectForKey:@"tags"];
         self.topicPosters = [dict objectForKey:@"posters"];
-        self.topicCellHeight = 100.0; //TODO default cell height
+        self.topicCellHeight = 60.0; //TODO default cell height
         self.topicAuthorID = [self.topicPosters[0] objectForKey:@"user_id"];
         //self.topicAuthorName = @"";
         //self.topicAuthorAvatar = @"";
     }
     return self;
+}
+
+//From Single Topic JSON data
+- (instancetype)initWithDetailedDictionary:(NSDictionary *)dict{
+    if (self = [super init]) {
+        self.topicID = [dict objectForKey:@"id"];
+        self.topicTitle = [dict objectForKey:@"title"];
+        self.topicSlug = [dict objectForKey:@"slug"];
+        self.topicPostsCount = [dict objectForKey:@"posts_count"];
+        self.topicCreatedTime = [CCHelper localDateWithString:[dict objectForKey:@"created_at"]];
+        self.topicLastRepliedTime = [CCHelper localDateWithString:[dict objectForKey:@"last_posted_at"]];
+        self.isPinned = [[dict objectForKey:@"pinned"] boolValue];
+        self.isClosed = [[dict objectForKey:@"closed"] boolValue];
+        self.isBookmarked = [dict objectForKey:@"bookmarked"] != [NSNull null]?[[dict objectForKey:@"bookmarked"] boolValue]:NO;
+        self.topicViews = [dict objectForKey:@"views"];
+        self.topicLikeCount = [dict objectForKey:@"like_count"];
+        self.topicCategoryID = [dict objectForKey:@"category_id"];
+        self.topicCategory = [CCHelper getCategoryInfoFromPlistForID:self.topicCategoryID];
+        self.topicTags = [dict objectForKey:@"tags"];
+        self.topicAuthorID = [self.topicPosters[0] objectForKey:@"user_id"];
+        NSDictionary *authorDict = [[dict objectForKey:@"details"] objectForKey:@"created_by"];
+        CCMemberModel *member = [[CCMemberModel alloc] initWithPosterDictionary:authorDict];
+        self.topicAuthorName = member.memberUserName;
+        self.topicAuthorAvatar = member.memberAvatarLarge;
+        
+        self.topicPostIDs = [[dict objectForKey:@"post_stream"] objectForKey:@"stream"];
+        
+        NSMutableArray *posts = [NSMutableArray array];
+        NSArray *stream_posts = [[dict objectForKey:@"post_stream"] objectForKey:@"posts"];
+        for (NSDictionary *post in stream_posts) {
+            CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:post];
+            [posts addObject:model];
+        }
+        self.posts = [NSArray arrayWithArray:posts];
+        
+        CCTopicPostModel *post = posts[0];
+        
+        self.author.memberID = post.postUserID;
+        self.author.memberName = post.postUserDisplayname;
+        self.author.memberUserName = post.postUsername;
+        self.author.memberAvatarLarge = post.postUserAvatar;
+
+    }
+    return self;
+}
+
++ (CCTopicModel *)getTopicModelFromResponseObject:(id)responseObject{
+    CCTopicModel *topic;
+    
+    @autoreleasepool {
+        topic = [[CCTopicModel alloc] initWithDetailedDictionary:(NSDictionary *)responseObject];
+    }
+    if (topic) {
+        return topic;
+    }
+    return nil;
 }
 
 @end

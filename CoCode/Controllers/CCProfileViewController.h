@@ -6,8 +6,11 @@
 //  Copyright (c) 2015年 wuxueqian. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "CCMemberModel.h"
+#import "CCUserModel.h"
 
 @interface CCProfileViewController : UIViewController
+
+@property (nonatomic, copy) CCMemberModel *member;
 
 @end
