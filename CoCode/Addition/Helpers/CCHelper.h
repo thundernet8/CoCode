@@ -22,7 +22,8 @@
 //Get avatar from template
 + (NSString *)getAvatarFromTemplate:(NSString *)template withSize:(NSInteger)size;
 
-
+//Get text height
++ (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width;
 
 
 
@@ -40,7 +41,6 @@
 
 + (CGFloat)getTextWidthWithText:(NSString *)text Font:(UIFont *)font;
 
-+ (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width;
 
 
 /**

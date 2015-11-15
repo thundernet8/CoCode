@@ -16,7 +16,7 @@
         self.postID = [dict objectForKey:@"id"];
         self.postUserID = [dict objectForKey:@"user_id"];
         self.postUsername = [dict objectForKey:@"username"];
-        self.postUserDisplayname = [dict objectForKey:@"name"];
+        self.postUserDisplayname = [dict objectForKey:@"name"] == [NSNull null] ? @"" : [dict objectForKey:@"name"];
         self.postUserDeleted = [[dict objectForKey:@"user_deleted"] boolValue];
         NSString *avatar = [dict objectForKey:@"avatar_template"];
         self.postUserAvatar = [CCHelper getAvatarFromTemplate:avatar withSize:60];
@@ -36,8 +36,8 @@
         self.postBookmarked = [dict objectForKey:@"bookmarked"] != [NSNull null] ? [[dict objectForKey:@"bookmarked"] boolValue] : NO;
         
         NSArray *actions = [dict objectForKey:@"actions_summary"];
-        self.postLiked = [actions[0] objectForKey:@"acted"] != [NSNull null] ? [[actions[0] objectForKey:@"acted"] boolValue] : NO;
-        self.postLikeCount = [[actions[0] objectForKey:@"count"] integerValue];
+        self.postLiked = actions.count > 0 && [actions[0] objectForKey:@"acted"] != [NSNull null] ? [[actions[0] objectForKey:@"acted"] boolValue] : NO;
+        self.postLikeCount = actions.count > 0 ? [[actions[0] objectForKey:@"count"] integerValue] : 0;
 
     }
     return self;

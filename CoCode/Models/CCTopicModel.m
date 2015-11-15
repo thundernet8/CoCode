@@ -75,10 +75,13 @@
         
         CCTopicPostModel *post = posts[0];
         
-        self.author.memberID = post.postUserID;
-        self.author.memberName = post.postUserDisplayname;
-        self.author.memberUserName = post.postUsername;
-        self.author.memberAvatarLarge = post.postUserAvatar;
+        CCMemberModel *author = [[CCMemberModel alloc] init];
+        author.memberID = post.postUserID;
+        author.memberName = post.postUserDisplayname;
+        author.memberUserName = post.postUsername;
+        author.memberAvatarLarge = post.postUserAvatar;
+        
+        self.author = author;
 
     }
     return self;

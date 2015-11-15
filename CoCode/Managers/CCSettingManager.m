@@ -114,7 +114,7 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
     }else{
         //Navigation Color
         self.navigationBarTintColor = kBlackColor;
-        self.navigationBarColor = [UIColor colorWithWhite:1.0 alpha:0.98];
+        self.navigationBarColor = [UIColor colorWithWhite:0.973 alpha:0.980];
         self.navigationBarLineColor = [UIColor colorWithWhite:0.88 alpha:1.0];
         
         //Background Color

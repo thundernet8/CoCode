@@ -50,8 +50,9 @@ static const CGFloat kTitleFontSize = 18.0;
 
 - (void)layoutSubviews{
     [super layoutSubviews];
-    
+
     self.titleLabel.frame = CGRectMake(10.0, 15.0, kScreenWidth-20, self.titleHeight);
+    [self.titleLabel sizeToFit];
 }
 
 #pragma mark - Public Class Methods

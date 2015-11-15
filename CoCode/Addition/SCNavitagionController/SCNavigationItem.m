@@ -71,6 +71,23 @@
     _leftBarButtonItem = leftBarButtonItem;
 }
 
+- (void)setLeftBarButtonItems:(NSArray *)leftBarButtonItems{
+    if (__sc_viewController) {
+        NSInteger count = 0;
+        for (SCBarButtonItem *barItem in leftBarButtonItems) {
+            if (count > 2) {
+                return;
+            }
+            barItem.view.x = count*40;
+            barItem.view.centerY = 42;
+            [__sc_viewController.sc_navigationBar addSubview:barItem.view];
+            count++;
+        }
+    }
+    
+    _leftBarButtonItems = leftBarButtonItems;
+}
+
 - (void)setRightBarButtonItem:(SCBarButtonItem *)rightBarButtonItem {
     
     if (__sc_viewController) {
@@ -82,6 +99,24 @@
     
     _rightBarButtonItem = rightBarButtonItem;
 
+}
+
+- (void)setRightBarButtonItems:(NSArray *)rightBarButtonItems{
+    if (__sc_viewController) {
+        NSInteger count = 0;
+        rightBarButtonItems = [[rightBarButtonItems reverseObjectEnumerator] allObjects];
+        for (SCBarButtonItem *barItem in rightBarButtonItems) {
+            if (count > 2) {
+                return;
+            }
+            barItem.view.x = kScreenWidth - 40*(count+1) - 10;
+            barItem.view.centerY = 42;
+            [__sc_viewController.sc_navigationBar addSubview:barItem.view];
+            count++;
+        }
+    }
+    
+    _rightBarButtonItems = rightBarButtonItems;
 }
 
 #pragma mark - Notifications

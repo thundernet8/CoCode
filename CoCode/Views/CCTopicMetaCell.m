@@ -9,9 +9,9 @@
 #import "CCTopicMetaCell.h"
 #import "CCProfileViewController.h"
 
-static const CGFloat kAvatarHeight = 15.0;
-static const CGFloat kNameFontSize = 15.0;
-static const CGFloat kMetaFontSize = 14.0;
+static const CGFloat kAvatarHeight = 16.0;
+static const CGFloat kNameFontSize = 14.0;
+static const CGFloat kMetaFontSize = 12.0;
 
 @interface CCTopicMetaCell()
 
@@ -37,7 +37,7 @@ static const CGFloat kMetaFontSize = 14.0;
         self.avatarImageView.layer.cornerRadius = kAvatarHeight/2.0;
         self.avatarImageView.clipsToBounds = YES;
         self.avatarImageView.size = CGSizeMake(kAvatarHeight, kAvatarHeight);
-        self.avatarImageView.image = [UIImage imageNamed:@"default_avatar"];
+        //self.avatarImageView.image = [UIImage imageNamed:@"default_avatar"];
         [self addSubview:self.avatarImageView];
         
         self.nameLabel = [[UILabel alloc] init];
@@ -52,7 +52,7 @@ static const CGFloat kMetaFontSize = 14.0;
         self.rightMetaLabel.backgroundColor = [UIColor clearColor];
         self.rightMetaLabel.textColor = kFontColorBlackLight;
         self.rightMetaLabel.font = [UIFont systemFontOfSize:kMetaFontSize];
-        self.rightMetaLabel.textAlignment = NSTextAlignmentRight;
+        self.rightMetaLabel.textAlignment = NSTextAlignmentLeft;
         [self addSubview:self.rightMetaLabel];
         
         //Handles
@@ -77,10 +77,11 @@ static const CGFloat kMetaFontSize = 14.0;
     self.avatarImageView.x = 10.0;
     self.avatarImageView.centerY = self.height/2;
     
-    self.nameLabel.x = 10 + self.avatarImageView.width + 6;
+    self.nameLabel.x = 10 + self.avatarImageView.width + 8;
     self.nameLabel.centerY = self.height/2;
     
-    self.rightMetaLabel.x = kScreenWidth - 10.0 - self.rightMetaLabel.width;
+    //self.rightMetaLabel.x = kScreenWidth - 10.0 - self.rightMetaLabel.width;
+    self.rightMetaLabel.x = 10 + self.avatarImageView.width + 8 + self.nameLabel.width + 8;
     self.rightMetaLabel.centerY = self.height/2;
     
     self.avatarButton.frame = CGRectMake(0.0, 0.0, self.nameLabel.width + 10, self.height);
@@ -92,18 +93,25 @@ static const CGFloat kMetaFontSize = 14.0;
 - (void)setTopic:(CCTopicModel *)topic{
     _topic = topic;
     
-    NSString *rightMeta = @"";
-    NSInteger replyCount = topic.posts.count - 1;
+    BOOL isFirstSet = topic.posts.count > 0 ? NO : YES;
     
-    rightMeta = [CCHelper timeIntervalStringWithDate:topic.topicCreatedTime];
-    if (replyCount > 0) {
-        rightMeta = [rightMeta stringByAppendingString:[NSString stringWithFormat:@" · %d %@", (int)replyCount, NSLocalizedString(@"Replies", nil)]];
+    if (isFirstSet) {
+        return;
     }
+    
+    
+    NSString *rightMeta = NSLocalizedString(@"Post at ", nil);
+    //NSInteger replyCount = topic.posts.count - 1;
+    
+    rightMeta = [rightMeta stringByAppendingString:[CCHelper timeIntervalStringWithDate:topic.topicCreatedTime]];
+//    if (replyCount > 0) {
+//        rightMeta = [rightMeta stringByAppendingString:[NSString stringWithFormat:@" · %d %@", (int)replyCount, NSLocalizedString(@"Replies", nil)]];
+//    }
     
     self.rightMetaLabel.text = rightMeta;
     [self.rightMetaLabel sizeToFit];
     
-    self.nameLabel.text = topic.author.memberName.length > 0 ? topic.author.memberName : topic.author.memberUserName;
+    self.nameLabel.text = topic.author.memberName && topic.author.memberName.length > 0 ? topic.author.memberName : topic.author.memberUserName;
     [self.nameLabel sizeToFit];
     
     [self.avatarImageView sd_setImageWithURL:[NSURL URLWithString:topic.author.memberAvatarLarge] placeholderImage:[UIImage imageNamed:@"default_avatar"]];

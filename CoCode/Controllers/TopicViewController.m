@@ -57,6 +57,12 @@
     
     [self configureNaviBar];
     
+    [self configureBlocks];
+    
+    if (!self.topic.posts) {
+        self.getTopicBlock();
+    }
+    
     //TODO
     
 }
@@ -73,7 +79,13 @@
 
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-
+    if (!self.topic.posts || self.topic.posts.count == 0) {
+        @weakify(self);
+        [self bk_performBlock:^(id obj) {
+            @strongify(self);
+            [self beginLoadMore];
+        } afterDelay:0.0];
+    }
 }
 
 - (void)dealloc{
@@ -98,14 +110,19 @@
 - (void)setTopic:(CCTopicModel *)topic{
     _topic = topic;
     
-    self.sc_navigationItem.title = topic.topicTitle;
+    BOOL isFirstSet = topic.posts.count > 0 ? NO : YES;
+    
+    //self.sc_navigationItem.title = topic.topicTitle;
     
     self.topicCategory = topic.topicCategory;
     self.categoryNameLabel.text = [self.topicCategory objectForKey:@"NAME"];
     
-    [self.tableView beginUpdates];
-    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
-    [self.tableView endUpdates];
+//    [self.tableView beginUpdates];
+//    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
+//    [self.tableView endUpdates];
+    if (!isFirstSet) {
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - Configuration
@@ -123,9 +140,20 @@
 - (void)configureNaviBar{
     self.sc_navigationItem.leftBarButtonItem = self.leftBarItem;
     
-    self.sc_navigationItem.title = self.topic ? self.topic.topicTitle : NSLocalizedString(@"Topic", nil);
-    self.sc_navigationItem.titleLabel.font = [UIFont systemFontOfSize:14.0];
-    self.sc_navigationItem.titleLabel.frame = CGRectMake(45.0, 32.0, kScreenWidth-90.0, 20.0);
+    SCBarButtonItem *bar1 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_heart_o"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        NSLog(@"1");
+    }];
+    SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_comment"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        NSLog(@"2");
+    }];
+    SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_nav_share"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        NSLog(@"3");
+    }];
+    self.sc_navigationItem.rightBarButtonItems = @[bar1, bar2, bar3];
+    //self.sc_navigationItem.rightBarButtonItems = @[self.leftBarItem, self.leftBarItem];
+    //self.sc_navigationItem.title = self.topic ? self.topic.topicTitle : NSLocalizedString(@"Topic", nil);
+    //self.sc_navigationItem.titleLabel.font = [UIFont systemFontOfSize:14.0];
+    //self.sc_navigationItem.titleLabel.frame = CGRectMake(45.0, 32.0, kScreenWidth-90.0, 20.0);
 }
 
 - (void)configureTableView{
@@ -182,11 +210,13 @@
             self.topic = topic;
             
             if ([self isLoadingMore]) {
+                self.loadMoreBlock = nil;
                 [self endLoadMore];
             }
             
         } failure:^(NSError *error) {
             if ([self isLoadingMore]) {
+                self.loadMoreBlock = nil;
                 [self endLoadMore];
             }
         }];
@@ -194,7 +224,7 @@
     
     self.loadMoreBlock = ^{
         @strongify(self);
-        self.getTopicBlock();
+        //self.getTopicBlock();
     };
     
 }
@@ -329,7 +359,7 @@
         @strongify(self);
         
         [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self.tableView endUpdates];
     };
     

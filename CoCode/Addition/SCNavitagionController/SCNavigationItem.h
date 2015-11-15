@@ -12,7 +12,9 @@
 @interface SCNavigationItem : NSObject
 
 @property (nonatomic, strong  ) SCBarButtonItem *leftBarButtonItem;
+@property (nonatomic, strong) NSArray *leftBarButtonItems; //more items
 @property (nonatomic, strong  ) SCBarButtonItem *rightBarButtonItem;
+@property (nonatomic, strong) NSArray *rightBarButtonItems; //more items
 @property (nonatomic, copy    ) NSString        *title;
 
 @property (nonatomic, readonly) UIView          *titleView;

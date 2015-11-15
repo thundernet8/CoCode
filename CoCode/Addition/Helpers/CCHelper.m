@@ -61,9 +61,7 @@
 //Evaluate title height for topic cell
 + (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width {
     
-    NSDictionary *attributes = @{
-                                 NSFontAttributeName: font,
-                                 };
+    NSDictionary *attributes = @{NSFontAttributeName:font};
     CGRect expectedLabelRect = [text boundingRectWithSize:(CGSize){width, CGFLOAT_MAX}
                                                   options:NSStringDrawingUsesLineFragmentOrigin
                                                attributes:attributes
