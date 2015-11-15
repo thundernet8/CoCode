@@ -86,13 +86,16 @@ static const CGFloat kMetaFontSize = 12.0;
     
     self.avatarButton.frame = CGRectMake(0.0, 0.0, self.nameLabel.width + 10, self.height);
     self.avatarImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
+    
+    
 }
+
 
 #pragma mark - Setter
 
 - (void)setTopic:(CCTopicModel *)topic{
     _topic = topic;
-    
+
     BOOL isFirstSet = topic.posts.count > 0 ? NO : YES;
     
     if (isFirstSet) {

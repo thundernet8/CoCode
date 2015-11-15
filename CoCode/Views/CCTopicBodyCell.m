@@ -8,18 +8,16 @@
 
 #import "CCTopicBodyCell.h"
 
-#import <TTTAttributedLabel.h>
 #import <IDMPhotoBrowser.h>
 #import <AnimatedGIFImageSerialization.h>
-#import "SCQuote.h"
 #import "CCTopicPostModel.h"
+#import "CoCodeAppDelegate.h"
 
 static const CGFloat kBodyFontSize = 16.0;
 
-@interface CCTopicBodyCell() <TTTAttributedLabelDelegate, IDMPhotoBrowserDelegate, UIWebViewDelegate>
+@interface CCTopicBodyCell() <IDMPhotoBrowserDelegate, UITextViewDelegate>
 
-@property (nonatomic, strong) TTTAttributedLabel *bodyLabel;
-@property (nonatomic, strong) UILabel *webView;
+@property (nonatomic, strong) UITextView *bodyLabel;
 
 @property (nonatomic, strong) UIView *border;
 
@@ -48,7 +46,8 @@ static const CGFloat kBodyFontSize = 16.0;
         self.imageButtonArray = [NSMutableArray array];
         self.imageUrls = [NSMutableArray array];
         
-        self.bodyLabel = [self createAttributedLabel];
+        self.bodyLabel = [self createAttributedTextView];
+
         
         
     }
@@ -60,7 +59,7 @@ static const CGFloat kBodyFontSize = 16.0;
     [super layoutSubviews];
     
     //TODO
-    CCTopicModel *topic = self.topic;
+    //CCTopicModel *topic = self.topic;
     
     //CCTopicPostModel *post = self.topic.posts[0];
     //self.bodyLabel.attributedText = [[NSAttributedString alloc] initWithString:post.postContent attributes:nil];
@@ -71,13 +70,18 @@ static const CGFloat kBodyFontSize = 16.0;
 - (void)layoutContent{
     CCTopicPostModel *post = self.topic.posts.count > 0 ? self.topic.posts[0] : nil;
     if (post && post.postContent.length > 0) {
-        self.bodyLabel.text = [[NSAttributedString alloc] initWithData:[post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:nil documentAttributes:nil error:nil];
-        self.bodyHeight = [TTTAttributedLabel sizeThatFitsAttributedString:[[NSAttributedString alloc] initWithString:post.postContent] withConstraints:CGSizeMake(kScreenWidth-20, 0.0) limitedToNumberOfLines:0].height;
-        if (!self.bodyLabel.attributedText.length) {
-            self.bodyHeight = 0;
-        }
-        self.bodyLabel.frame = CGRectMake(10.0, 5.0, kScreenWidth-20.0, 200.0);
+        post.postContent = [post.postContent stringByReplacingOccurrencesOfString:@"<h2></h2>" withString:@""];
+        self.bodyLabel.attributedText = [[NSAttributedString alloc] initWithData:[post.postContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType} documentAttributes:nil error:nil];
+        self.bodyLabel.font = [UIFont systemFontOfSize:kBodyFontSize];
+
+        self.bodyHeight = [self.bodyLabel sizeThatFits:CGSizeMake(kScreenWidth-20, CGFLOAT_MAX)].height;
+        self.bodyLabel.frame = CGRectMake(10.0, 5.0, kScreenWidth-20.0, self.bodyHeight);
+
         //NSLog(@"%@",post.postContent);
+        
+
+
+        
 
     }
 
@@ -110,42 +114,70 @@ static const CGFloat kBodyFontSize = 16.0;
     return imageView;
 }
 
-- (TTTAttributedLabel *)createAttributedLabel{
-    TTTAttributedLabel *label = [[TTTAttributedLabel alloc] initWithFrame:CGRectZero];
+- (UITextView *)createAttributedTextView{
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectZero];
     
-    label.backgroundColor = [UIColor clearColor];
-    label.textColor = kFontColorBlackDark;
-    label.font = [UIFont systemFontOfSize:kBodyFontSize];
-    label.numberOfLines = 0;
-    label.lineBreakMode = NSLineBreakByCharWrapping;
-    label.delegate = self;
-    [self addSubview:label];
+    textView.backgroundColor = [UIColor clearColor];
+    textView.textColor = kFontColorBlackDark;
+    textView.font = [UIFont systemFontOfSize:kBodyFontSize];
+    textView.scrollEnabled = NO;
+    textView.editable = NO;
+    textView.tintColor = kColorPurple;
     
-    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-    style.lineSpacing = 8.0;
     
-    label.linkAttributes = @{NSForegroundColorAttributeName:kFontColorBlackBlue, NSFontAttributeName:[UIFont systemFontOfSize:kBodyFontSize], NSParagraphStyleAttributeName:style};
+//    textView.linkTextAttributes = @{NSBackgroundColorAttributeName:kColorPurple, NSForegroundColorAttributeName:kColorPurple, NSUnderlineStyleAttributeName:[NSNumber numberWithInteger:NSUnderlineStyleNone], NSUnderlineColorAttributeName:[UIColor clearColor]};
+    textView.delegate = self;
     
-    label.activeLinkAttributes = @{(NSString *)kCTUnderlineStyleAttributeName:[NSNumber numberWithBool:NO], NSForegroundColorAttributeName:kBackgroundColorWhite, (NSString *)kTTTBackgroundFillColorAttributeName:(__bridge id)[kColorPurple CGColor], (NSString *)kTTTBackgroundCornerRadiusAttributeName:[NSNumber numberWithFloat:4.0]};
+    [self addSubview:textView];
     
-    [self.attributedLabelArray addObject:label];
     
-    return label;
+    [self.attributedLabelArray addObject:textView];
+    
+    return textView;
     
 }
 
-#pragma mark - TTTAttributedLabelDelegate
+#pragma mark - TextView delegate
 
-- (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url{
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange{
+
+    UIApplication *app = [UIApplication sharedApplication];
+    if ([[URL scheme] isEqualToString:@"applewebdata"]) {
+        NSURL *httpUrl = [NSURL URLWithString:[URL.absoluteString stringByReplacingOccurrencesOfString:@"applewebdata" withString:@"http"]];
+        NSArray *photos = [IDMPhoto photosWithURLs:@[httpUrl]];
+        
+        IDMPhotoBrowser *browser = [[IDMPhotoBrowser alloc] initWithPhotos:photos animatedFromView:self.nav.view];
+        browser.delegate = self;
+        browser.displayActionButton = NO;
+        browser.displayArrowButton = NO;
+        browser.displayCounterLabel = YES;
+        [browser setInitialPageIndex:0];
+        
+        [AppDelegate.window.rootViewController presentViewController:browser animated:YES completion:nil];
+        return YES;
+    }
     
+    if ([app canOpenURL:URL]) {
+        [app openURL:URL];
+        
+        return YES;
+    }
+    return NO;
 }
+
 
 
 #pragma mark - Public Class Method
 
 + (CGFloat)getCellHeightWithTopicModel:(CCTopicModel *)topic{
-    
-    return 600;
+    CCTopicPostModel *post = topic.posts[0];
+    post.postContent = [post.postContent stringByReplacingOccurrencesOfString:@"<h2></h2>" withString:@""];
+    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectZero];
+    textView.font = [UIFont systemFontOfSize:kBodyFontSize];
+    textView.attributedText = [[NSAttributedString alloc] initWithData:[post.postContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType} documentAttributes:nil error:nil];
+    textView.font = [UIFont systemFontOfSize:kBodyFontSize];
+
+    return [textView sizeThatFits:CGSizeMake(kScreenWidth-20, CGFLOAT_MAX)].height;
 }
 
 @end

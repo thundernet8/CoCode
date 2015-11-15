@@ -15,6 +15,9 @@
 #import "CCTopicReplyCell.h"
 
 #import "CCTopicPostModel.h"
+#import "TopicRepliesViewController.h"
+
+#import "CoCodeAppDelegate.h"
 
 @interface TopicViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -117,11 +120,19 @@
     self.topicCategory = topic.topicCategory;
     self.categoryNameLabel.text = [self.topicCategory objectForKey:@"NAME"];
     
+    
 //    [self.tableView beginUpdates];
 //    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
 //    [self.tableView endUpdates];
     if (!isFirstSet) {
-        [self.tableView reloadData];
+        //[self.tableView reloadData];
+        NSIndexPath *metaIndexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+        NSIndexPath *bodyIndexPath = [NSIndexPath indexPathForRow:2 inSection:0];
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:@[metaIndexPath, bodyIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+        //[self.tableView reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+
     }
 }
 
@@ -144,9 +155,15 @@
         NSLog(@"1");
     }];
     SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_comment"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
-        NSLog(@"2");
+        TopicRepliesViewController *repliesVC = [[TopicRepliesViewController alloc] init];
+        repliesVC.posts = self.topic.posts;
+        repliesVC.topic = self.topic;
+        SCNavigationController *navController = [[SCNavigationController alloc] initWithRootViewController:repliesVC];
+        [AppDelegate.window.rootViewController presentViewController:navController animated:YES completion:^{
+            
+        }];
     }];
-    SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_nav_share"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_nav_share2"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
         NSLog(@"3");
     }];
     self.sc_navigationItem.rightBarButtonItems = @[bar1, bar2, bar3];
@@ -223,7 +240,7 @@
     };
     
     self.loadMoreBlock = ^{
-        @strongify(self);
+        //@strongify(self);
         //self.getTopicBlock();
     };
     
@@ -233,18 +250,44 @@
 #pragma mark - TableView Datasource and Delegate
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    return 2;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     if (section == 0) {
+
         return 3;
-    }else{
-        return self.topic.posts ? (self.topic.posts.count-1) : 0;
+    }else if(section == 1){
+
+        return self.topic.posts.count > 0 ? self.topic.posts.count-1 : 0;
     }
+    return 0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.section == 0) {
+        switch (indexPath.row) {
+            case 0:
+                return 40;
+                break;
+            case 1:
+                return 28;
+                break;
+            case 2:
+                return 0;
+                break;
+                
+            default:
+                break;
+        }
+    }else if (indexPath.section == 1){
+        return 0;
+    }
+    return 0;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+
     if (indexPath.section == 0) {
         switch (indexPath.row) {
             case 0:
@@ -269,6 +312,7 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+
     static NSString *titleCellIdentifier = @"titleCellIdentifier";
     CCTopicTitleCell *titleCell = [tableView dequeueReusableCellWithIdentifier:titleCellIdentifier];
     if (!titleCell) {
@@ -330,6 +374,16 @@
 - (CCTopicMetaCell *)configureMetaCell:(CCTopicMetaCell *)cell atIndexPath:(NSIndexPath *)indexPath{
     cell.topic = self.topic;
     cell.nav = self.navigationController;
+    @weakify(self);
+    cell.reloadCellBlcok = ^{
+        @strongify(self);
+        
+        NSLog(@"wo");
+        [self.tableView beginUpdates];
+        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        [self.tableView endUpdates];
+    };
+    
     return cell;
 }
 

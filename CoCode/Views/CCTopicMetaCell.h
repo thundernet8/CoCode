@@ -10,8 +10,10 @@
 
 @interface CCTopicMetaCell : UITableViewCell
 
-@property (nonatomic, strong)CCTopicModel *topic;
-@property (nonatomic, assign)UINavigationController *nav;
+@property (nonatomic, strong) CCTopicModel *topic;
+@property (nonatomic, assign) UINavigationController *nav;
+
+@property (nonatomic, copy) void (^reloadCellBlcok)();
 
 + (CGFloat)getCellHeightWithTopicModel:(CCTopicModel *)topic;
 

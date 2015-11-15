@@ -13,6 +13,8 @@
 #import "CCTopicListCell.h"
 #import "CCMemberModel.h"
 
+#import "TopicViewController.h"
+
 @interface CCNewestViewController ()<UITableViewDelegate,UITableViewDataSource>
 
 //Current Page
@@ -208,6 +210,15 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
+    TopicViewController *topicViewController = [[TopicViewController alloc] init];
+    CCTopicModel *topic = self.topicList.list[indexPath.row];
+    CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", (int)topic.topicAuthorID]];
+    topic.topicAuthorAvatar = author.memberAvatarLarge;
+    topic.topicAuthorName = author.memberName;
+    topicViewController.topic = topic;
+    [self.navigationController pushViewController:topicViewController animated:YES];
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
     
 
 }
