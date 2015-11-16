@@ -55,7 +55,7 @@
         self.topicViews = [dict objectForKey:@"views"];
         self.topicLikeCount = [dict objectForKey:@"like_count"];
         self.topicCategoryID = [dict objectForKey:@"category_id"];
-        self.topicCategory = [CCHelper getCategoryInfoFromPlistForID:self.topicCategoryID];
+        self.topicCategory = [[CCCategoryModel alloc] initWithDict:[CCHelper getCategoryInfoFromPlistForID:self.topicCategoryID]];
         self.topicTags = [dict objectForKey:@"tags"];
         self.topicAuthorID = [self.topicPosters[0] objectForKey:@"user_id"];
         NSDictionary *authorDict = [[dict objectForKey:@"details"] objectForKey:@"created_by"];

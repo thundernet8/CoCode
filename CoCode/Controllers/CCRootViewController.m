@@ -15,7 +15,7 @@
 #import "CCNewestViewController.h"
 #import "CCLatestViewController.h"
 #import "CCHotViewController.h"
-#import "CCCategoriesViewController.h"
+#import "CCCategoryViewController.h"
 #import "CCTagsViewController.h"
 #import "CCProfileViewController.h"
 
@@ -42,7 +42,7 @@
 @property (nonatomic, strong) CCNewestViewController *newestViewController;
 @property (nonatomic, strong) CCLatestViewController *latestViewController;
 @property (nonatomic, strong) CCHotViewController *hotViewController;
-@property (nonatomic, strong) CCCategoriesViewController *catViewController;
+@property (nonatomic, strong) CCCategoryViewController *catViewController;
 @property (nonatomic, strong) CCTagsViewController *tagViewController;
 @property (nonatomic, strong) CCProfileViewController *profileViewController;
 
@@ -170,7 +170,7 @@
     self.hotNavigationController = [[SCNavigationController alloc] initWithRootViewController:self.hotViewController];
     
     //TODO 
-    self.catViewController = [[CCCategoriesViewController alloc] init];
+    self.catViewController = [[CCCategoryViewController alloc] init];
     self.catNavigationController = [[SCNavigationController alloc] initWithRootViewController:self.catViewController];
     
     self.tagViewController = [[CCTagsViewController alloc] init];

@@ -7,11 +7,11 @@
 //
 
 
-@interface PopFilterViewController : UIViewController
+@interface CCFilterViewController : UIViewController
 
-@property (nonatomic, copy) void (^onItemSelected)(NSInteger);
+@property (nonatomic, copy) void (^onItemSelected)(NSDictionary *);
 @property (nonatomic, copy) void (^onCancel)();
 @property (nonatomic, strong) NSArray *filters;
-@property (nonatomic, assign) NSInteger periodType;
+@property (nonatomic, assign) NSInteger tag;
 
 @end

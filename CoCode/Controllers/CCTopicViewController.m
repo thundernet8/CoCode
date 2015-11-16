@@ -6,8 +6,8 @@
 //  Copyright (c) 2015年 wuxueqian. All rights reserved.
 //
 
-#import "TopicViewController.h"
-#import "CategoryViewController.h"
+#import "CCTopicViewController.h"
+#import "CCCategoryViewController.h"
 #import "CCDataManager.h"
 #import "CCTopicTitleCell.h"
 #import "CCTopicMetaCell.h"
@@ -15,11 +15,12 @@
 #import "CCTopicReplyCell.h"
 
 #import "CCTopicPostModel.h"
-#import "TopicRepliesViewController.h"
+#import "CCCategoryModel.h"
+#import "CCTopicRepliesViewController.h"
 
 #import "CoCodeAppDelegate.h"
 
-@interface TopicViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface CCTopicViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) SCBarButtonItem *leftBarItem;
 @property (nonatomic, strong) SCBarButtonItem *rightBarItem;
@@ -30,14 +31,16 @@
 
 @property (nonatomic, strong) NSURLSessionDataTask * (^getTopicBlock)();
 
-@property (nonatomic, copy) NSDictionary *topicCategory;
+@property (nonatomic, strong) CCCategoryModel *topicCategory;
 
 @property (nonatomic, strong) CCTopicPostModel *selectedReply;
+
+@property (nonatomic, assign) BOOL isDragging;
 
 
 @end
 
-@implementation TopicViewController
+@implementation CCTopicViewController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -117,8 +120,8 @@
     
     //self.sc_navigationItem.title = topic.topicTitle;
     
-    self.topicCategory = topic.topicCategory;
-    self.categoryNameLabel.text = [self.topicCategory objectForKey:@"NAME"];
+    self.topicCategory = (CCCategoryModel *)topic.topicCategory;
+    self.categoryNameLabel.text = self.topicCategory.name;
     
     
 //    [self.tableView beginUpdates];
@@ -155,7 +158,7 @@
         NSLog(@"1");
     }];
     SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_comment"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
-        TopicRepliesViewController *repliesVC = [[TopicRepliesViewController alloc] init];
+        CCTopicRepliesViewController *repliesVC = [[CCTopicRepliesViewController alloc] init];
         repliesVC.posts = self.topic.posts;
         repliesVC.topic = self.topic;
         SCNavigationController *navController = [[SCNavigationController alloc] initWithRootViewController:repliesVC];
@@ -210,7 +213,8 @@
     @weakify(self);
     [headerButton bk_addEventHandler:^(id sender) {
         @strongify(self);
-        CategoryViewController *catViewController = [[CategoryViewController alloc] init];
+        CCCategoryViewController *catViewController = [[CCCategoryViewController alloc] init];
+        catViewController.cat = self.topicCategory;
         [self.navigationController pushViewController:catViewController animated:YES];
         
     } forControlEvents:UIControlEventTouchUpInside];
@@ -420,6 +424,41 @@
     return cell;
 }
 
+#pragma mark - ScrollView Delegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    [super scrollViewDidScroll:scrollView];
+    
+    
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    [super scrollViewWillBeginDragging:scrollView];
+    
+    self.isDragging = YES;
+    
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+    
+    if (scrollView.contentOffsetY < - 64 + 36) {
+        self.isDragging = YES;
+        [UIView animateWithDuration:0.3 animations:^{
+            self.tableView.contentInsetTop = 64;
+        } completion:^(BOOL finished) {
+            if (!decelerate) {
+                [UIView animateWithDuration:0.3 animations:^{
+                    self.tableView.contentInsetTop = 64 - 36;
+                }];
+            }
+        }];
+    } else {
+        self.isDragging = NO;
+        self.tableView.contentInsetTop = 64 - 36;
+    }
+    
+}
 
 
 

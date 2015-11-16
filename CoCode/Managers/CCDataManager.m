@@ -269,4 +269,29 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
 }
 
+- (NSURLSessionDataTask *)getTopicListWithPage:(NSInteger)page categoryUrl:(NSURL *)categoryUrl success:(void (^)(CCTopicList *))success failure:(void (^)(NSError *))failure{
+    
+    NSDictionary *parameters;
+    if (page && page > 0) {
+        parameters = @{@"page":@(page-1)};
+    }
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@%@", categoryUrl.absoluteString, @".json"];
+    
+    return [self requestWithMethod:CCRequestMethodJSONGET URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        CCTopicList *list = [CCTopicList getTopicListFromResponseObject:responseObject];
+        
+        if (list) {
+            success(list);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTopicListFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
 @end

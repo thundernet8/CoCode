@@ -6,9 +6,9 @@
 //  Copyright (c) 2015年 wuxueqian. All rights reserved.
 //
 
-#import "PopFilterViewController.h"
+#import "CCFilterViewController.h"
 
-@interface PopFilterViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface CCFilterViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) SCBarButtonItem *cancelButton;
 
@@ -16,7 +16,7 @@
 
 @end
 
-@implementation PopFilterViewController
+@implementation CCFilterViewController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -28,7 +28,9 @@
 
 - (void)loadView{
     [super loadView];
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0.0, 44.0, kScreenWidth, kScreenHeight-44.0) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStylePlain];
+    self.tableView.contentInsetTop = 44.0;
+    
     [self.view addSubview:self.tableView];
     
     self.cancelButton = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_cancel"] style:SCBarButtonItemStylePlain handler:^(id sender) {
@@ -46,6 +48,10 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
 }
 
 #pragma mark - Layout
@@ -79,11 +85,11 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
-    self.periodType = indexPath.row;
+    self.tag = [[self.filters[indexPath.row] objectForKey:@"ID"] integerValue];
     [self.tableView reloadData];
     
     if (self.onItemSelected) {
-        self.onItemSelected(indexPath.row);
+        self.onItemSelected(_filters[indexPath.row]);
     }
 }
 
@@ -107,10 +113,10 @@
 }
 
 - (UITableViewCell *)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath{
-    NSString *filter = (NSString *)self.filters[indexPath.row];
-    cell.textLabel.text = filter;
+    NSDictionary *filter = (NSDictionary *)self.filters[indexPath.row];
+    cell.textLabel.text = [filter objectForKey:@"TEXT"];
     cell.accessoryType = UITableViewCellAccessoryNone;
-    if (self.periodType == indexPath.row) {
+    if (self.tag == [[self.filters[indexPath.row] objectForKey:@"ID"] integerValue]) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
     }
     return cell;

@@ -6,16 +6,16 @@
 //  Copyright (c) 2015年 wuxueqian. All rights reserved.
 //
 
-#import "TopicRepliesViewController.h"
+#import "CCTopicRepliesViewController.h"
 #import "CCTopicReplyCell.h"
 
-@interface TopicRepliesViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface CCTopicRepliesViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) CCTopicPostModel *selectedReply;
 
 @end
 
-@implementation TopicRepliesViewController
+@implementation CCTopicRepliesViewController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -46,9 +46,10 @@
 #pragma mark - Configuration
 
 - (void)configureTableView{
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 44.0, kScreenWidth, kScreenHeight-44.0) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStylePlain];
+    self.tableView.contentInsetTop = 44.0;
     
-    self.tableView.backgroundColor = kBackgroundColorWhite;
+    self.tableView.backgroundColor = kBackgroundColorWhiteDark;
     self.tableView.separatorColor = kSeparatorColor;
     self.tableView.tableFooterView = [UIView new];
     

@@ -1,27 +1,28 @@
 //
-//  CCLatestViewController.m
+//  CategoryViewController.m
 //  CoCode
 //
-//  Created by wuxueqian on 15/10/31.
+//  Created by wuxueqian on 15/11/11.
 //  Copyright (c) 2015年 wuxueqian. All rights reserved.
 //
 
-#import "CCNewestViewController.h"
-#import <NSString+FontAwesome.h>
-#import "UIImage+Tint.h"
+#import "CCCategoryViewController.h"
 #import "CCDataManager.h"
 #import "CCTopicListCell.h"
-#import "CCMemberModel.h"
-
 #import "CCTopicViewController.h"
+#import "CCCategoryModel.h"
+#import "CCFilterViewController.h"
+#import "CoCodeAppDelegate.h"
 
-@interface CCNewestViewController ()<UITableViewDelegate,UITableViewDataSource>
+@interface CCCategoryViewController () <UITableViewDelegate, UITableViewDataSource>
 
 //Current Page
 @property (nonatomic, assign) NSInteger pageCount;
 
-//Left Navibar Item
-@property (nonatomic, strong) SCBarButtonItem *leftBarItem;
+@property (nonatomic, strong) NSURL *categoryUrl;
+@property (nonatomic, assign) NSInteger catID;
+
+@property (nonatomic, strong) NSArray *filters;
 
 //Get topics block
 @property (nonatomic, copy) NSURLSessionDataTask *(^getTopicListBlock)(NSInteger);
@@ -30,21 +31,31 @@
 
 @end
 
-@implementation CCNewestViewController
+@implementation CCCategoryViewController
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.pageCount = 1;
+        NSDictionary *categories = [[NSDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Categories" ofType:@"plist"]];
+        NSMutableArray *tempFilters = [NSMutableArray array];
+        for (NSString *key in categories) {
+            NSDictionary *dict = @{@"ID":[[categories objectForKey:key] objectForKey:@"ID"], @"TEXT":[[categories objectForKey:key] objectForKey:@"NAME"]};
+            [tempFilters addObject:dict];
+        }
+        self.filters = [NSArray arrayWithArray:tempFilters];
     }
+    
     return self;
 }
 
 - (void)loadView{
     [super loadView];
     
+    [self configureCategory];
+    
+    [self configureNavi];
     [self configureTableView];
-    [self configureNavibarItems];
 }
 
 - (void)viewDidLoad {
@@ -52,16 +63,8 @@
     
     [self configureBlocks];
     
-    self.sc_navigationItem.leftBarButtonItem = self.leftBarItem;
-    self.sc_navigationItem.title = NSLocalizedString(@"Recently Active", @"Latest posted, replied, edited");
-    
-    //TODO Notification
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
-    
 }
-
-#pragma mark - Life Cycle
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -80,8 +83,7 @@
     
     //weakify and strongify is from ReactiveCocoa(EXTScope)
     @weakify(self);
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         @strongify(self);
         [self beginRefresh];
     });
@@ -89,38 +91,66 @@
 
 #pragma mark - Layout
 
-- (void)viewWillLayoutSubviews{
-    [super viewWillLayoutSubviews];
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
     
-    self.hiddenEnabled = YES;
 }
 
-#pragma mark - Configure
+#pragma mark - Configuration
 
-- (void)configureNavibarItems{
-    self.leftBarItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_navi_menu"] style:SCBarButtonItemStylePlain handler:^(id sender) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kShowMenuNotification object:nil];
-    }];
+- (void)configureCategory{
+    if (!self.cat) {
+        NSNumber *lastSelectedCatID = [kUserDefaults objectForKey:@"lastSelectedCatID"];
+        NSArray *availableCatIDs = @[@3,@5,@7,@8,@9,@10,@11,@12,@13,@14,@15,@16,@17];
+        if (![availableCatIDs containsObject:lastSelectedCatID]) {
+            lastSelectedCatID = @3;
+        }
+        self.cat = [[CCCategoryModel alloc] initWithDict:[CCHelper getCategoryInfoFromPlistForID:lastSelectedCatID]];
+    }
+    self.catID = self.cat.ID.integerValue;
+}
+
+- (void)configureNavi{
+    if (self.navigationController.viewControllers.count > 1) {
+        self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_back"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+            [self.navigationController popViewControllerAnimated:YES];
+        }];
+    }else{
+        self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_navi_menu"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kShowMenuNotification object:nil];
+        }];
+    }
+    
+    self.sc_navigationItem.rightBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_filter"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        [self presentFiltersViewController];
+    }];;
+    
+    self.sc_navigationItem.title = self.cat.name;
 }
 
 - (void)configureTableView{
     self.tableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStylePlain];
+    self.tableView.contentInsetTop = 44.0;
+    
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
-    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.tableView.separatorColor = kSeparatorColor;
+    self.tableView.tableFooterView = [UIView new];
+    
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
+    
     [self.view addSubview:self.tableView];
 }
 
 - (void)configureBlocks{
-
+    
     @weakify(self);
     self.getTopicListBlock = ^(NSInteger page){
         @strongify(self);
         
         self.pageCount = page;
         
-        return [[CCDataManager sharedManager] getTopicListNewestWithPage:page success:^(CCTopicList *list) {
+        return [[CCDataManager sharedManager] getTopicListWithPage:page categoryUrl:self.categoryUrl success:^(CCTopicList *list) {
             @strongify(self);
             
             self.topicList = list;
@@ -160,6 +190,13 @@
 }
 
 #pragma mark - Setter
+
+- (void)setCat:(CCCategoryModel *)cat{
+    _cat = cat;
+    _categoryUrl = cat.url;
+    _catID = cat.ID.integerValue;
+    self.sc_navigationItem.title = cat.name;
+}
 
 - (void)setTopicList:(CCTopicList *)topicList{
     if (self.topicList.list.count > 0 && self.pageCount != 1) {
@@ -201,9 +238,10 @@
     CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", (int)topic.topicAuthorID]];
     topic.topicAuthorAvatar = author.memberAvatarLarge;
     topic.topicAuthorName = author.memberName;
-
+    
+    cell.inCategory = YES;
     cell.topic = topic;
-    cell.inCategory = NO;
+    
     
     return cell;
 }
@@ -219,24 +257,53 @@
     [self.navigationController pushViewController:topicViewController animated:YES];
     
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
-    
-
 }
-
-
-
-#pragma mark - Configure Cell
 
 - (CGFloat)heightOfTopicCellForIndexPath:(NSIndexPath *)indexPath{
     CCTopicModel *topic = self.topicList.list[indexPath.row];
     return [CCTopicListCell getCellHeightWithTopicModel:topic];
 }
 
+#pragma mark - Handle filters VC
+
+- (void)presentFiltersViewController{
+    CoCodeAppDelegate *cocodeDelegate = [UIApplication sharedApplication].delegate;
+    UIViewController *rootController = cocodeDelegate.window.rootViewController;
+    
+    CCFilterViewController *filterViewController = [[CCFilterViewController alloc] init];
+    filterViewController.onItemSelected = ^(NSDictionary *filter){
+        NSLog(@"%@", filter.description);
+        if ([[filter objectForKey:@"ID"] integerValue] != self.catID) {
+            [rootController dismissViewControllerAnimated:YES completion:nil];
+            self.catID = [[filter objectForKey:@"ID"] integerValue];
+            self.cat = [[CCCategoryModel alloc] initWithDict:[CCHelper getCategoryInfoFromPlistForID:[NSNumber numberWithInteger:self.catID]]];
+            [kUserDefaults setObject:[NSNumber numberWithInteger:self.catID] forKey:@"lastSelectedCatID"];
+            [self beginRefresh];
+        }else{
+            [rootController dismissViewControllerAnimated:YES completion:nil];
+        }
+        
+    };
+
+    filterViewController.filters = self.filters;
+    filterViewController.tag = self.catID;
+    
+    //Present filter view modaly
+    filterViewController.modalPresentationStyle = UIModalPresentationPopover;
+    filterViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    SCNavigationController *navVC = [[SCNavigationController alloc] initWithRootViewController:filterViewController];
+    
+    [rootController presentViewController:navVC animated:YES completion:^{
+        
+    }];
+}
 
 #pragma mark - Notifications
 
 - (void)didReceiveThemeChangeNotification {
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
 }
+
+
 
 @end

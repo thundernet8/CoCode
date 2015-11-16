@@ -9,7 +9,7 @@
 #import "SCPullRefreshViewController.h"
 #import "CCTopicModel.h"
 
-@interface TopicRepliesViewController : SCPullRefreshViewController
+@interface CCTopicRepliesViewController : SCPullRefreshViewController
 
 @property (nonatomic, strong) CCTopicModel *topic;
 @property (nonatomic, strong) NSArray *posts;

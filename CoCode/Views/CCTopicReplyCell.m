@@ -163,7 +163,7 @@
         textView.font = [UIFont systemFontOfSize:kReplyFontSize];
         
         CGFloat bodyHeight = [textView sizeThatFits:CGSizeMake(kScreenWidth-55, CGFLOAT_MAX)].height;
-        return bodyHeight+40.0;
+        return bodyHeight+20.0;
     }
     
 }

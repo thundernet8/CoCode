@@ -9,7 +9,7 @@
 #import "CCTopicModel.h"
 #import "SCPullRefreshViewController.h"
 
-@interface TopicViewController : SCPullRefreshViewController
+@interface CCTopicViewController : SCPullRefreshViewController
 
 @property (nonatomic, strong) CCTopicModel *topic;
 

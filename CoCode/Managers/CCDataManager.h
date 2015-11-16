@@ -50,5 +50,10 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
                                       success:(void (^)(CCTopicModel *topic))success
                                       failure:(void (^)(NSError *error))failure;
 
+- (NSURLSessionDataTask *)getTopicListWithPage:(NSInteger)page
+                                   categoryUrl:(NSURL *)categoryUrl
+                                       success:(void (^)(CCTopicList *list))success
+                                       failure:(void (^)(NSError *error))failure;
+
 
 @end

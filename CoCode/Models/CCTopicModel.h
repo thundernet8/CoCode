@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "CCMemberModel.h"
+#import "CCCategoryModel.h"
 
 //typedef NS_ENUM (NSInteger, CCTopicState) {
 //    
@@ -46,7 +47,7 @@
 @property (nonatomic, copy) NSString *topicAuthorAvatar;
 
 //Detailed Topic info
-@property (nonatomic, copy) NSDictionary *topicCategory;
+@property (nonatomic, strong) CCCategoryModel *topicCategory;
 @property (nonatomic, copy) NSArray *topicPostIDs;
 @property (nonatomic, copy) NSArray *topicPosts;
 

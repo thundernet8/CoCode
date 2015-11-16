@@ -12,9 +12,9 @@
 #import "CCDataManager.h"
 #import "CCTopicListCell.h"
 #import "CCMemberModel.h"
-#import "PopFilterViewController.h"
+#import "CCFilterViewController.h"
 #import "CoCodeAppDelegate.h"
-#import "TopicViewController.h"
+#import "CCTopicViewController.h"
 
 @interface CCHotViewController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -226,7 +226,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    TopicViewController *topicViewController = [[TopicViewController alloc] init];
+    CCTopicViewController *topicViewController = [[CCTopicViewController alloc] init];
     CCTopicModel *topic = self.topicList.list[indexPath.row];
     CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", (int)topic.topicAuthorID]];
     topic.topicAuthorAvatar = author.memberAvatarLarge;
@@ -252,24 +252,24 @@
     CoCodeAppDelegate *cocodeDelegate = [UIApplication sharedApplication].delegate;
     UIViewController *rootController = cocodeDelegate.window.rootViewController;
     
-    PopFilterViewController *popViewController = [[PopFilterViewController alloc] init];
-    popViewController.onItemSelected = ^(NSInteger index){
-        if (index != self.period) {
+    CCFilterViewController *filterViewController = [[CCFilterViewController alloc] init];
+    filterViewController.onItemSelected = ^(NSDictionary *filter){
+        if ([[filter objectForKey:@"ID"] integerValue] != self.period) {
             [rootController dismissViewControllerAnimated:YES completion:nil];
-            self.period = index;
+            self.period = [[filter objectForKey:@"ID"] integerValue];
             [self beginRefresh];
         }else{
             [rootController dismissViewControllerAnimated:YES completion:nil];
         }
         
     };
-    popViewController.filters = @[@"不限时间", @"今天", @"一周内", @"一月内", @"季度内", @"近一年"];
-    popViewController.periodType = self.period;
+    filterViewController.filters = @[@{@"ID":@0,@"TEXT":@"不限时间"},@{@"ID":@1,@"TEXT":@"今天"},@{@"ID":@2,@"TEXT":@"一周内"},@{@"ID":@3,@"TEXT":@"一月内"},@{@"ID":@4,@"TEXT":@"季度内"},@{@"ID":@5,@"TEXT":@"近一年"}];
+    filterViewController.tag = self.period;
     
     //Present filter view modaly
-    popViewController.modalPresentationStyle = UIModalPresentationPageSheet;
-    popViewController.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
-    SCNavigationController *navVC = [[SCNavigationController alloc] initWithRootViewController:popViewController];
+    filterViewController.modalPresentationStyle = UIModalPresentationPageSheet;
+    filterViewController.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
+    SCNavigationController *navVC = [[SCNavigationController alloc] initWithRootViewController:filterViewController];
     
     [rootController presentViewController:navVC animated:YES completion:^{
         

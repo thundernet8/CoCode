@@ -106,7 +106,7 @@ static CGFloat const kTitleFontSize = 18.0;
     self.separatorLine.frame = CGRectMake(0.0, self.titleHeight+49.0, kScreenWidth, 1.0);
 }
 
-- (void)ifUnderCategory:(BOOL)inCategory{
+- (void)isUnderCategory:(BOOL)inCategory{
     _inCategory = inCategory;
 }
 
@@ -126,7 +126,7 @@ static CGFloat const kTitleFontSize = 18.0;
     
     
     NSString *catString;
-    if (!_inCategory && topic.topicCategoryID.integerValue > 1) {
+    if (!_inCategory && topic.topicCategoryID.integerValue > 0) {
         NSDictionary *cat = [CCHelper getCategoryInfoFromPlistForID:topic.topicCategoryID];
         catString = [NSString stringWithFormat:@" · %@", [cat objectForKey:@"NAME"]];
     }else{

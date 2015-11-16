@@ -7,7 +7,11 @@
 //
 
 #import "SCPullRefreshViewController.h"
+#import "CCCategoryModel.h"
 
-@interface CategoryViewController : SCPullRefreshViewController
+@interface CCCategoryViewController : SCPullRefreshViewController
+
+@property (nonatomic, strong) CCCategoryModel *cat;
+
 
 @end

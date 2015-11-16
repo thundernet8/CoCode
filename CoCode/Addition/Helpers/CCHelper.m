@@ -5,7 +5,7 @@
 @implementation CCHelper
 
 + (NSDate *)localDateWithString:(NSString *)dateString{
-    if (!dateString) {
+    if (dateString == [NSNull null] || dateString.length < 20) {
         return nil;
     }
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
