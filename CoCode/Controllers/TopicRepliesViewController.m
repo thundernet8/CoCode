@@ -49,7 +49,7 @@
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 44.0, kScreenWidth, kScreenHeight-44.0) style:UITableViewStylePlain];
     
     self.tableView.backgroundColor = kBackgroundColorWhite;
-    self.tableView.separatorColor = [UIColor colorWithWhite:0.918 alpha:1.000];
+    self.tableView.separatorColor = kSeparatorColor;
     self.tableView.tableFooterView = [UIView new];
     
     self.tableView.delegate = self;

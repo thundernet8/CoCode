@@ -22,6 +22,7 @@ static CGFloat const kTitleFontSize = 18.0;
 @property (nonatomic, strong) UIButton *categoryButton;
 @property (nonatomic, strong) UILabel *leftMetaLabel; //Author and Time
 @property (nonatomic, strong) UILabel *rightMetaLabel; //Category, Views, Comments
+@property (nonatomic, strong) UIImageView *stickImageView;
 
 @property (nonatomic ,strong) UIView *separatorLine; //Separator line for tableview
 
@@ -37,6 +38,9 @@ static CGFloat const kTitleFontSize = 18.0;
         self.clipsToBounds = YES;
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.backgroundColor = kBackgroundColorWhite; // Based on theme
+        
+        self.stickImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"icon_top"]];
+        self.stickImageView.clipsToBounds = YES;
         
         self.titleLabel = [[UILabel alloc] init];
         self.titleLabel.backgroundColor = [UIColor clearColor];
@@ -65,7 +69,7 @@ static CGFloat const kTitleFontSize = 18.0;
         [self addSubview:self.rightMetaLabel];
         
         self.separatorLine = [[UIView alloc] init];
-        self.separatorLine.backgroundColor = kLineColorBlackLight;
+        self.separatorLine.backgroundColor = kSeparatorLightBlueColor;
         [self addSubview:self.separatorLine];
     }
     return self;
@@ -74,9 +78,21 @@ static CGFloat const kTitleFontSize = 18.0;
 - (void)layoutSubviews{
     [super layoutSubviews];
     
+    if (_topic.isPinned) {
+        [self addSubview:self.stickImageView];
+        self.stickImageView.frame = CGRectMake(10.0, 19.0, 30.0, 15.0);
+        self.titleLabel.frame = CGRectMake(45.0, 15.0, kTitleLabelWidth-35, self.titleHeight);
+
+    }else{
+        if ([self.subviews containsObject:self.stickImageView]) {
+            [self.stickImageView removeFromSuperview];
+        }
+        self.titleLabel.frame = CGRectMake(10.0, 15.0, kTitleLabelWidth, self.titleHeight);
+    }
+
+    
     self.avatarImageView.frame = CGRectMake(kScreenWidth-10-kAvatarHeight, 15.0, kAvatarHeight, kAvatarHeight);
     self.avatarButton.frame = CGRectMake(kScreenWidth-kAvatarHeight-20, 0.0, kAvatarHeight+20, kAvatarHeight+20);
-    self.titleLabel.frame = CGRectMake(10.0, 15.0, kTitleLabelWidth, self.titleHeight);
     
     //self.avatarImageView.centerY = self.height/2.0;
     self.avatarButton.centerY = self.height/2.0;

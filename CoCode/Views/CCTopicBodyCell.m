@@ -143,7 +143,15 @@ static const CGFloat kBodyFontSize = 16.0;
 
     UIApplication *app = [UIApplication sharedApplication];
     if ([[URL scheme] isEqualToString:@"applewebdata"]) {
-        NSURL *httpUrl = [NSURL URLWithString:[URL.absoluteString stringByReplacingOccurrencesOfString:@"applewebdata" withString:@"http"]];
+        NSURL *httpUrl = [NSURL URLWithString:[URL.absoluteString stringByReplacingOccurrencesOfString:@"applewebdata://" withString:@"http://"]];
+        
+        NSString *suffix = [httpUrl.absoluteString substringFromIndex:httpUrl.absoluteString.length-4];
+        suffix = [suffix lowercaseString];
+        NSArray *suffixs = @[@".png",@".jpg",@"jpeg",@".gif",@".bmp"];
+        if (![suffixs containsObject:suffix]) {
+            return NO;
+        }
+
         NSArray *photos = [IDMPhoto photosWithURLs:@[httpUrl]];
         
         IDMPhotoBrowser *browser = [[IDMPhotoBrowser alloc] initWithPhotos:photos animatedFromView:self.nav.view];
