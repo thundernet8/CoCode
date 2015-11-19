@@ -8,30 +8,387 @@
 
 #import "CCLoginViewController.h"
 
+#import <SVProgressHUD.h>
+#import "CCDataManager.h"
+
+#define kViewOffsetYNormal 60.0
+#define kViewOffsetYEditing 20.0
+
 @interface CCLoginViewController ()
+
+@property (nonatomic, strong) UIImageView *backgroundImageView;
+
+@property (nonatomic, strong) UIButton *cancelButton;
+
+@property (nonatomic, strong) UILabel *logoLabel;
+
+@property (nonatomic, strong) UIView *loginView;
+@property (nonatomic, strong) UITextField *usernameField;
+@property (nonatomic, strong) UITextField *passwordField;
+@property (nonatomic, strong) UIButton *loginButton;
+@property (nonatomic, strong) UIButton *goRegisterButton;
+@property (nonatomic, strong) UIButton *forgotPasswordButton;
+@property (nonatomic, strong) UIView *separatorLine;
+
+@property (nonatomic, strong) UIView *registerView;
+@property (nonatomic, strong) UITextField *usernameField2;
+@property (nonatomic, strong) UITextField *passwordField2;
+@property (nonatomic, strong) UITextField *passwordRepeatField;
+@property (nonatomic, strong) UIButton *registerButton;
+@property (nonatomic, strong) UIButton *goLoginButton;
+
+
+@property (nonatomic, strong) UIButton *githubLogin;
+
+@property (nonatomic) BOOL isKeyboardShowing;
+@property (nonatomic) BOOL isLogging;
+@property (nonatomic) BOOL isRegistering;
 
 @end
 
 @implementation CCLoginViewController
 
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+        self.isKeyboardShowing = NO;
+        self.isLogging = NO;
+        self.isRegistering = NO;
+        
+        self.backgroundImageView = [[UIImageView alloc] init];
+        self.cancelButton = [[UIButton alloc] init];
+        self.logoLabel = [[UILabel alloc] init];
+        
+        self.loginView = [[UIView alloc] init];
+        self.usernameField = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Email Address or Username", nil) secureText:NO];
+        self.passwordField = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Your Password", nil) secureText:YES];
+        self.loginButton = [[UIButton alloc] init];
+        self.goRegisterButton = [[UIButton alloc] init];
+        self.forgotPasswordButton = [[UIButton alloc] init];
+        self.separatorLine = [[UIView alloc] init];
+        
+        self.registerView = [[UIView alloc] init];
+        self.usernameField2 = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Email Address or Username", nil) secureText:NO];
+        self.passwordField2 = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Your Password", nil) secureText:YES];
+        self.passwordRepeatField = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Repeat Password", nil) secureText:YES];
+        self.registerButton = [[UIButton alloc] init];
+        self.goLoginButton = [[UIButton alloc] init];
+
+        
+        self.githubLogin = [[UIButton alloc] init];
+    }
+    
+    return self;
+}
+
+- (void)loadView{
+    [super loadView];
+    
+    [self.view addSubview:self.backgroundImageView];
+    [self.cancelButton setImage:[UIImage imageNamed:@"icon_cancel_black"] forState:UIControlStateNormal];
+    [self.view addSubview:self.cancelButton];
+    [self.view addSubview:self.logoLabel];
+    
+    [self.view addSubview:self.loginView];
+    [self.loginView addSubview:self.usernameField];
+    [self.loginView addSubview:self.passwordField];
+    [self.loginView addSubview:self.loginButton];
+    [self.loginView addSubview:self.goRegisterButton];
+    [self.loginView addSubview:self.forgotPasswordButton];
+    [self.loginView addSubview:self.separatorLine];
+    
+    //[self.view addSubview:self.registerView];
+    [self.registerView addSubview:self.usernameField2];
+    [self.registerView addSubview:self.passwordField2];
+    [self.registerView addSubview:self.passwordRepeatField];
+    [self.registerView addSubview:self.goLoginButton];
+    [self.registerView addSubview:self.registerButton];
+    
+    [self.view addSubview:self.githubLogin];
+    
+    
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    [self configureButtons];
+    
+    [self configureTappingToHideKeyboard];
+    
+    [self configureTextFieldDelegate];
+    
+    self.backgroundImageView.backgroundColor = kBackgroundColorWhiteDark;
+    [self.cancelButton bk_addEventHandler:^(id sender) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    } forControlEvents:UIControlEventTouchUpInside];
+    
+    self.logoLabel.text = @"CoCode";
+    self.logoLabel.font = [UIFont boldSystemFontOfSize:30.0];
+    self.logoLabel.textColor = kBlackColor;
+    
+    self.separatorLine.backgroundColor = [UIColor colorWithWhite:0.800 alpha:1.000];
+    
+    
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
 }
 
-/*
-#pragma mark - Navigation
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    
+    self.backgroundImageView.frame = self.view.frame;
+    self.cancelButton.frame = CGRectMake(15.0, 36.0, 25.0, 25.0);
+    self.loginView.frame = CGRectMake(0.0, 60.0, kScreenWidth, 400.0);//TODO
+    self.registerView.frame = CGRectMake(0.0, 60.0, kScreenWidth, 450.0);//TODO
+    self.githubLogin.frame = CGRectMake(kScreenWidth/2.0-25, kScreenHeight-50.0, 50.0, 50.0);
+    
+    self.logoLabel.frame = CGRectMake(kScreenWidth/2.0-60, 75.0, 120.0, 60.0);
+    
+    self.usernameField.frame = CGRectMake(20.0, 100.0, kScreenWidth-40, 50.0);
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    self.passwordField.frame = CGRectMake(20.0, 155.0, kScreenWidth-40, 50.0);
+    
+    self.loginButton.frame = CGRectMake(20.0, 215.0, kScreenWidth-40, 45.0);
+    
+    self.goRegisterButton.frame = CGRectMake(kScreenWidth/2.0-100, 275.0, 80.0, 20.0);
+
+    
+    self.forgotPasswordButton.frame = CGRectMake(kScreenWidth/2.0+20, 275.0, 80.0, 20.0);
+    
+    self.separatorLine.frame = CGRectMake(kScreenWidth/2.0, 277.0, 1.0, 16.0);
+    
+    self.usernameField2.frame = CGRectMake(20.0, 100.0, kScreenWidth-40, 50.0);
+    self.passwordField2.frame = CGRectMake(20.0, 155.0, kScreenWidth-40, 50.0);
+    self.passwordRepeatField.frame = CGRectMake(20.0, 210.0, kScreenWidth-40, 50.0);
+    self.registerButton.frame = CGRectMake(20.0, 270.0, kScreenWidth-40, 45.0);
+    
+    self.goLoginButton.frame = CGRectMake(20.0, 330.0, kScreenWidth-40, 20.0);
+    
 }
-*/
 
+#pragma mark - Configuration
+
+- (void)configureTappingToHideKeyboard{
+    void (^tapping)() = ^(){
+        [self hideKeyboard];
+    };
+    [self.view bk_whenTapped:tapping];
+//    [self.loginView bk_whenTapped:tapping];
+//    [self.registerView bk_whenTapped:tapping];
+}
+
+- (void)configureButtons{
+    self.loginButton.layer.cornerRadius = 5.0;
+    self.loginButton.backgroundColor = kColorPurple;
+    self.loginButton.titleLabel.font = [UIFont boldSystemFontOfSize:20.0];
+    [self.loginButton setTitle:NSLocalizedString(@"Login", nil) forState:UIControlStateNormal];
+    [self.loginButton setTitleColor:kWhiteColor forState:UIControlStateNormal];
+    [self.loginButton bk_addEventHandler:^(id sender) {
+        [self login];
+    } forControlEvents:UIControlEventTouchUpInside];
+    //self.loginButton.enabled = NO;
+    
+    
+    [self.goRegisterButton setTitle:NSLocalizedString(@"Sign Up", nil) forState:UIControlStateNormal];
+    self.goRegisterButton.titleLabel.font = [UIFont systemFontOfSize:16.0];
+    [self.goRegisterButton setTitleColor:kColorPurple forState:UIControlStateNormal];
+    [self.goRegisterButton bk_addEventHandler:^(id sender) {
+        [self.loginView removeFromSuperview];
+        [self.view addSubview:self.registerView];
+        self.isKeyboardShowing = NO;
+    } forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.forgotPasswordButton setTitle:NSLocalizedString(@"Forgot Password?", nil) forState:UIControlStateNormal];
+    self.forgotPasswordButton.titleLabel.font = [UIFont systemFontOfSize:16.0];
+    [self.forgotPasswordButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [self.forgotPasswordButton bk_addEventHandler:^(id sender) {
+        [self forgotPassword];
+    } forControlEvents:UIControlEventTouchUpInside];
+    
+    self.registerButton.layer.cornerRadius = 5.0;
+    self.registerButton.backgroundColor = kColorPurple;
+    self.registerButton.titleLabel.font = [UIFont systemFontOfSize:20.0];
+    [self.registerButton setTitle:NSLocalizedString(@"Register", nil) forState:UIControlStateNormal];
+    [self.registerButton setTitleColor:kWhiteColor forState:UIControlStateNormal];
+    [self.registerButton bk_addEventHandler:^(id sender) {
+        [self registerCocode];
+    } forControlEvents:UIControlEventTouchUpInside];
+    self.registerButton.enabled = NO;
+    
+    [self.goLoginButton setTitle:NSLocalizedString(@"Sign In", nil) forState:UIControlStateNormal];
+    self.goLoginButton.titleLabel.font = [UIFont systemFontOfSize:16.0];
+    [self.goLoginButton setTitleColor:kColorPurple forState:UIControlStateNormal];
+    [self.goLoginButton bk_addEventHandler:^(id sender) {
+        [self.registerView removeFromSuperview];
+        [self.view addSubview:self.loginView];
+        self.isKeyboardShowing = NO;
+    } forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)configureTextFieldDelegate{
+    @weakify(self);
+    
+    [self.usernameField setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+        @strongify(self);
+        [self showKeyboard];
+        return YES;
+    }];
+    [self.usernameField2 setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+        @strongify(self);
+        [self showKeyboard];
+        return YES;
+    }];
+    [self.passwordField setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+        @strongify(self);
+        [self showKeyboard];
+        return YES;
+    }];
+    [self.passwordField2 setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+        @strongify(self);
+        [self showKeyboard];
+        return YES;
+    }];
+    [self.passwordRepeatField setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+        @strongify(self);
+        [self showKeyboard];
+        return YES;
+    }];
+}
+
+#pragma mark - Create TextField
+
+- (UITextField *)createTextFieldWithPlaceHolder:(NSString *)placeholder secureText:(BOOL)isSecure{
+    UITextField *textField = [[UITextField alloc] init];
+    textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    textField.secureTextEntry = isSecure;
+    textField.placeholder = placeholder;
+    textField.backgroundColor = kWhiteColor;
+    textField.layer.cornerRadius = 5.0;
+    textField.leftView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 10.0, 50.0)];
+    textField.leftViewMode = UITextFieldViewModeAlways;
+    
+    
+    return textField;
+}
+
+#pragma mark - Handle Action
+
+- (void)forgotPassword{
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://cocode.cc/login"]];
+}
+
+- (void)showKeyboard{
+    if (self.isKeyboardShowing) {
+        return;
+    }else{
+        [UIView animateWithDuration:0.3 animations:^{
+            self.logoLabel.y -= 36;
+            if ([self.view.subviews containsObject:self.loginView]) {
+                self.loginView.y = kViewOffsetYEditing;
+                self.usernameField.y -= 10;
+                self.passwordField.y -= 10;
+                self.loginButton.y -= 10;
+                self.goRegisterButton.y -= 10;
+                self.forgotPasswordButton.y -= 10;
+                self.separatorLine.y -= 10;
+            }
+            if ([self.view.subviews containsObject:self.registerView]) {
+                self.registerView.y = kViewOffsetYEditing;
+                self.usernameField2.y -= 20;
+                self.passwordField2.y -= 20;
+                self.passwordRepeatField.y -= 20;
+                self.registerButton.y -= 20;
+                self.goLoginButton.y -= 20;
+            }
+        }];
+        self.isKeyboardShowing = YES;
+    }
+}
+
+- (void)hideKeyboard{
+    if (self.isKeyboardShowing) {
+        [self.view endEditing:YES];
+        [UIView animateWithDuration:0.3 animations:^{
+            self.logoLabel.y += 36;
+            if ([self.view.subviews containsObject:self.loginView]) {
+                self.loginView.y = kViewOffsetYNormal;
+                self.usernameField.y += 10;
+                self.passwordField.y += 10;
+                self.loginButton.y += 10;
+                self.goRegisterButton.y += 10;
+                self.forgotPasswordButton.y += 10;
+                self.separatorLine.y += 10;
+                
+            }
+            if ([self.view.subviews containsObject:self.registerView]) {
+                self.registerView.y = kViewOffsetYNormal;
+                self.usernameField2.y += 20;
+                self.passwordField2.y += 20;
+                self.passwordRepeatField.y += 20;
+                self.registerButton.y += 20;
+                self.goLoginButton.y += 20;
+            }
+        }];
+        self.isKeyboardShowing = NO;
+    }
+}
+
+- (void)login{
+    if (self.isLogging) {
+        return;
+    }
+    self.usernameField.text = @"wuxueqian2010@icloud.com";
+    self.passwordField.text = @"wxq88199";
+    if (self.usernameField.text.length > 9 && self.passwordField.text.length > 0) {
+        [self hideKeyboard];
+        [self showProgressHudWithText:@"登录中···"];
+        
+        [[CCDataManager sharedManager] loginWithUsername:self.usernameField.text password:self.passwordField.text success:^(id respondeObject) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kLoginSuccessNotification object:respondeObject];
+            [SVProgressHUD dismiss];
+            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Login success", nil)];
+            [self endLogin];
+            [self dismissViewControllerAnimated:YES completion:nil];
+        } failure:^(NSError *error) {
+            [SVProgressHUD dismiss];
+            NSString *reasonString;
+            if (error.code < 900) {
+                reasonString = NSLocalizedString(@"Please check your network", nil);
+            }else{
+                reasonString = NSLocalizedString(@"Please check your input information", nil);
+            }
+            UIAlertView *alert = [[UIAlertView alloc] bk_initWithTitle:NSLocalizedString(@"Login failed", nil) message:reasonString];
+            [alert bk_setCancelButtonWithTitle:@"OK" handler:^{
+                [self endLogin];
+            }];
+        }];
+    }
+}
+
+- (void)endLogin{
+    
+}
+
+- (void)cancelLogin{
+    
+}
+
+- (void)registerCocode{
+    
+}
+
+#pragma mark - Hud
+
+- (void)showProgressHudWithText:(NSString *)text{
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
+    [SVProgressHUD setForegroundColor:kWhiteColor];
+    [SVProgressHUD setBackgroundColor:[UIColor colorWithWhite:0.0 alpha:0.8]];
+    [SVProgressHUD showWithStatus:text];
+}
+    
 @end

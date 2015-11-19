@@ -10,6 +10,7 @@
 #import "CCUserModel.h"
 #import "CCTopicModel.h"
 #import "CCTopicPostModel.h"
+#import "CCTagModel.h"
 
 typedef NS_ENUM(NSInteger, CCErrorType) {
     
@@ -23,7 +24,9 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypeGetMemberReplyFailure  = 907,
     CCErrorTypeGetTopicTokenFailure   = 908,
     CCErrorTypeGetCheckInURLFailure   = 909,
-    CCErrorTypeGetTopicError          = 910
+    CCErrorTypeGetTopicError          = 910,
+    CCErrorTypeGetTagsFailure         = 911,
+    CCErrorTypeGetCSRFTokenFailure    = 912
     
 };
 
@@ -32,6 +35,8 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
 @property (nonatomic, strong) CCUserModel *user;
 
 + (instancetype)sharedManager;
+
+//Fetch data
 
 - (NSURLSessionDataTask *)getTopicListNewestWithPage:(NSInteger)page
                                          success:(void (^)(CCTopicList *list))success
@@ -54,6 +59,16 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
                                    categoryUrl:(NSURL *)categoryUrl
                                        success:(void (^)(CCTopicList *list))success
                                        failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)getTagsSuccess:(void (^)(CCTagsModel *tagsModel))success
+                                 failure:(void (^)(NSError *error))failure;
+
+//Login and Register
+
+- (NSURLSessionDataTask *)loginWithUsername:(NSString *)username
+                                   password:(NSString *)password
+                                    success:(void (^)(id respondeObject))success
+                                    failure:(void (^)(NSError *error))failure;
 
 
 @end

@@ -90,9 +90,8 @@
 + (CCTopicModel *)getTopicModelFromResponseObject:(id)responseObject{
     CCTopicModel *topic;
     
-    @autoreleasepool {
-        topic = [[CCTopicModel alloc] initWithDetailedDictionary:(NSDictionary *)responseObject];
-    }
+    topic = [[CCTopicModel alloc] initWithDetailedDictionary:(NSDictionary *)responseObject];
+    
     if (topic) {
         return topic;
     }

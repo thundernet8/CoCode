@@ -287,6 +287,7 @@
 
     filterViewController.filters = self.filters;
     filterViewController.tag = self.catID;
+    filterViewController.filterTitle = NSLocalizedString(@"Select Category", nil);
     
     //Present filter view modaly
     filterViewController.modalPresentationStyle = UIModalPresentationPopover;

@@ -17,4 +17,6 @@
 @property (nonatomic, copy) NSString *location;
 @property (nonatomic, assign, getter = isLogin) BOOL login;
 
++ (CCUserModel *)getUserWithLoginRespondObject:(NSDictionary *)respondeObject;
+
 @end

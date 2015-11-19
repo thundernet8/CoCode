@@ -13,5 +13,6 @@
 @property (nonatomic, copy) void (^onCancel)();
 @property (nonatomic, strong) NSArray *filters;
 @property (nonatomic, assign) NSInteger tag;
+@property (nonatomic, strong) NSString *filterTitle;
 
 @end

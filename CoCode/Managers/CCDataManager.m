@@ -17,13 +17,15 @@ static NSString *const kUserIsLogin = @"userIsLogin";
 static NSString *const kUsername = @"username";
 static NSString *const kUserid = @"userid";
 static NSString *const kAvatarURL = @"avatarURL";
-static NSString *const kBaseUrl = @"http://cocode.cc";
+static NSString *const kBaseUrl = @"http://cocode.cc/";
 
 typedef NS_ENUM(NSInteger, CCRequestMethod){
     CCRequestMethodJSONGET = 1,
     CCRequestMethodHTTPGET = 2,
     CCRequestMethodHTTPPOST = 3,
-    CCRequestMethodHTTPGETPC = 4
+    CCRequestMethodHTTPGETPC = 4,
+    CCRequestMethodFADEXHR = 5,
+    CCRequestMethodJSONPOST = 6
 };
 
 @interface CCDataManager()
@@ -56,7 +58,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         self.manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:kBaseUrl]];
         AFHTTPRequestSerializer *serializer = [AFHTTPRequestSerializer serializer];
         self.manager.requestSerializer = serializer;
-        
+
         //Logged user case
         BOOL isLogin = [[kUserDefaults objectForKey:kUserIsLogin] boolValue];
         if (isLogin) {
@@ -124,6 +126,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             failure(error);
         }];
     }
+    
     if (method == CCRequestMethodHTTPGET){
         AFHTTPResponseSerializer *responseSerializer = [AFHTTPResponseSerializer serializer];
         self.manager.responseSerializer = responseSerializer;
@@ -147,8 +150,30 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     if (method == CCRequestMethodHTTPGETPC) {
         AFHTTPResponseSerializer *responseSerializer = [AFHTTPResponseSerializer serializer];
         self.manager.responseSerializer = responseSerializer;
-        [self.manager.requestSerializer setValue:self.userAgentPC forKey:@"User-Agent"];
+        [self.manager.requestSerializer setValue:self.userAgentPC forHTTPHeaderField:@"User-Agent"];
         task = [self.manager GET:URLString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject){
+            handleResponseBlock(task, responseObject);
+        }failure:^(NSURLSessionDataTask *task, NSError *error){
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            failure(error);
+        }];
+    }
+    if (method == CCRequestMethodFADEXHR) {
+        AFHTTPResponseSerializer *responseSerializer = [AFJSONResponseSerializer serializer];
+        self.manager.responseSerializer = responseSerializer;
+        [self.manager.requestSerializer setValue:@"XMLHttpRequest" forHTTPHeaderField:@"X-Requested-With"];
+        [self.manager.requestSerializer setValue:URLString forHTTPHeaderField:@"Referer"];
+        task = [self.manager GET:URLString parameters:parameters success:^(NSURLSessionDataTask * task, id responseObject) {
+            handleResponseBlock(task, responseObject);
+        } failure:^(NSURLSessionDataTask * task, NSError * error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            failure(error);
+        }];
+    }
+    if (method == CCRequestMethodJSONPOST) {
+        AFHTTPResponseSerializer *responseSerializer = [AFJSONResponseSerializer serializer];
+        self.manager.responseSerializer = responseSerializer;
+        task = [self.manager POST:URLString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject){
             handleResponseBlock(task, responseObject);
         }failure:^(NSURLSessionDataTask *task, NSError *error){
             [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
@@ -293,5 +318,116 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         failure(error);
     }];
 }
+
+- (NSURLSessionDataTask *)getTagsSuccess:(void (^)(CCTagsModel *))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = @"http://cocode.cc/tags";
+    
+    NSDictionary *parameters = @{@"_":[NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]};
+    
+    return [self requestWithMethod:CCRequestMethodFADEXHR URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+
+        CCTagsModel *model = [CCTagsModel getTagsModelFromResponseObject:responseObject];
+        if (model) {
+            success(model);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTagsFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
+- (NSURLSessionDataTask *)loginWithUsername:(NSString *)username password:(NSString *)password success:(void (^)(id))success failure:(void (^)(NSError *))failure{
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in [storage cookies]) {
+        [storage deleteCookie:cookie];
+    }
+    
+    NSDictionary *parameters = @{
+                                 @"login":username,
+                                 @"username":username,
+                                 @"password":password,
+                                 @"redirect":kBaseUrl,
+                                 @"_":[NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]
+                                 };
+    [self.manager.requestSerializer setValue:kBaseUrl forHTTPHeaderField:@"Referer"];
+    [self.manager.requestSerializer setValue:@"XMLHttpRequest" forHTTPHeaderField:@"X-Requested-With"];
+    [self requestWithMethod:CCRequestMethodJSONGET URLString:@"/session/csrf" parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        if ([[responseObject objectForKey:@"csrf"] length] > 0) {
+            NSString *csrfToken = [responseObject objectForKey:@"csrf"];
+            [self postLoginParameters:parameters withCSRFToken:csrfToken success:success failure:failure];
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeGetCSRFTokenFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+    return nil;
+}
+
+- (NSURLSessionDataTask *)postLoginParameters:(NSDictionary *)parameters withCSRFToken:(NSString *)token success:(void (^)(id))success failure:(void (^)(NSError *))failure{
+    [self.manager.requestSerializer setValue:@"XMLHttpRequest" forHTTPHeaderField:@"X-Requested-With"];
+    [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+    
+    return [self requestWithMethod:CCRequestMethodJSONPOST URLString:@"/session" parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        if ([responseObject objectForKey:@"user"]) {
+            
+            CCUserModel *user = [CCUserModel getUserWithLoginRespondObject:[responseObject objectForKey:@"user"]];
+            self.user = user;
+            success(user);
+            
+            NSArray *cookies = [[ NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:kBaseUrl]];
+            NSString *cookieString = [NSString string];
+            for (NSHTTPCookie *cookie in cookies) {
+                if ([cookie.name isEqualToString:@"_forum_session"]) {
+                    //[kUserDefaults setObject:cookie.value forKey:kForumSessionKey];
+                    cookieString = [NSString stringWithFormat:@"%@=%@", cookie.name, cookie.value];
+                }
+                if ([cookie.name isEqualToString:@"_t"]) {
+                    [kUserDefaults setObject:cookie.value forKey:kUserLoginCookieKey];
+                    cookieString = [NSString stringWithFormat:@"%@;%@=%@", cookieString, cookie.name, cookie.value];
+                }
+            }
+            
+            [self.manager.requestSerializer setValue:cookieString forHTTPHeaderField:@"Cookie"];
+            
+            [self requestWithMethod:CCRequestMethodHTTPPOST URLString:@"/login" parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+                
+                
+                NSLog(@"%@",[[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding]);
+                NSArray *cookies = [[ NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:kBaseUrl]];
+                for (NSHTTPCookie *cookie in cookies) {
+                    if ([cookie.name isEqualToString:@"_forum_session"]) {
+                        [kUserDefaults setObject:cookie.value forKey:kForumSessionKey];
+                        break;
+                    }
+                }
+                
+                
+            } failure:^(NSError *error) {
+                failure(error);
+            }];
+            
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeLoginFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+    return nil;
+}
+
+
+#pragma mark - Private Methods
+
 
 @end

@@ -87,8 +87,8 @@ static CGFloat const kFontSize = 16.0;
 - (void)layoutSubviews{
     [super layoutSubviews];
     
-    self.iconView.frame = CGRectMake(30.0, 21.0, 18.0, 18.0);
-    self.titleLabel.frame = CGRectMake(85.0, 0.0, 100.0, self.height);
+    self.iconView.frame = CGRectMake(40.0, 21.0, 18.0, 18.0);
+    self.titleLabel.frame = CGRectMake(100.0, 0.0, 100.0, self.height);
 }
 
 #pragma mark - Configure Views

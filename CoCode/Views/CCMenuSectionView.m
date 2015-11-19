@@ -10,6 +10,10 @@
 
 #import "CCMenuSectionCell.h"
 
+#import "CCLoginViewController.h"
+#import "CoCodeAppDelegate.h"
+#import "CCDataManager.h"
+
 static CGFloat const kAvatarHeight = 68.0;
 
 @interface CCMenuSectionView()<UITableViewDelegate,UITableViewDataSource>
@@ -77,12 +81,24 @@ static CGFloat const kAvatarHeight = 68.0;
     self.avatarView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     
     //TODO is logined
+    
+    //Tap to login
+    self.avatarButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.avatarButton bk_whenTapped:^{
+        if (![CCDataManager sharedManager].user.isLogin) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+        }else{
+            //TODO 提示注销
+            
+        }
+    }];
+    [self addSubview:self.avatarButton];
 }
 
 #pragma mark - Layout
 
 - (void)layoutSubviews{
-    self.avatarView.frame = CGRectMake(70.0, 36.0, kAvatarHeight, kAvatarHeight);
+    self.avatarView.frame = CGRectMake(80.0, 36.0, kAvatarHeight, kAvatarHeight);
     self.avatarButton.frame = self.avatarView.frame;
     
     self.divideImageView.frame = CGRectMake(-self.width, kAvatarHeight+50, self.width*2, 0.5);

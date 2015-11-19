@@ -108,7 +108,7 @@
         [self dismissViewControllerAnimated:YES completion:nil];
     }];
     
-    self.sc_navigationItem.title = NSLocalizedString(@"Filters", @"Hot topics period filters");
+    self.sc_navigationItem.title = self.filterTitle ? self.filterTitle : NSLocalizedString(@"Filters", @"Hot topics period filters");
     self.sc_navigationItem.leftBarButtonItem = self.cancelButton;
 }
 

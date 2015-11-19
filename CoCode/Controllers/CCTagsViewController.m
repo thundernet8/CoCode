@@ -8,30 +8,80 @@
 
 #import "CCTagsViewController.h"
 
+#import "CCDataManager.h"
+
 @interface CCTagsViewController ()
 
 @end
 
 @implementation CCTagsViewController
 
+- (void)loadView{
+    [super loadView];
+    
+    [self configureNavi];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    [self configureView];
+    
+    [[CCDataManager sharedManager] getTagsSuccess:^(CCTagsModel *tagsModel) {
+        NSLog(@"%@",tagsModel.tagList);
+    } failure:^(NSError *error) {
+        
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
 }
 
-/*
-#pragma mark - Navigation
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
 }
-*/
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
+}
+
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Layout
+
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    
+}
+
+#pragma mark - Configuration
+
+- (void)configureNavi{
+    self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_navi_menu"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kShowMenuNotification object:nil];
+    }];
+    
+    self.sc_navigationItem.title = NSLocalizedString(@"Tags", nil);
+}
+
+- (void)configureView{
+    self.view.backgroundColor = [UIColor redColor];
+    //self.view.frame = CGRectMake(0.0, 0.0, kScreenWidth, kScreenHeight);
+    
+}
+
+#pragma mark - Notifications
+
+- (void)didReceiveThemeChangeNotification {
+    self.view.backgroundColor = kBackgroundColorWhiteDark;
+}
 
 @end

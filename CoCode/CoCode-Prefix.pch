@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, CCHotTopicsPeriod){
 };
 
 //constant
-static CGFloat const kMenuWidth = 200.0;
+static CGFloat const kMenuWidth = 240.0;
 
 static NSString * const kThemeDidChangeNotification = @"ThemeDidChangeNotification";
 static NSString * const kStatusBarTappedNotification = @"StatusBarTappedNotification";
@@ -95,6 +95,11 @@ static NSString * const kShowMenuNotification = @"ShowMenuNotificaion";
 static NSString * const kShowLoginVCNotification = @"ShowLoginVCNotification";
 static NSString * const kLoginSuccessNotification = @"LoginSuccessNotification";
 static NSString * const kLogoutSuccessNotification = @"LogoutSuccessNotification";
+
+//Cookie and Session
+
+static NSString * const kForumSessionKey = @"_forum_session";
+static NSString * const kUserLoginCookieKey = @"_t";
 
 
 #endif
