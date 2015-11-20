@@ -13,6 +13,7 @@
 #import "CCHelper.h"
 #import "CCTopicListCell.h"
 #import "CCMemberModel.h"
+#import "CCTopicViewController.h"
 
 @interface CCLatestViewController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -57,6 +58,12 @@
     //TODO Notification
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
+    
+    @weakify(self);
+    [[NSNotificationCenter defaultCenter] addObserverForName:kLoginSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        @strongify(self);
+        [self beginRefresh];
+    }];
     
 }
 
@@ -116,6 +123,17 @@
     @weakify(self);
     self.getTopicListBlock = ^(NSInteger page){
         @strongify(self);
+        
+        if (![CCDataManager sharedManager].user.isLogin) {
+            
+            if (self.isRefreshing) {
+                [self endRefresh];
+            }
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+            
+            return [NSURLSessionDataTask new];
+        }
         
         self.pageCount = page;
         
@@ -209,7 +227,15 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
+    CCTopicViewController *topicViewController = [[CCTopicViewController alloc] init];
+    CCTopicModel *topic = self.topicList.list[indexPath.row];
+    CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", (int)topic.topicAuthorID]];
+    topic.topicAuthorAvatar = author.memberAvatarLarge;
+    topic.topicAuthorName = author.memberName;
+    topicViewController.topic = topic;
+    [self.navigationController pushViewController:topicViewController animated:YES];
     
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
     
 }
 

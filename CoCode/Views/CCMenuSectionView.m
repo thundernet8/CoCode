@@ -16,7 +16,7 @@
 
 static CGFloat const kAvatarHeight = 68.0;
 
-@interface CCMenuSectionView()<UITableViewDelegate,UITableViewDataSource>
+@interface CCMenuSectionView()<UITableViewDelegate,UITableViewDataSource,UIActionSheetDelegate>
 
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIButton *avatarButton;
@@ -44,7 +44,7 @@ static CGFloat const kAvatarHeight = 68.0;
         [self configureProfileView];
         
         //Notification
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
+        [self configureNotification];
         
     }
     return self;
@@ -74,32 +74,98 @@ static CGFloat const kAvatarHeight = 68.0;
     self.avatarView.contentMode = UIViewContentModeScaleAspectFill;
     self.avatarView.clipsToBounds = YES;
     self.avatarView.layer.cornerRadius = kAvatarHeight/2.0;
-    self.avatarView.layer.borderColor = RGB(0x8a8a8a, 1.0).CGColor;
-    //self.avatarView.layer.borderWidth = 1.0;
+    self.avatarView.layer.borderColor = RGB(0xaaaaaa, 0.2).CGColor;
+    self.avatarView.layer.borderWidth = 1.0;
     [self addSubview:self.avatarView];
     
     self.avatarView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     
+    self.usernameLabel = [[UILabel alloc] init];
+    [self addSubview:self.usernameLabel];
+    self.usernameLabel.font = [UIFont systemFontOfSize:16.0];
+    self.usernameLabel.alpha = 0;
+    
     //TODO is logined
+    if ([CCDataManager sharedManager].user.isLogin) {
+        self.usernameLabel.text = [kUserDefaults objectForKey:kUsername];
+        self.usernameLabel.alpha = 1;
+        
+        [self.avatarView sd_setImageWithURL:[kUserDefaults objectForKey:kAvatarURL] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
+    }
     
     //Tap to login
     self.avatarButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.avatarButton bk_whenTapped:^{
+        
         if (![CCDataManager sharedManager].user.isLogin) {
             [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+            
         }else{
-            //TODO 提示注销
+            
+            [self showLogoutActionSheetView];
             
         }
     }];
     [self addSubview:self.avatarButton];
 }
 
+- (void)configureNotification{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
+    
+    @weakify(self);
+    [[NSNotificationCenter defaultCenter] addObserverForName:kLoginSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        @strongify(self);
+//        CCUserModel *user = note.object;
+//        [self.avatarView sd_setImageWithURL:[NSURL URLWithString:user.member.memberAvatarLarge] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self configureProfileWithLoginSuccessNotification];
+        });
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kLogoutSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        [self configureProfileWithLogoutSuccessNotification];
+    }];
+}
+
+- (void)configureProfileWithLoginSuccessNotification{
+    if ([CCDataManager sharedManager].user.isLogin) {
+        [self.avatarView sd_setImageWithURL:[kUserDefaults objectForKey:kAvatarURL] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
+        [UIImageView animateWithDuration:0.8 animations:^{
+            self.avatarView.frame = CGRectMake(35.0, 45.0, 50.0, 50.0);
+        } completion:^(BOOL finished) {
+            self.usernameLabel.text = [kUserDefaults objectForKey:kUsername];
+            self.usernameLabel.alpha = 1;
+        }];
+    }
+}
+
+- (void)configureProfileWithLogoutSuccessNotification{
+    if (![CCDataManager sharedManager].user.isLogin) {
+        self.usernameLabel.text = @"";
+        self.usernameLabel.alpha = 0;
+        self.avatarView.layer.cornerRadius = kAvatarHeight/2.0;
+        [self.avatarView setImage:[UIImage imageNamed:@"default_avatar"]];
+        [UIImageView animateWithDuration:0.8 animations:^{
+            self.avatarView.frame = CGRectMake(80.0, 36.0, kAvatarHeight, kAvatarHeight);
+        } completion:^(BOOL finished) {
+            
+        }];
+    }
+}
+
 #pragma mark - Layout
 
 - (void)layoutSubviews{
     self.avatarView.frame = CGRectMake(80.0, 36.0, kAvatarHeight, kAvatarHeight);
-    self.avatarButton.frame = self.avatarView.frame;
+    self.avatarButton.frame = CGRectMake(35.0, 36.0, 160.0, kAvatarHeight);
+    if ([CCDataManager sharedManager].user.isLogin) {
+        self.usernameLabel.frame = CGRectMake(100.0, 36, 100.0, kAvatarHeight);
+        self.avatarView.layer.cornerRadius = 25;
+        self.avatarView.x -= 45;
+        self.avatarView.width = 50;
+        self.avatarView.height = 50;
+        self.avatarView.centerY = 36+kAvatarHeight/2.0;
+    }
     
     self.divideImageView.frame = CGRectMake(-self.width, kAvatarHeight+50, self.width*2, 0.5);
     self.tableView.frame = CGRectMake(0.0, 0.0, self.width, self.height);
@@ -179,9 +245,20 @@ static CGFloat const kAvatarHeight = 68.0;
     self.divideImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
 }
 
+#pragma mark - ActionSheet
 
+- (void)showLogoutActionSheetView{
+    if ([CCDataManager sharedManager].user.isLogin) {
+        UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Sure to logout?", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:NSLocalizedString(@"Logout", nil) otherButtonTitles:nil];
+        [sheet showInView:AppDelegate.window];
+    }
+}
 
-
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (buttonIndex == 0) {
+        [[CCDataManager sharedManager] userLogout];
+    }
+}
 
 
 

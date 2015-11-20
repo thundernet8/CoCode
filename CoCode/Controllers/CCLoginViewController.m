@@ -342,18 +342,21 @@
     if (self.isLogging) {
         return;
     }
-    self.usernameField.text = @"wuxueqian2010@icloud.com";
-    self.passwordField.text = @"wxq88199";
+    self.usernameField.text = @"wuxueqian2010@icloud.com"; //TODO clear
+
     if (self.usernameField.text.length > 9 && self.passwordField.text.length > 0) {
         [self hideKeyboard];
         [self showProgressHudWithText:@"登录中···"];
         
         [[CCDataManager sharedManager] loginWithUsername:self.usernameField.text password:self.passwordField.text success:^(id respondeObject) {
             [[NSNotificationCenter defaultCenter] postNotificationName:kLoginSuccessNotification object:respondeObject];
-            [SVProgressHUD dismiss];
+            //[SVProgressHUD dismiss];
             [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Login success", nil)];
             [self endLogin];
-            [self dismissViewControllerAnimated:YES completion:nil];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [SVProgressHUD dismiss];
+                [self dismissViewControllerAnimated:YES completion:nil];
+            });
         } failure:^(NSError *error) {
             [SVProgressHUD dismiss];
             NSString *reasonString;
@@ -366,6 +369,7 @@
             [alert bk_setCancelButtonWithTitle:@"OK" handler:^{
                 [self endLogin];
             }];
+            [alert show];
         }];
     }
 }

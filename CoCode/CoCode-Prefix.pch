@@ -101,5 +101,12 @@ static NSString * const kLogoutSuccessNotification = @"LogoutSuccessNotification
 static NSString * const kForumSessionKey = @"_forum_session";
 static NSString * const kUserLoginCookieKey = @"_t";
 
+//User defaults
+
+static NSString *const kUserIsLogin = @"userIsLogin";
+static NSString *const kUsername = @"username";
+static NSString *const kUserid = @"userid";
+static NSString *const kAvatarURL = @"avatarURL";
+static NSString *const kBaseUrl = @"http://cocode.cc/";
 
 #endif

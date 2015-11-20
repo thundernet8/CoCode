@@ -63,12 +63,13 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
 - (NSURLSessionDataTask *)getTagsSuccess:(void (^)(CCTagsModel *tagsModel))success
                                  failure:(void (^)(NSError *error))failure;
 
-//Login and Register
+//Login/Logout and Register
 
 - (NSURLSessionDataTask *)loginWithUsername:(NSString *)username
                                    password:(NSString *)password
                                     success:(void (^)(id respondeObject))success
                                     failure:(void (^)(NSError *error))failure;
 
+- (void)userLogout;
 
 @end

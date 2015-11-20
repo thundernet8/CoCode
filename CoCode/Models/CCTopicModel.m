@@ -126,11 +126,9 @@
     
     CCTopicList *topicList;
     
-    @autoreleasepool {
-        NSArray *posters = [responseObject objectForKey:@"users"];
-        NSArray *topics = [[responseObject objectForKey:@"topic_list"] objectForKey:@"topics"];
-        topicList = [[CCTopicList alloc] initWithTopicsArray:topics postersArray:posters];
-    }
+    NSArray *posters = [responseObject objectForKey:@"users"];
+    NSArray *topics = [[responseObject objectForKey:@"topic_list"] objectForKey:@"topics"];
+    topicList = [[CCTopicList alloc] initWithTopicsArray:topics postersArray:posters];
     if (topicList.list.count > 0) {
         return topicList;
     }

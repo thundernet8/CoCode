@@ -13,12 +13,6 @@
 
 #define kUserAgentPC @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/537.75.14"
 
-static NSString *const kUserIsLogin = @"userIsLogin";
-static NSString *const kUsername = @"username";
-static NSString *const kUserid = @"userid";
-static NSString *const kAvatarURL = @"avatarURL";
-static NSString *const kBaseUrl = @"http://cocode.cc/";
-
 typedef NS_ENUM(NSInteger, CCRequestMethod){
     CCRequestMethodJSONGET = 1,
     CCRequestMethodHTTPGET = 2,
@@ -219,6 +213,10 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }
     return [self requestWithMethod:CCRequestMethodJSONGET URLString:@"new.json" parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
         
+        if ([responseObject isKindOfClass:[NSData class]]) {
+            responseObject = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:nil];
+        }
+        
         CCTopicList *list = [CCTopicList getTopicListFromResponseObject:responseObject];
         
         if (list) {
@@ -400,7 +398,6 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             [self requestWithMethod:CCRequestMethodHTTPPOST URLString:@"/login" parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
                 
                 
-                NSLog(@"%@",[[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding]);
                 NSArray *cookies = [[ NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:kBaseUrl]];
                 for (NSHTTPCookie *cookie in cookies) {
                     if ([cookie.name isEqualToString:@"_forum_session"]) {
@@ -424,6 +421,15 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
     
     return nil;
+}
+
+- (void)userLogout{
+    NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    for (NSHTTPCookie *cookie in [storage cookies]) {
+        [storage deleteCookie:cookie];
+    }
+    self.user = nil;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kLogoutSuccessNotification object:nil];
 }
 
 
