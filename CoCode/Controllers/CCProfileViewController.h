@@ -11,6 +11,6 @@
 
 @interface CCProfileViewController : UIViewController
 
-@property (nonatomic, copy) CCMemberModel *member;
+@property (nonatomic, strong) CCMemberModel *member;
 
 @end

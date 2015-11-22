@@ -90,6 +90,7 @@ static CGFloat const kMenuWidth = 240.0;
 
 static NSString * const kThemeDidChangeNotification = @"ThemeDidChangeNotification";
 static NSString * const kStatusBarTappedNotification = @"StatusBarTappedNotification";
+static NSString * const kClearNaviBarBackgroundColorNotification = @"ClearNaviBarBackgroundColorNotification";
 static NSString * const kShowMenuNotification = @"ShowMenuNotificaion";
 
 static NSString * const kShowLoginVCNotification = @"ShowLoginVCNotification";

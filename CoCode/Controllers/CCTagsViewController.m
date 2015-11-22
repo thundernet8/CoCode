@@ -27,11 +27,11 @@
     
     [self configureView];
     
-    [[CCDataManager sharedManager] getTagsSuccess:^(CCTagsModel *tagsModel) {
-        NSLog(@"%@",tagsModel.tagList);
-    } failure:^(NSError *error) {
-        
-    }];
+//    [[CCDataManager sharedManager] getTagsSuccess:^(CCTagsModel *tagsModel) {
+//        NSLog(@"%@",tagsModel.tagList);
+//    } failure:^(NSError *error) {
+//        
+//    }];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
 }

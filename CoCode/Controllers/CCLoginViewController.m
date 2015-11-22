@@ -31,9 +31,9 @@
 @property (nonatomic, strong) UIView *separatorLine;
 
 @property (nonatomic, strong) UIView *registerView;
+@property (nonatomic, strong) UITextField *emailField;
 @property (nonatomic, strong) UITextField *usernameField2;
 @property (nonatomic, strong) UITextField *passwordField2;
-@property (nonatomic, strong) UITextField *passwordRepeatField;
 @property (nonatomic, strong) UIButton *registerButton;
 @property (nonatomic, strong) UIButton *goLoginButton;
 
@@ -69,9 +69,9 @@
         self.separatorLine = [[UIView alloc] init];
         
         self.registerView = [[UIView alloc] init];
-        self.usernameField2 = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Email Address or Username", nil) secureText:NO];
+        self.emailField = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Email Address", nil) secureText:NO];
+        self.usernameField2 = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Your Username", nil) secureText:NO];
         self.passwordField2 = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Your Password", nil) secureText:YES];
-        self.passwordRepeatField = [self createTextFieldWithPlaceHolder:NSLocalizedString(@"Repeat Password", nil) secureText:YES];
         self.registerButton = [[UIButton alloc] init];
         self.goLoginButton = [[UIButton alloc] init];
 
@@ -99,9 +99,9 @@
     [self.loginView addSubview:self.separatorLine];
     
     //[self.view addSubview:self.registerView];
+    [self.registerView addSubview:self.emailField];
     [self.registerView addSubview:self.usernameField2];
     [self.registerView addSubview:self.passwordField2];
-    [self.registerView addSubview:self.passwordRepeatField];
     [self.registerView addSubview:self.goLoginButton];
     [self.registerView addSubview:self.registerButton];
     
@@ -162,9 +162,9 @@
     
     self.separatorLine.frame = CGRectMake(kScreenWidth/2.0, 277.0, 1.0, 16.0);
     
-    self.usernameField2.frame = CGRectMake(20.0, 100.0, kScreenWidth-40, 50.0);
-    self.passwordField2.frame = CGRectMake(20.0, 155.0, kScreenWidth-40, 50.0);
-    self.passwordRepeatField.frame = CGRectMake(20.0, 210.0, kScreenWidth-40, 50.0);
+    self.emailField.frame = CGRectMake(20.0, 100.0, kScreenWidth-40, 50.0);
+    self.usernameField2.frame = CGRectMake(20.0, 155.0, kScreenWidth-40, 50.0);
+    self.passwordField2.frame = CGRectMake(20.0, 210.0, kScreenWidth-40, 50.0);
     self.registerButton.frame = CGRectMake(20.0, 270.0, kScreenWidth-40, 45.0);
     
     self.goLoginButton.frame = CGRectMake(20.0, 330.0, kScreenWidth-40, 20.0);
@@ -198,9 +198,10 @@
     self.goRegisterButton.titleLabel.font = [UIFont systemFontOfSize:16.0];
     [self.goRegisterButton setTitleColor:kColorPurple forState:UIControlStateNormal];
     [self.goRegisterButton bk_addEventHandler:^(id sender) {
-        [self.loginView removeFromSuperview];
-        [self.view addSubview:self.registerView];
-        self.isKeyboardShowing = NO;
+//        [self.loginView removeFromSuperview];
+//        [self.view addSubview:self.registerView];
+//        self.isKeyboardShowing = NO;
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://cocode.cc/login"]];
     } forControlEvents:UIControlEventTouchUpInside];
     
     [self.forgotPasswordButton setTitle:NSLocalizedString(@"Forgot Password?", nil) forState:UIControlStateNormal];
@@ -238,7 +239,7 @@
         [self showKeyboard];
         return YES;
     }];
-    [self.usernameField2 setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+    [self.emailField setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
         @strongify(self);
         [self showKeyboard];
         return YES;
@@ -248,12 +249,12 @@
         [self showKeyboard];
         return YES;
     }];
-    [self.passwordField2 setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+    [self.usernameField2 setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
         @strongify(self);
         [self showKeyboard];
         return YES;
     }];
-    [self.passwordRepeatField setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
+    [self.passwordField2 setBk_shouldBeginEditingBlock:^BOOL(UITextField *textField) {
         @strongify(self);
         [self showKeyboard];
         return YES;
@@ -299,9 +300,9 @@
             }
             if ([self.view.subviews containsObject:self.registerView]) {
                 self.registerView.y = kViewOffsetYEditing;
+                self.emailField.y -= 20;
                 self.usernameField2.y -= 20;
                 self.passwordField2.y -= 20;
-                self.passwordRepeatField.y -= 20;
                 self.registerButton.y -= 20;
                 self.goLoginButton.y -= 20;
             }
@@ -327,9 +328,9 @@
             }
             if ([self.view.subviews containsObject:self.registerView]) {
                 self.registerView.y = kViewOffsetYNormal;
+                self.emailField.y += 20;
                 self.usernameField2.y += 20;
                 self.passwordField2.y += 20;
-                self.passwordRepeatField.y += 20;
                 self.registerButton.y += 20;
                 self.goLoginButton.y += 20;
             }
@@ -342,9 +343,8 @@
     if (self.isLogging) {
         return;
     }
-    self.usernameField.text = @"wuxueqian2010@icloud.com"; //TODO clear
 
-    if (self.usernameField.text.length > 9 && self.passwordField.text.length > 0) {
+    if (self.usernameField.text.length > 0 && self.passwordField.text.length > 0) {
         [self hideKeyboard];
         [self showProgressHudWithText:@"登录中···"];
         

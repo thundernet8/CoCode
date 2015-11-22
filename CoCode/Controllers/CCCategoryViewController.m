@@ -29,6 +29,8 @@
 
 @property (nonatomic, strong) CCTopicList *topicList;
 
+@property (nonatomic) BOOL isFirstLoad;
+
 @end
 
 @implementation CCCategoryViewController
@@ -37,6 +39,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.pageCount = 1;
+        self.isFirstLoad = YES;
         NSDictionary *categories = [[NSDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Categories" ofType:@"plist"]];
         NSMutableArray *tempFilters = [NSMutableArray array];
         for (NSString *key in categories) {
@@ -83,10 +86,10 @@
     
     //weakify and strongify is from ReactiveCocoa(EXTScope)
     @weakify(self);
-    dispatch_async(dispatch_get_main_queue(), ^{
+    if (self.isFirstLoad) {
         @strongify(self);
         [self beginRefresh];
-    });
+    }
 }
 
 #pragma mark - Layout
@@ -149,6 +152,7 @@
         @strongify(self);
         
         self.pageCount = page;
+        self.isFirstLoad = NO;
         
         return [[CCDataManager sharedManager] getTopicListWithPage:page categoryUrl:self.categoryUrl success:^(CCTopicList *list) {
             @strongify(self);
@@ -304,7 +308,6 @@
 - (void)didReceiveThemeChangeNotification {
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
 }
-
 
 
 @end

@@ -28,6 +28,9 @@
 
 @property (nonatomic, strong) CCTopicList *topicList;
 
+//Login to view button
+@property (nonatomic, strong) UIButton *loginButton;
+
 @end
 
 @implementation CCLatestViewController
@@ -124,13 +127,17 @@
     self.getTopicListBlock = ^(NSInteger page){
         @strongify(self);
         
+        if ([self.view.subviews containsObject:self.loginButton]) {
+            [self.loginButton removeFromSuperview];
+        }
+        
         if (![CCDataManager sharedManager].user.isLogin) {
             
             if (self.isRefreshing) {
                 [self endRefresh];
             }
             
-            [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+            [self handleRequiredLoginButton];
             
             return [NSURLSessionDataTask new];
         }
@@ -254,7 +261,24 @@
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
 }
 
+#pragma mark - Handle login requirement
 
+- (void)handleRequiredLoginButton{
+    [self.tableView reloadData];
+    
+    self.loginButton = [[UIButton alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-60, kScreenHeight/2.0-20, 120.0, 40.0)];
+    [self.loginButton setTitle:@"Login to view" forState:UIControlStateNormal];
+    [self.loginButton setTitleColor:kPurpleColor forState:UIControlStateNormal];
+    self.loginButton.layer.cornerRadius = 5.0;
+    self.loginButton.layer.borderColor = kColorPurple.CGColor;
+    self.loginButton.layer.borderWidth = 2.0;
+    
+    [self.loginButton bk_addEventHandler:^(id sender) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+    } forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.view addSubview:self.loginButton];
+}
 
 
 @end

@@ -16,6 +16,8 @@
 
 #import "CCNavigationBar.h"
 
+#import "CCProfileViewController.h"
+
 @interface SCNavigationController ()<UIGestureRecognizerDelegate, UINavigationControllerDelegate>
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panRecognizer;
@@ -207,8 +209,17 @@
         viewController.sc_navigationItem = navigationItem;
     }
     if (!viewController.sc_navigationBar) {
-        viewController.sc_navigationBar = [[CCNavigationBar alloc] init];
+        
+        CCNavigationBar *naviBar = [[CCNavigationBar alloc] init];
+        
+        if ([viewController isKindOfClass:[CCProfileViewController class]]) {
+            naviBar.lineViewColor = [UIColor clearColor];
+        }
+        
+        viewController.sc_navigationBar = naviBar;
+        
         [viewController.view addSubview:viewController.sc_navigationBar];
+        
     }
 
 }

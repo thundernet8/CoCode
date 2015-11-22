@@ -10,7 +10,7 @@
 #import <UIImage+FontAwesome.h>
 
 static CGFloat const kCellHeight = 60;
-static CGFloat const kFontSize = 16.0;
+static CGFloat const kFontSize = 18.0;
 
 @interface CCMenuSectionCell()
 
@@ -75,7 +75,7 @@ static CGFloat const kFontSize = 16.0;
             self.backgroundColor = [UIColor clearColor];
             self.iconView.image = self.normalImage;
         }else{
-            self.titleLabel.textColor = kFontColorBlackMid;
+            self.titleLabel.textColor = kBlackColor;
             self.backgroundColor = [UIColor clearColor];
             self.iconView.image = self.normalImage;
         }
@@ -87,7 +87,7 @@ static CGFloat const kFontSize = 16.0;
 - (void)layoutSubviews{
     [super layoutSubviews];
     
-    self.iconView.frame = CGRectMake(40.0, 21.0, 18.0, 18.0);
+    self.iconView.frame = CGRectMake(40.0, 20.0, 20.0, 20.0);
     self.titleLabel.frame = CGRectMake(100.0, 0.0, 100.0, self.height);
 }
 
@@ -121,10 +121,10 @@ static CGFloat const kFontSize = 16.0;
     
     //NSString *highlightedImageName = [self.iconName stringByAppendingString:@"_highlighted"];
     //self.highlightedImage = [[UIImage imageNamed:self.iconName] imageWithTintColor:kColorBlue];
-    self.highlightedImage = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kColorPurple andSize:CGSizeMake(20.0, 20.0)];
+    self.highlightedImage = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kColorPurple andSize:CGSizeMake(25.0, 25.0)];
     
     //self.normalImage = [[UIImage imageNamed:highlightedImageName] imageWithTintColor:kFontColorBlackMid];
-    self.normalImage  = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kFontColorBlackMid andSize:CGSizeMake(20.0, 20.0)];
+    self.normalImage  = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kFontColorBlackMid andSize:CGSizeMake(25.0, 25.0)];
     
     self.normalImage = self.normalImage.imageForCurrentTheme;
     self.iconView.alpha = kSetting.imageViewAlphaForCurrentTheme;

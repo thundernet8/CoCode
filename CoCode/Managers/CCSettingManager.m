@@ -119,7 +119,7 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         
         //Background Color
         self.backgroundColorWhite = kWhiteColor;
-        self.backgroundColorWhiteDark = [UIColor colorWithWhite:0.98 alpha:1.0];
+        self.backgroundColorWhiteDark = [UIColor colorWithRed:0.941 green:0.945 blue:0.961 alpha:1.000];
         
         //Line Color
         self.lineColorBlackDark = kLineColorBlackDarkDefault;

@@ -10,4 +10,6 @@
 
 @interface CCNavigationBar : UIView
 
+@property (nonatomic, strong) UIColor *lineViewColor;
+
 @end

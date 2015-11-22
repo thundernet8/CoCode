@@ -198,8 +198,8 @@
     [self.menuView setOffsetProgress:offset/kMenuWidth];
 
     self.rootBackgroundButton.alpha = offset/kMenuWidth*0.3;
-    UIViewController *previousViewController = [self viewControllerForIndex:self.currentControllerIndex];
-    previousViewController.view.x = offset/6.0;
+    //UIViewController *previousViewController = [self viewControllerForIndex:self.currentControllerIndex];
+    //previousViewController.view.x = offset/6.0;
 }
 
 //Show ViewController included in Menu
@@ -208,6 +208,12 @@
         @weakify(self);
         void (^showControllerBlock)() = ^{
             @strongify(self);
+            
+            //Status bar style
+            if (index != 4) {
+                [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+            }
+            
             UIViewController *previousViewController = [self viewControllerForIndex:self.currentControllerIndex];
             UIViewController *willShowViewController = [self viewControllerForIndex:index];
             if (willShowViewController) {
@@ -274,10 +280,10 @@
         case 3:
             viewController = self.catNavigationController;
             break;
+        //case 4:
+         //   viewController = self.tagNavigationController;
+          //  break;
         case 4:
-            viewController = self.tagNavigationController;
-            break;
-        case 5:
             viewController = self.profileNavigationController;
             break;
             
@@ -406,7 +412,7 @@
 }
 
 - (void)didReceiveShowMenuNotification{
-    [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:3.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+    [UIView animateWithDuration:0.3 delay:0.0 usingSpringWithDamping:1.0 initialSpringVelocity:3.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
         [self setMenuOffset:kMenuWidth];
         self.rootBackgroundButton.hidden = NO;
     } completion:nil];

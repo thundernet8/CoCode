@@ -20,7 +20,7 @@ static CGFloat const kAvatarHeight = 68.0;
 
 @property (nonatomic, strong) UIImageView *avatarView;
 @property (nonatomic, strong) UIButton *avatarButton;
-@property (nonatomic, strong) UIImageView *divideImageView;
+@property (nonatomic, strong) UIView *divideView;
 @property (nonatomic, strong) UILabel *usernameLabel;
 
 @property (nonatomic, strong) UITableView *tableView;
@@ -36,8 +36,8 @@ static CGFloat const kAvatarHeight = 68.0;
     self = [super initWithFrame:frame];
     if (self) {
         //self.sectionIconArray = @[@"icon_menu_newest", @"icon_menu_latest", @"icon_menu_hot", @"icon_menu_cat", @"icon_menu_tag", @"icon_menu_profile"];
-        self.sectionIconArray = @[@"fa-clock-o", @"fa-calendar", @"fa-fire", @"fa-book", @"fa-tags", @"fa-user"];
-        self.sectionTitleArray = @[NSLocalizedString(@"Recently Active", @"Recently replied,edited,new"), NSLocalizedString(@"Latest Publish", @"Latest published topics"), NSLocalizedString(@"Hot", @"Hot topics"), NSLocalizedString(@"Categories", @"Categories"), NSLocalizedString(@"Tags", @"Tags"), NSLocalizedString(@"Profile", @"Personal related")];
+        self.sectionIconArray = @[@"fa-clock-o", @"fa-calendar", @"fa-fire", @"fa-book",  @"fa-user"]; //@"fa-tags",
+        self.sectionTitleArray = @[NSLocalizedString(@"Recently Active", @"Recently replied,edited,new"), NSLocalizedString(@"Latest Publish", @"Latest published topics"), NSLocalizedString(@"Hot", @"Hot topics"), NSLocalizedString(@"Categories", @"Categories"),  NSLocalizedString(@"Profile", @"Personal related")]; //NSLocalizedString(@"Tags", @"Tags"),
         
         //TODO configure
         [self configureTableView];
@@ -65,6 +65,9 @@ static CGFloat const kAvatarHeight = 68.0;
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.contentInsetTop = 120.0;
+    
+    self.tableView.scrollEnabled = NO;
+    
     [self addSubview:self.tableView];
 }
 
@@ -107,6 +110,10 @@ static CGFloat const kAvatarHeight = 68.0;
         }
     }];
     [self addSubview:self.avatarButton];
+    
+    self.divideView = [[UIView alloc] init];
+    self.divideView.backgroundColor = [UIColor colorWithWhite:0.899 alpha:0.8];
+    [self addSubview:self.divideView];
 }
 
 - (void)configureNotification{
@@ -167,8 +174,8 @@ static CGFloat const kAvatarHeight = 68.0;
         self.avatarView.centerY = 36+kAvatarHeight/2.0;
     }
     
-    self.divideImageView.frame = CGRectMake(-self.width, kAvatarHeight+50, self.width*2, 0.5);
-    self.tableView.frame = CGRectMake(0.0, 0.0, self.width, self.height);
+    self.divideView.frame = CGRectMake(0, kAvatarHeight+50, self.width, 0.5);
+    self.tableView.frame = CGRectMake(0.0, 20.0, self.width, self.height);
     
     [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:kSetting.selectedSectionIndex inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
 }
@@ -191,7 +198,7 @@ static CGFloat const kAvatarHeight = 68.0;
     self.avatarView.y = 30 - (scrollView.contentInsetTop - offsetY) / 1.7;
     self.avatarButton.frame = self.avatarView.frame;
     
-    self.divideImageView.y = self.avatarView.y + kAvatarHeight + (offsetY - (self.avatarView.y + kAvatarHeight)) / 2.0 + fabs(offsetY - self.tableView.contentInsetTop)/self.tableView.contentInsetTop * 8.0 + 10;
+    self.divideView.y = self.avatarView.y + kAvatarHeight + (offsetY - (self.avatarView.y + kAvatarHeight)) / 2.0 + fabs(offsetY - self.tableView.contentInsetTop)/self.tableView.contentInsetTop * 8.0 + 10;
 }
 
 #pragma mark - TableView Delegate & DataSource
@@ -242,7 +249,7 @@ static CGFloat const kAvatarHeight = 68.0;
     [self.tableView reloadData];
     [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:kSetting.selectedSectionIndex inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
     self.avatarView.alpha = kSetting.imageViewAlphaForCurrentTheme;
-    self.divideImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
+    self.divideView.alpha = kSetting.imageViewAlphaForCurrentTheme;
 }
 
 #pragma mark - ActionSheet
