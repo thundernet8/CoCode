@@ -26,6 +26,7 @@
 
 @property (nonatomic, strong) UIImageView *avatarImageView;
 @property (nonatomic, strong) UIView *avatarMaskView;
+@property (nonatomic, strong) UIButton *avatarButton;
 @property (nonatomic, strong) UILabel *nameLabel;
 @property (nonatomic, strong) UIButton *editProfileButton;
 
@@ -130,7 +131,7 @@
 - (void)configureTableView{
     self.tableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     
-    self.tableView.backgroundColor = RGB(0xf0f1f5, 1.0);
+    self.tableView.backgroundColor = kBackgroundColorWhiteDark;
     self.tableView.separatorColor = kSeparatorColor;
     self.tableView.scrollEnabled = NO;
     self.tableView.tableFooterView = [UIView new];
@@ -166,6 +167,7 @@
         self.avatarImageView.image = [UIImage imageNamed:@"default_avatar"];
     }
     
+    
     self.avatarMaskView = [[UIView alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-kAvatarMaskHeight/2.0, 36.0, kAvatarMaskHeight, kAvatarMaskHeight)];
     self.avatarMaskView.backgroundColor = [UIColor clearColor];
     self.avatarMaskView.layer.cornerRadius = kAvatarMaskHeight/2.0;
@@ -188,6 +190,16 @@
         [self.headerView addSubview:self.nameLabel];
     }
     
+    self.avatarButton = [[UIButton alloc] initWithFrame:self.avatarMaskView.frame];
+    self.avatarButton.backgroundColor = [UIColor clearColor];
+    [self.avatarButton bk_addEventHandler:^(id sender) {
+        if (!self.isLogged) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+        }
+    } forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.headerView addSubview:self.avatarButton];
+    
     
     return self.headerView;
 }
@@ -203,7 +215,7 @@
         return self.userRelatedRows.count;
     }
     if (section == 1) {
-        return self.isMyself ? 2:0;
+        return self.isMyself ? 2:1;
     }
     
     return 0;
@@ -234,7 +246,7 @@
     if (indexPath.section == 0) {
         
     }
-    if (indexPath.section == 1) {
+    if (indexPath.section == 1 && self.isMyself) {
         switch (indexPath.row) {
             case 0:
                 [self sendEmail];
@@ -248,6 +260,9 @@
                 break;
         }
     }
+    if (indexPath.section == 1 && !self.isMyself) {
+        [self showMoreSettingVC];
+    }
 }
 
 
@@ -260,7 +275,7 @@
         [cell.textLabel setText:[cellInfo objectForKey:@"text"]];
     }
     
-    if (indexPath.section == 1) {
+    if (indexPath.section == 1 && self.isMyself) {
         switch (indexPath.row) {
             case 0:
                 [cell.imageView setImage:[UIImage imageNamed:@"icon_feedback"]];
@@ -275,6 +290,10 @@
                 break;
         }
     }
+    if (indexPath.section == 1 && !self.isMyself) {
+        [cell.imageView setImage:[UIImage imageNamed:@"icon_setting"]];
+        [cell.textLabel setText:NSLocalizedString(@"Settings", nil)];
+    }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
@@ -285,6 +304,7 @@
     }
     
     cell.textLabel.textColor = [UIColor colorWithRed:0.208 green:0.212 blue:0.224 alpha:1.000];
+    cell.backgroundColor = kCellHighlightedColor;
     
     return cell;
 }

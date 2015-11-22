@@ -81,7 +81,7 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
 
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
 }
 
 - (void)viewDidAppear:(BOOL)animated{

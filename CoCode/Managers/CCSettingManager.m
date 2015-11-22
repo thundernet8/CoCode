@@ -18,8 +18,8 @@
 #define kColorBlueDefault             RGB(0x3fb7fc, 1.0)
 #define kColorPurpleDefault           RGB(0x6b6ee6, 1.0)
 
-#define kCellHighlightColor           RGB(0xdbdbdb, 0.6)
-#define kMenuCellHighlightColor       RGB(0xf6f6f6, 1.0)
+#define kCellHighlightColor           RGB(0xffffff, 1.0)
+#define kMenuCellHighlightColor       RGB(0xeaebeb, 1.0)
 
 static NSString *const kTheme           = @"Theme";
 static NSString *const kThemeAutoChange = @"ThemeAutoChange";
@@ -44,6 +44,13 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
             _themeAutoChange = [themeAutoChange boolValue];
         }else{
             _themeAutoChange = YES;
+        }
+        
+        id nonePicsMode = [kUserDefaults objectForKey:kNonePicsMode];
+        if (nonePicsMode) {
+            _nonePicsMode = [nonePicsMode boolValue];
+        }else{
+            _nonePicsMode = NO;
         }
         
         [self configureTheme:_theme];
@@ -87,16 +94,18 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
     if (theme == CCThemeNight) {
         //Navigation Color
         self.navigationBarTintColor = RGB(0xcccccc, 1.0);
-        self.navigationBarColor = [UIColor colorWithWhite:0.000 alpha:0.980];
-        self.navigationBarLineColor = [UIColor colorWithWhite:0.281 alpha:1.000];
+        self.navigationBarColor = [UIColor colorWithRed:0.055 green:0.102 blue:0.165 alpha:1.000];
+        self.navigationBarLineColor = [UIColor colorWithRed:0.047 green:0.090 blue:0.141 alpha:1.000];
         
         //Background Color
-        self.backgroundColorWhite = kBlackColor;
-        self.backgroundColorWhiteDark = [UIColor colorWithWhite:0.10 alpha:1.0];
+        self.backgroundColorWhite = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
+        self.backgroundColorWhiteDark = [UIColor colorWithRed:0.071 green:0.118 blue:0.200 alpha:1.000];
         
         //Line Color
         self.lineColorBlackDark = [UIColor colorWithWhite:0.28 alpha:1.0];
         self.lineColorBlackLight = [UIColor colorWithWhite:0.12 alpha:1.0];
+        
+        self.separatorColor = [UIColor colorWithRed:0.071 green:0.118 blue:0.200 alpha:1.000];
         
         //Font Color
         self.fontColorBlackDark = RGB(0x989898, 1.0);
@@ -106,10 +115,12 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         
         //Color
         self.colorPurple = [UIColor colorWithWhite:1.0 alpha:0.1];
-        self.cellHighlightedColor = RGB(0x333333, 1.0);
-        self.menuCellHighlightedColor = [UIColor colorWithWhite:0.12 alpha:1.0];
+        self.cellHighlightedColor = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
+        self.menuCellHighlightedColor = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
         
-        //Notification
+        //Status Bar Style
+        self.currentStatusBarStyle = UIStatusBarStyleLightContent;
+        
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     }else{
@@ -118,13 +129,15 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         self.navigationBarColor = [UIColor colorWithWhite:0.973 alpha:0.980];
         self.navigationBarLineColor = [UIColor colorWithWhite:0.88 alpha:1.0];
         
-        //Background Color
+        //Background Color dbdbdb
         self.backgroundColorWhite = kWhiteColor;
         self.backgroundColorWhiteDark = [UIColor colorWithRed:0.941 green:0.945 blue:0.961 alpha:1.000];
         
         //Line Color
         self.lineColorBlackDark = kLineColorBlackDarkDefault;
         self.lineColorBlackLight = kLineColorBlackLightDefault;
+        
+        self.separatorColor = [UIColor colorWithWhite:0.918 alpha:1.000];
         
         //Font Color
         self.fontColorBlackDark = kFontColorBlackDarkDefault;
@@ -137,7 +150,9 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         self.cellHighlightedColor = kCellHighlightColor;
         self.menuCellHighlightedColor = kMenuCellHighlightColor;
         
-        //Status Bar
+        //Status Bar Style
+        self.currentStatusBarStyle = UIStatusBarStyleDefault;
+        
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
         

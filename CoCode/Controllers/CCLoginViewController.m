@@ -119,7 +119,8 @@
     
     [self configureTextFieldDelegate];
     
-    self.backgroundImageView.backgroundColor = kBackgroundColorWhiteDark;
+    //self.backgroundImageView.backgroundColor = kBackgroundColorWhiteDark;
+    self.backgroundImageView.backgroundColor = [UIColor colorWithRed:0.941 green:0.945 blue:0.961 alpha:1.000];
     [self.cancelButton bk_addEventHandler:^(id sender) {
         [self dismissViewControllerAnimated:YES completion:nil];
     } forControlEvents:UIControlEventTouchUpInside];
@@ -130,7 +131,7 @@
     
     self.separatorLine.backgroundColor = [UIColor colorWithWhite:0.800 alpha:1.000];
     
-    
+    self.view.backgroundColor = kWhiteColor;
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -190,7 +191,7 @@
 
 - (void)configureButtons{
     self.loginButton.layer.cornerRadius = 5.0;
-    self.loginButton.backgroundColor = kColorPurple;
+    self.loginButton.backgroundColor = kPurpleColor;
     self.loginButton.titleLabel.font = [UIFont boldSystemFontOfSize:20.0];
     [self.loginButton setTitle:NSLocalizedString(@"Login", nil) forState:UIControlStateNormal];
     [self.loginButton setTitleColor:kWhiteColor forState:UIControlStateNormal];
@@ -202,7 +203,7 @@
     
     [self.goRegisterButton setTitle:NSLocalizedString(@"Sign Up", nil) forState:UIControlStateNormal];
     self.goRegisterButton.titleLabel.font = [UIFont systemFontOfSize:16.0];
-    [self.goRegisterButton setTitleColor:kColorPurple forState:UIControlStateNormal];
+    [self.goRegisterButton setTitleColor:kPurpleColor forState:UIControlStateNormal];
     [self.goRegisterButton bk_addEventHandler:^(id sender) {
 //        [self.loginView removeFromSuperview];
 //        [self.view addSubview:self.registerView];
@@ -218,7 +219,7 @@
     } forControlEvents:UIControlEventTouchUpInside];
     
     self.registerButton.layer.cornerRadius = 5.0;
-    self.registerButton.backgroundColor = kColorPurple;
+    self.registerButton.backgroundColor = kPurpleColor;
     self.registerButton.titleLabel.font = [UIFont systemFontOfSize:20.0];
     [self.registerButton setTitle:NSLocalizedString(@"Register", nil) forState:UIControlStateNormal];
     [self.registerButton setTitleColor:kWhiteColor forState:UIControlStateNormal];
@@ -229,7 +230,7 @@
     
     [self.goLoginButton setTitle:NSLocalizedString(@"Sign In", nil) forState:UIControlStateNormal];
     self.goLoginButton.titleLabel.font = [UIFont systemFontOfSize:16.0];
-    [self.goLoginButton setTitleColor:kColorPurple forState:UIControlStateNormal];
+    [self.goLoginButton setTitleColor:kPurpleColor forState:UIControlStateNormal];
     [self.goLoginButton bk_addEventHandler:^(id sender) {
         [self.registerView removeFromSuperview];
         [self.view addSubview:self.loginView];

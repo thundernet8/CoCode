@@ -10,6 +10,7 @@
 #import "CCDataManager.h"
 #import <SVProgressHUD.h>
 #import "CCSettingManager.h"
+#import "CCSettingCell.h"
 
 @interface CCSettingViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -56,6 +57,8 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    
+    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
     
 }
 
@@ -154,12 +157,12 @@
     return 0;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+- (CCSettingCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     static NSString *identifier = @"MoreSettingCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    CCSettingCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        cell = [[CCSettingCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
     
     
@@ -207,7 +210,7 @@
 
 #pragma mark - Configure Cell
 
-- (UITableViewCell *)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath{
+- (CCSettingCell *)configureCell:(CCSettingCell *)cell atIndexPath:(NSIndexPath *)indexPath{
     
     cell.textLabel.textColor = [UIColor colorWithRed:0.208 green:0.212 blue:0.224 alpha:1.000];
     
@@ -249,78 +252,61 @@
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.backgroundColor = kCellHighlightedColor;
     
     return cell;
 }
 
 #pragma mark - Accessories
 
-- (void)configureThemeSwithCell:(UITableViewCell *)cell{
+- (void)configureThemeSwithCell:(CCSettingCell *)cell{
     cell.textLabel.text = NSLocalizedString(@"Night Mode", nil);
     
-    if ([cell.contentView viewWithTag:1]) {
-        [[cell.contentView viewWithTag:1] removeFromSuperview];
-    }
+    cell.switchButton.alpha = 1;
+    cell.switchButton.onTintColor = RGB(0x3975cf, 1.0);
+    cell.switchButton.on = [CCSettingManager sharedManager].theme == CCThemeNight;
     
-    UISwitch *switchButton = [[UISwitch alloc] initWithFrame:CGRectMake(kScreenWidth-68.0, 10.0, 50.0, 30.0)];
-    switchButton.tag = 1;
-    
-    switchButton.on = [CCSettingManager sharedManager].theme == CCThemeNight;
-    
-    [switchButton bk_addEventHandler:^(id sender) {
-        switchButton.enabled = NO;
-        if (switchButton.isOn) {
+    [cell.switchButton bk_addEventHandler:^(id sender) {
+        cell.switchButton.enabled = NO;
+        if (cell.switchButton.isOn) {
             [[CCSettingManager sharedManager] setTheme:CCThemeNight];
         }else{
             [[CCSettingManager sharedManager] setTheme:CCThemeDefault];
         }
-        switchButton.enabled = YES;
+        cell.switchButton.enabled = YES;
     } forControlEvents:UIControlEventTouchUpInside];
-    
-    [cell.contentView addSubview:switchButton];
     
 }
 
-- (void)configurePicDownloadModeSwitchCell:(UITableViewCell *)cell{
+- (void)configurePicDownloadModeSwitchCell:(CCSettingCell *)cell{
     cell.textLabel.text = NSLocalizedString(@"Text Mode", nil);
-    
-    if ([cell.contentView viewWithTag:1]) {
-        [[cell.contentView viewWithTag:1] removeFromSuperview];
-    }
-    
-    UISwitch *switchButton = [[UISwitch alloc] initWithFrame:CGRectMake(kScreenWidth-68.0, 10.0, 50.0, 30.0)];
-    switchButton.tag = 1;
-    
-    switchButton.on = [CCSettingManager sharedManager].nonePicsMode;
-    
-    [switchButton bk_addEventHandler:^(id sender) {
-        switchButton.enabled = NO;
-        if (switchButton.isOn) {
+
+    cell.switchButton.alpha = 1;
+    cell.switchButton.onTintColor = RGB(0x3975cf, 1.0);
+    cell.switchButton.on = [CCSettingManager sharedManager].nonePicsMode;
+    [cell.switchButton bk_addEventHandler:^(id sender) {
+        cell.switchButton.enabled = NO;
+        if (cell.switchButton.isOn) {
             [[CCSettingManager sharedManager] setNonePicsMode:YES];
+            NSLog(@"1");
         }else{
             [[CCSettingManager sharedManager] setNonePicsMode:NO];
+            NSLog(@"2");
         }
-        switchButton.enabled = YES;
+        cell.switchButton.enabled = YES;
     } forControlEvents:UIControlEventTouchUpInside];
-    
-    [cell.contentView addSubview:switchButton];
 
 }
 
-- (void)configureClearCacheCell:(UITableViewCell *)cell{
-    
-    if ([cell.contentView viewWithTag:1]) {
-        [[cell.contentView viewWithTag:1] removeFromSuperview];
-    }
+- (void)configureClearCacheCell:(CCSettingCell *)cell{
     
     cell.textLabel.text = NSLocalizedString(@"Clear Cache", nil);
-    UILabel *cacheSizeLabel = [[UILabel alloc] initWithFrame:CGRectMake(kScreenWidth-100, 0.0, 80.0, 50.0)];
-    cacheSizeLabel.tag = 1;
-    cacheSizeLabel.text = self.cacheSizeText;
-    cacheSizeLabel.textColor = [UIColor colorWithRed:1.000 green:0.400 blue:0.400 alpha:1.000];
-    cacheSizeLabel.textAlignment = NSTextAlignmentRight;
+    //cell.rightLabel = [[UILabel alloc] initWithFrame:CGRectMake(kScreenWidth-100, 0.0, 80.0, 50.0)];
+    cell.rightLabel.text = self.cacheSizeText;
+    cell.rightLabel.textColor = [UIColor colorWithRed:1.000 green:0.400 blue:0.400 alpha:1.000];
+    cell.rightLabel.textAlignment = NSTextAlignmentRight;
     
-    [cell addSubview:cacheSizeLabel];
+    //[cell addSubview:cell.rightLabel];
 }
 
 - (void)statisticCache

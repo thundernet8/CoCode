@@ -46,4 +46,7 @@ typedef NS_ENUM(NSInteger, CCTheme) {
 
 @property (nonatomic, assign) CGFloat imageViewAlphaForCurrentTheme;
 
+@property (nonatomic, assign) UIStatusBarStyle currentStatusBarStyle;
+@property (nonatomic, copy) UIColor *separatorColor;
+
 @end

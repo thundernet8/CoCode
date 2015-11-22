@@ -79,7 +79,7 @@
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
     
     //weakify and strongify is from ReactiveCocoa(EXTScope)
     @weakify(self);

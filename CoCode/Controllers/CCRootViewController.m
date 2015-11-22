@@ -210,7 +210,7 @@
             @strongify(self);
             
             if (index != 4) {
-                [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+                [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
             }else{
                 [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
             }

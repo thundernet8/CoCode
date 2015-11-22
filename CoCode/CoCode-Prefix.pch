@@ -42,7 +42,7 @@
 #define kBlackColor [UIColor blackColor]
 #define kPurpleColor ([UIColor colorWithRed:107/255.0 green:110/255.0 blue:230/255.0 alpha:1.0])
 #define kSeparatorLightBlueColor [UIColor colorWithRed:0.949 green:0.965 blue:0.988 alpha:1.000]
-#define kSeparatorColor [UIColor colorWithWhite:0.918 alpha:1.000]
+
 
 //color method
 #define RGB(c,a)    [UIColor colorWithRed:((c>>16)&0xFF)/255.0  green:((c>>8)&0xFF)/255.0   blue:((c)&0xFF)/255.0   alpha:a]
@@ -74,6 +74,10 @@
 #define kMenuCellHighlightedColor  kSetting.menuCellHighlightedColor
 
 #define kCurrentTheme              kSetting.theme
+
+#define kStatusBarStyle            kSetting.currentStatusBarStyle
+
+#define kSeparatorColor            kSetting.separatorColor
 
 //Hottopic period
 typedef NS_ENUM(NSInteger, CCHotTopicsPeriod){

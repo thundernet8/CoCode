@@ -112,7 +112,7 @@ static CGFloat const kAvatarHeight = 68.0;
     [self addSubview:self.avatarButton];
     
     self.divideView = [[UIView alloc] init];
-    self.divideView.backgroundColor = [UIColor colorWithWhite:0.899 alpha:0.8];
+    self.divideView.backgroundColor = kBackgroundColorWhite;
     [self addSubview:self.divideView];
 }
 

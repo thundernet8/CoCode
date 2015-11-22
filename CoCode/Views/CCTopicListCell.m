@@ -69,7 +69,7 @@ static CGFloat const kTitleFontSize = 18.0;
         [self addSubview:self.rightMetaLabel];
         
         self.separatorLine = [[UIView alloc] init];
-        self.separatorLine.backgroundColor = kSeparatorLightBlueColor;
+        self.separatorLine.backgroundColor = kSeparatorColor;
         [self addSubview:self.separatorLine];
     }
     return self;
