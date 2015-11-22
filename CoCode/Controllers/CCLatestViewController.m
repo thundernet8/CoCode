@@ -82,10 +82,13 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
+    
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
     
     //weakify and strongify is from ReactiveCocoa(EXTScope)
     @weakify(self);
@@ -267,11 +270,11 @@
     [self.tableView reloadData];
     
     self.loginButton = [[UIButton alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-60, kScreenHeight/2.0-20, 120.0, 40.0)];
-    [self.loginButton setTitle:@"Login to view" forState:UIControlStateNormal];
+    [self.loginButton setTitle:NSLocalizedString(@"Login to view", nil) forState:UIControlStateNormal];
     [self.loginButton setTitleColor:kPurpleColor forState:UIControlStateNormal];
     self.loginButton.layer.cornerRadius = 5.0;
     self.loginButton.layer.borderColor = kColorPurple.CGColor;
-    self.loginButton.layer.borderWidth = 2.0;
+    self.loginButton.layer.borderWidth = 1.0;
     
     [self.loginButton bk_addEventHandler:^(id sender) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];

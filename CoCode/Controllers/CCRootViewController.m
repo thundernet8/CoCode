@@ -209,9 +209,10 @@
         void (^showControllerBlock)() = ^{
             @strongify(self);
             
-            //Status bar style
             if (index != 4) {
                 [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+            }else{
+                [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
             }
             
             UIViewController *previousViewController = [self viewControllerForIndex:self.currentControllerIndex];

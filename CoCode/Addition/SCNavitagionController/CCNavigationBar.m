@@ -55,6 +55,10 @@
 
 - (void)didReceiveThemeChangeNotification {
     
+    if ([self.backgroundColor isEqual:[UIColor clearColor]]) {
+        return;
+    }
+    
     self.backgroundColor = kNavigationBarColor;
     self.lineView.backgroundColor = kNavigationBarLineColor;
 }

@@ -23,6 +23,7 @@ typedef NS_ENUM(NSInteger, CCTheme) {
 
 @property (nonatomic, assign) CCTheme theme;
 @property (nonatomic, assign) BOOL themeAutoChange;
+@property (nonatomic, assign) BOOL nonePicsMode;
 
 @property (nonatomic, copy) UIColor *backgroundColorWhite;
 @property (nonatomic, copy) UIColor *backgroundColorWhiteDark;

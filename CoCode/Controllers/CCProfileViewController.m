@@ -87,6 +87,12 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
 }
 
@@ -100,6 +106,7 @@
 //    self.sc_navigationItem.rightBarButtonItem = [[SCBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Setting", nil) style:SCBarButtonItemStylePlain handler:^(id sender) {
 //        //TODO 更多设置
 //    }];
+    
     
     self.sc_navigationBar.backgroundColor = [UIColor clearColor];
     
@@ -276,6 +283,8 @@
     if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
+    
+    cell.textLabel.textColor = [UIColor colorWithRed:0.208 green:0.212 blue:0.224 alpha:1.000];
     
     return cell;
 }

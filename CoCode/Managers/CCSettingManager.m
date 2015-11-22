@@ -23,6 +23,7 @@
 
 static NSString *const kTheme           = @"Theme";
 static NSString *const kThemeAutoChange = @"ThemeAutoChange";
+static NSString *const kNonePicsMode = @"NonePicsMode";
 
 static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
 
@@ -147,6 +148,13 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
     _themeAutoChange = themeAutoChange;
     
     [kUserDefaults setObject:@(themeAutoChange) forKey:kThemeAutoChange];
+    [kUserDefaults synchronize];
+}
+
+- (void)setNonePicsMode:(BOOL)nonePicsMode{
+    _nonePicsMode = nonePicsMode;
+    
+    [kUserDefaults setObject:@(nonePicsMode) forKey:kNonePicsMode];
     [kUserDefaults synchronize];
 }
 
