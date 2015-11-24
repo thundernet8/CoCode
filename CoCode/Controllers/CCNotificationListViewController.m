@@ -30,6 +30,7 @@
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    
     if (self) {
         self.pageCount = 1;
         self.username = [CCDataManager sharedManager].user.member.memberUserName;
@@ -43,14 +44,15 @@
     
     [self configureNavi];
     [self configureTableview];
+    
 }
 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self configureNotification];
-    [self configureBlocks];
+    [self configureNotification];//TODO OK
+    [self configureBlocks];//TODO OK
     
 }
 
@@ -63,15 +65,15 @@
     [super viewDidAppear:animated];
     
     [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
-    
+
     //weakify and strongify is from ReactiveCocoa(EXTScope)
-    @weakify(self);
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        @strongify(self);
+    //@weakify(self);
+    //static dispatch_once_t onceToken;
+    //dispatch_once(&onceToken, ^{
+        //@strongify(self);
         [self beginRefresh];
-    });
-    
+    //});
+
 }
 
 - (void)viewDidLayoutSubviews{
@@ -81,16 +83,29 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    
+    NSLog(@"disappear %d", (int)CFGetRetainCount((__bridge CFTypeRef)(self)));
+}
+
 - (void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    NSLog(@"dealloc");
 }
 
 #pragma mark - Configuration
 
 - (void)configureNavi{
+    
+    @weakify(self);
     self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_back"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        @strongify(self);
         [self.navigationController popViewControllerAnimated:YES];
     }];
+    
+    self.sc_navigationItem.title = NSLocalizedString(@"Notifications", nil);
 }
 
 - (void)configureTableview{
@@ -104,7 +119,12 @@
 
 - (void)configureNotification{
     
+    @weakify(self);
+    
     [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        
+        @strongify(self);
+        
         self.tableView.backgroundColor = kBackgroundColorWhiteDark;
     }];
 }
@@ -176,7 +196,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 50.0;
+    return 65.0;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{

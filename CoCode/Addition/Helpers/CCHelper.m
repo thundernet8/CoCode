@@ -43,6 +43,44 @@
     return timeString;
 }
 
++ (NSString *)timeShortIntervalStringWithDate:(NSDate *)date{
+    NSString *timeString;
+    NSDate *now = [NSDate date];
+    now = [now dateByAddingTimeInterval:-3600*8];
+    NSTimeInterval diff = [now timeIntervalSinceDate:date];
+    if ((int)diff < 60) {
+        timeString = NSLocalizedString(@"Just now", @"Time interval in 60 seconds");
+    }else if ((int)diff < 3600){
+        timeString = [NSString stringWithFormat:@"%d %@", (int)diff/60, NSLocalizedString(@"minutes ago(short)", @"Time interval in 1 hour")];
+    }else if ((int)diff < 3600*24){
+
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"hh:mm"];
+        timeString = [dateFormatter stringFromDate:date];
+        
+    }else if ((int)diff < 3600*24*7){
+
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"EEE"];
+        timeString = [dateFormatter stringFromDate:date];
+        
+    }else{
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"yy/MM/dd"];
+        NSString *dateStr = [dateFormatter stringFromDate:date];
+        NSString *nowStr = [dateFormatter stringFromDate:now];
+        if ([[dateStr substringWithRange:NSMakeRange(0, 2)] isEqualToString:[nowStr substringWithRange:NSMakeRange(0, 2)]]) {
+            timeString = [dateStr substringWithRange:NSMakeRange(3, 5)];
+        }else{
+            timeString = dateStr;
+        }
+    }
+    return timeString;
+}
+
 //SVProgressHud
 + (void)showBlackHudWithImage:(UIImage *)image withText:(NSString *)text{
     [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];

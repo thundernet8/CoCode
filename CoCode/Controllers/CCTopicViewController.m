@@ -155,11 +155,17 @@
 - (void)configureNaviBar{
     self.sc_navigationItem.leftBarButtonItem = self.leftBarItem;
     
+    @weakify(self);
+    
     SCBarButtonItem *bar1 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_heart_o"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        @strongify(self);
+        
         NSLog(@"1");
     }];
     SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_comment"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
         CCTopicRepliesViewController *repliesVC = [[CCTopicRepliesViewController alloc] init];
+        @strongify(self);
+        
         repliesVC.posts = self.topic.posts;
         repliesVC.topic = self.topic;
         SCNavigationController *navController = [[SCNavigationController alloc] initWithRootViewController:repliesVC];
@@ -168,6 +174,9 @@
         }];
     }];
     SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_nav_share2"] imageWithTintColor:kColorPurple] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        
+        @strongify(self);
+        
         NSLog(@"3");
     }];
     self.sc_navigationItem.rightBarButtonItems = @[bar1, bar2, bar3];

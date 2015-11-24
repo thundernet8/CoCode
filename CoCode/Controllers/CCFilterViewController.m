@@ -33,7 +33,10 @@
     
     [self.view addSubview:self.tableView];
     
+    @weakify(self);
+    
     self.cancelButton = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_cancel"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+        @strongify(self);
         [self dismissViewControllerAnimated:YES completion:nil];
     }];
 }
@@ -104,12 +107,15 @@
 }
 
 - (void)configureNavigationBar{
-    self.cancelButton = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_cancel_black"]  style:SCBarButtonItemStylePlain handler:^(id sender) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-    }];
     
     self.sc_navigationItem.title = self.filterTitle ? self.filterTitle : NSLocalizedString(@"Filters", @"Hot topics period filters");
     self.sc_navigationItem.leftBarButtonItem = self.cancelButton;
+    
+    @weakify(self);
+    self.cancelButton = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_cancel_black"]  style:SCBarButtonItemStylePlain handler:^(id sender) {
+        @strongify(self);
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }];
 }
 
 - (UITableViewCell *)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath{

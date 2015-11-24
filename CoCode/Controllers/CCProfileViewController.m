@@ -46,9 +46,6 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         
-        
-        
-        
     }
     
     return self;
@@ -87,6 +84,14 @@
 
 - (void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - Setter
+
+- (void)setUserRelatedRows:(NSArray *)userRelatedRows{
+    _userRelatedRows = userRelatedRows;
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark - Configuraton
@@ -226,6 +231,26 @@
 - (void)configureNotification{
     [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.tableView.backgroundColor = kBackgroundColorWhiteDark;
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kLoginSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        self.isLogged = YES;
+        if (!self.member) {
+            [self.avatarImageView sd_setImageWithURL:[NSURL URLWithString:[kUserDefaults objectForKey:kAvatarURL]]];
+            self.nameLabel.text = [kUserDefaults objectForKey:kUsername];
+        }
+        
+        [self configureRowsData];
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:kLogoutSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        self.isLogged = NO;
+        if (self.isMyself) {
+            self.member = nil;
+            self.isMyself = NO;
+            self.avatarImageView.image = [UIImage imageNamed:@"default_avatar"];
+            self.nameLabel.text = @"";
+        }
+        [self configureRowsData];
     }];
 }
 

@@ -101,14 +101,12 @@
         self.isLogged = [CCDataManager sharedManager].user.isLogin;
         [self.tableView reloadData];
         [self.tableView setNeedsLayout];
-        NSLog(@"login");
     }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:kLogoutSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.isLogged = [CCDataManager sharedManager].user.isLogin;
         [self.tableView reloadData];
         [self.tableView setNeedsLayout];
-        NSLog(@"logout");
     }];
 }
 

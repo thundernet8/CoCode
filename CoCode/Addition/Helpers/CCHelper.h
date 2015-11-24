@@ -9,6 +9,7 @@
 
 + (NSDate *)localDateWithString:(NSString *)dateString;
 + (NSString *)timeIntervalStringWithDate:(NSDate *)date;
++ (NSString *)timeShortIntervalStringWithDate:(NSDate *)date;
 
 //SVProgressHud
 + (void)showBlackHudWithImage:(UIImage *)image withText:(NSString *)text;

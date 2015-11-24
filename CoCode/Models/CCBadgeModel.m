@@ -20,7 +20,7 @@
         self.createdTime = [CCHelper localDateWithString:[dict objectForKey:@"created_at"]];
         self.badgeID = [[dict objectForKey:@"data"]objectForKey:@"badge_id"];
         self.badgeName = [[dict objectForKey:@"data"] objectForKey:@"badge_name"];
-        self.fullMessage = [NSString stringWithFormat:@"获得\"%@\"", self.badgeName];
+        self.fullMessage = [NSString stringWithFormat:@"%@\"%@\"", NSLocalizedString(@"Achieve Badge ", nil), self.badgeName];
     }
     
     return self;
