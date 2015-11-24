@@ -120,13 +120,13 @@ static CGFloat const kFontSize = 18.0;
     _iconName = iconName;
     
     //NSString *highlightedImageName = [self.iconName stringByAppendingString:@"_highlighted"];
-    //self.highlightedImage = [[UIImage imageNamed:self.iconName] imageWithTintColor:kColorBlue];
-    self.highlightedImage = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kColorPurple andSize:CGSizeMake(25.0, 25.0)];
+    self.highlightedImage = [[UIImage imageNamed:self.iconName] imageWithTintColor:kColorPurple];
+    //self.highlightedImage = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kColorPurple andSize:CGSizeMake(25.0, 25.0)];
     
     //self.normalImage = [[UIImage imageNamed:highlightedImageName] imageWithTintColor:kFontColorBlackMid];
-    self.normalImage  = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kFontColorBlackMid andSize:CGSizeMake(25.0, 25.0)];
+    //self.normalImage  = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kFontColorBlackMid andSize:CGSizeMake(25.0, 25.0)];
     
-    self.normalImage = self.normalImage.imageForCurrentTheme;
+    self.normalImage = self.highlightedImage.imageForCurrentTheme;
     self.iconView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     
 }

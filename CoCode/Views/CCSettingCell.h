@@ -12,5 +12,6 @@
 
 @property (nonatomic, strong) UISwitch *switchButton;
 @property (nonatomic, strong) UILabel *rightLabel;
+@property (nonatomic, strong) UILabel *centerLabel;
 
 @end

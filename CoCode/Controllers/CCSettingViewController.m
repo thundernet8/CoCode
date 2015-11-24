@@ -53,6 +53,7 @@
     [super viewWillLayoutSubviews];
     
     self.tableView.contentInsetTop = 64.0;
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -60,6 +61,10 @@
     
     [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
     
+}
+
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 
@@ -77,6 +82,7 @@
     self.tableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
     self.tableView.separatorColor = kSeparatorColor;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     self.tableView.scrollEnabled = NO;
     
@@ -94,11 +100,15 @@
     [[NSNotificationCenter defaultCenter] addObserverForName:kLoginSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.isLogged = [CCDataManager sharedManager].user.isLogin;
         [self.tableView reloadData];
+        [self.tableView setNeedsLayout];
+        NSLog(@"login");
     }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:kLogoutSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.isLogged = [CCDataManager sharedManager].user.isLogin;
         [self.tableView reloadData];
+        [self.tableView setNeedsLayout];
+        NSLog(@"logout");
     }];
 }
 
@@ -106,17 +116,17 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     
-    return 4;
+    return self.isLogged?4:3;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     switch (section) {
         case 0:
-            return 1;
+            return self.isLogged?1:3;
             break;
         
         case 1:
-            return 3;
+            return self.isLogged?3:1;
             break;
             
         case 2:
@@ -165,16 +175,20 @@
         cell = [[CCSettingCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
     
+    cell.switchButton.alpha = 0;
+    cell.centerLabel.text = @"";
+    cell.rightLabel.text = @"";
+    cell.textLabel.text = @"";
     
     return [self configureCell:cell atIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.section == 0) {
+    if (indexPath.section == 0 && self.isLogged) {
         
     }
     
-    if (indexPath.section == 1) {
+    if ((indexPath.section == 1 && self.isLogged)||(indexPath.section == 0 && !self.isLogged)) {
         switch (indexPath.row) {
             case 0:
                 
@@ -193,11 +207,11 @@
         }
     }
     
-    if (indexPath.section == 2) {
+    if ((indexPath.section == 2 && self.isLogged)||(indexPath.section == 1 && !self.isLogged)) {
 
     }
     
-    if (indexPath.section == 3) {
+    if ((indexPath.section == 3 && self.isLogged)||(indexPath.section == 2 && !self.isLogged)) {
         if (self.isLogged) {
             [[CCDataManager sharedManager] userLogout];
         }else{
@@ -214,11 +228,11 @@
     
     cell.textLabel.textColor = [UIColor colorWithRed:0.208 green:0.212 blue:0.224 alpha:1.000];
     
-    if (indexPath.section == 0) {
+    if (indexPath.section == 0 && self.isLogged) {
         cell.textLabel.text = NSLocalizedString(@"My Account", nil);
     }
     
-    if (indexPath.section == 1) {
+    if ((indexPath.section == 1 && self.isLogged)||(indexPath.section == 0 && !self.isLogged)) {
         switch (indexPath.row) {
             case 0:
                 [self configureThemeSwithCell:cell];
@@ -237,18 +251,14 @@
         }
     }
     
-    if (indexPath.section == 2) {
+    if ((indexPath.section == 2 && self.isLogged)||(indexPath.section == 1 && !self.isLogged)) {
         cell.textLabel.text = NSLocalizedString(@"About CoCode", nil);
     }
     
-    if (indexPath.section == 3) {
+    if ((indexPath.section == 3 && self.isLogged)||(indexPath.section == 2 && !self.isLogged)) {
 
-        UILabel *cellLabel = [[UILabel alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-60.0, 0.0, 120.0, 50.0)];
-        cellLabel.text = self.isLogged ? NSLocalizedString(@"Logout Account", nil) : NSLocalizedString(@"Login", nil);
-        cellLabel.textAlignment = NSTextAlignmentCenter;
-        cellLabel.textColor = [UIColor colorWithRed:1.000 green:0.400 blue:0.400 alpha:1.000];
-        
-        [cell.contentView addSubview:cellLabel];
+        cell.centerLabel.text = self.isLogged ? NSLocalizedString(@"Logout Account", nil) : NSLocalizedString(@"Login", nil);
+        cell.centerLabel.textColor = [UIColor colorWithRed:1.000 green:0.400 blue:0.400 alpha:1.000];
     }
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;

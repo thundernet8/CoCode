@@ -103,7 +103,7 @@ static CGFloat const kTitleFontSize = 18.0;
     
     self.rightMetaLabel.frame = CGRectMake(kScreenWidth*0.68, 25+self.titleHeight, kScreenWidth*0.32-10, 20.0);
     
-    self.separatorLine.frame = CGRectMake(0.0, self.titleHeight+49.0, kScreenWidth, 1.0);
+    self.separatorLine.frame = CGRectMake(0.0, self.titleHeight+49.0, kScreenWidth, 0.5);
 }
 
 - (void)isUnderCategory:(BOOL)inCategory{

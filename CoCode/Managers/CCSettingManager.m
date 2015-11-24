@@ -103,7 +103,7 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         
         //Line Color
         self.lineColorBlackDark = [UIColor colorWithWhite:0.28 alpha:1.0];
-        self.lineColorBlackLight = [UIColor colorWithWhite:0.12 alpha:1.0];
+        self.lineColorBlackLight = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
         
         self.separatorColor = [UIColor colorWithRed:0.071 green:0.118 blue:0.200 alpha:1.000];
         

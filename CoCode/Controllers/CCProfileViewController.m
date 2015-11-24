@@ -12,6 +12,8 @@
 #import <MessageUI/MFMailComposeViewController.h>
 #import <SVProgressHUD.h>
 #import "CCSettingViewController.h"
+#import "CCSettingCell.h"
+#import "CCNotificationListViewController.h"
 
 #define kAvatarHeight 76.0
 #define kAvatarMaskHeight 90.0
@@ -45,23 +47,7 @@
     if (self) {
         
         
-        self.isLogged = [[kUserDefaults objectForKey:kUserIsLogin] boolValue];
         
-        self.isMyself = (!(self.member) && self.isLogged);
-        
-        self.member = !(self.member) ? [CCDataManager sharedManager].user.member : self.member;
-        
-        NSMutableArray *tempRows = [NSMutableArray array];
-        //cell icon and text dictionary
-        [tempRows addObject:@{@"icon":@"icon_topic", @"text":NSLocalizedString(@"Topics", nil)}];
-        [tempRows addObject:@{@"icon":@"icon_reply", @"text":NSLocalizedString(@"Replies(setting)", nil)}];
-        
-        if (self.isLogged && self.isMyself) {
-            [tempRows addObject:@{@"icon":@"icon_favorite", @"text":NSLocalizedString(@"Favorites", nil)}];
-            [tempRows addObject:@{@"icon":@"icon_notification", @"text":NSLocalizedString(@"Notifications", nil)}];
-        }
-        
-        self.userRelatedRows = [NSArray arrayWithArray:tempRows];
         
     }
     
@@ -73,6 +59,7 @@
     
     self.view.backgroundColor = RGB(0xf0f1f5, 1.0);
     
+    [self configureRowsData];
     
     [self configureTableView];
 }
@@ -82,6 +69,7 @@
     
     [self configureNavi];
     
+    [self configureNotification];
 
 }
 
@@ -97,19 +85,49 @@
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
 }
 
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 #pragma mark - Configuraton
 
+- (void)configureRowsData{
+    self.isLogged = [[kUserDefaults objectForKey:kUserIsLogin] boolValue];
+    
+    self.isMyself = (!(self.member) && self.isLogged);
+    
+    self.member = !(self.member) ? [CCDataManager sharedManager].user.member : self.member;
+    
+    NSMutableArray *tempRows = [NSMutableArray array];
+    //cell icon and text dictionary
+    [tempRows addObject:@{@"icon":@"icon_topic", @"text":NSLocalizedString(@"Topics", nil)}];
+    [tempRows addObject:@{@"icon":@"icon_reply", @"text":NSLocalizedString(@"Replies(setting)", nil)}];
+    
+    if (self.isLogged && self.isMyself) {
+        [tempRows addObject:@{@"icon":@"icon_favorite", @"text":NSLocalizedString(@"Favorites", nil)}];
+        [tempRows addObject:@{@"icon":@"icon_notification", @"text":NSLocalizedString(@"Notifications", nil)}];
+    }
+    
+    self.userRelatedRows = [NSArray arrayWithArray:tempRows];
+}
+
 - (void)configureNavi{
+    
+    
+
     self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_navi_menu"] imageWithTintColor:kWhiteColor] style:SCBarButtonItemStylePlain handler:^(id sender) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kShowMenuNotification object:nil];
-    }];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kShowMenuNotification object:nil];
+        }];
+    
+    
 //
 //    self.sc_navigationItem.rightBarButtonItem = [[SCBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Setting", nil) style:SCBarButtonItemStylePlain handler:^(id sender) {
 //        //TODO 更多设置
 //    }];
     
-    
     self.sc_navigationBar.backgroundColor = [UIColor clearColor];
+    
+    
     
 //    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] bk_initWithImage:[UIImage imageNamed:@"icon_navi_menu"] style:UIBarButtonItemStylePlain handler:^(id sender) {
 //        [[NSNotificationCenter defaultCenter] postNotificationName:kShowMenuNotification object:nil];
@@ -133,6 +151,7 @@
     
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
     self.tableView.separatorColor = kSeparatorColor;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.scrollEnabled = NO;
     self.tableView.tableFooterView = [UIView new];
     
@@ -161,8 +180,8 @@
     self.avatarImageView.layer.cornerRadius = kAvatarHeight/2.0;
     self.avatarImageView.layer.borderColor = kWhiteColor.CGColor;
     self.avatarImageView.layer.borderWidth = 1.5;
-    if ([[kUserDefaults objectForKey:kAvatarURL] length] > 0) {
-        [self.avatarImageView sd_setImageWithURL:[NSURL URLWithString:[kUserDefaults objectForKey:kAvatarURL]] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
+    if (self.member.memberAvatarLarge.length > 0) {
+        [self.avatarImageView sd_setImageWithURL:[NSURL URLWithString:self.member.memberAvatarLarge] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
     }else{
         self.avatarImageView.image = [UIImage imageNamed:@"default_avatar"];
     }
@@ -204,6 +223,12 @@
     return self.headerView;
 }
 
+- (void)configureNotification{
+    [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        self.tableView.backgroundColor = kBackgroundColorWhiteDark;
+    }];
+}
+
 #pragma mark - TableView Delegate and DataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
@@ -234,9 +259,9 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     static NSString *identifier = @"CellIdentifier";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    CCSettingCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        cell = [[CCSettingCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
     
     return [self configureCell:cell atIndexPath:indexPath];
@@ -244,6 +269,27 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     if (indexPath.section == 0) {
+        
+        switch (indexPath.row) {
+            case 0:
+                
+                break;
+                
+            case 1:
+                
+                break;
+                
+            case 2:
+                
+                break;
+                
+            case 3:
+                [self pushNotificationListViewController];
+                break;
+                
+            default:
+                break;
+        }
         
     }
     if (indexPath.section == 1 && self.isMyself) {
@@ -357,6 +403,11 @@
     CCSettingViewController *settingVC = [[CCSettingViewController alloc] init];
     
     [self.navigationController pushViewController:settingVC animated:YES];
+}
+
+- (void)pushNotificationListViewController{
+    CCNotificationListViewController *notificationListVC = [[CCNotificationListViewController alloc] init];
+    [self.navigationController pushViewController:notificationListVC animated:YES];
 }
 
 @end

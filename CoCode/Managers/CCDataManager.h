@@ -11,22 +11,24 @@
 #import "CCTopicModel.h"
 #import "CCTopicPostModel.h"
 #import "CCTagModel.h"
+#import "CCNotificationListModel.h"
 
 typedef NS_ENUM(NSInteger, CCErrorType) {
     
-    CCErrorTypeNoOnceAndNext          = 900,
-    CCErrorTypeLoginFailure           = 901,
-    CCErrorTypeRequestFailure         = 902,
-    CCErrorTypeGetFeedURLFailure      = 903,
-    CCErrorTypeGetTopicListFailure    = 904,
-    CCErrorTypeGetNotificationFailure = 905,
-    CCErrorTypeGetFavUrlFailure       = 906,
-    CCErrorTypeGetMemberReplyFailure  = 907,
-    CCErrorTypeGetTopicTokenFailure   = 908,
-    CCErrorTypeGetCheckInURLFailure   = 909,
-    CCErrorTypeGetTopicError          = 910,
-    CCErrorTypeGetTagsFailure         = 911,
-    CCErrorTypeGetCSRFTokenFailure    = 912
+    CCErrorTypeNoOnceAndNext            = 900,
+    CCErrorTypeLoginFailure             = 901,
+    CCErrorTypeRequestFailure           = 902,
+    CCErrorTypeGetFeedURLFailure        = 903,
+    CCErrorTypeGetTopicListFailure      = 904,
+    CCErrorTypeGetNotificationFailure   = 905,
+    CCErrorTypeGetFavUrlFailure         = 906,
+    CCErrorTypeGetMemberReplyFailure    = 907,
+    CCErrorTypeGetTopicTokenFailure     = 908,
+    CCErrorTypeGetCheckInURLFailure     = 909,
+    CCErrorTypeGetTopicError            = 910,
+    CCErrorTypeGetTagsFailure           = 911,
+    CCErrorTypeGetCSRFTokenFailure      = 912,
+    CCErrorTypeGetNotificationsFailure  = 913
     
 };
 
@@ -71,5 +73,11 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
                                     failure:(void (^)(NSError *error))failure;
 
 - (void)userLogout;
+
+//Notifiation
+- (NSURLSessionDataTask *)getNotificationListWithPage:(NSInteger)page
+                                             username:(NSString *)username
+                                              success:(void (^)(CCNotificationListModel *notificationList))success
+                                              failure:(void (^)(NSError *error))failure;
 
 @end

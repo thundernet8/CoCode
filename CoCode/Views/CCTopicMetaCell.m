@@ -7,7 +7,7 @@
 //
 
 #import "CCTopicMetaCell.h"
-#import "CCProfileViewController.h"
+#import "CCMemberProfileViewController.h"
 
 static const CGFloat kAvatarHeight = 16.0;
 static const CGFloat kNameFontSize = 14.0;
@@ -55,17 +55,20 @@ static const CGFloat kMetaFontSize = 12.0;
         self.rightMetaLabel.textAlignment = NSTextAlignmentLeft;
         [self addSubview:self.rightMetaLabel];
         
+        self.avatarButton = [UIButton buttonWithType:UIButtonTypeCustom];
         //Handles
         @weakify(self);
         [self.avatarButton bk_addEventHandler:^(id sender) {
             @strongify(self);
             
-            CCProfileViewController *profileViewController = [[CCProfileViewController alloc] init];
+            CCMemberProfileViewController *profileViewController = [[CCMemberProfileViewController alloc] init];
             profileViewController.member = self.topic.author;
             
             [self.nav pushViewController:profileViewController animated:YES];
             
         } forControlEvents:UIControlEventTouchUpInside];
+        
+        [self addSubview:self.avatarButton];
     }
     
     return self;
@@ -84,9 +87,8 @@ static const CGFloat kMetaFontSize = 12.0;
     self.rightMetaLabel.x = 10 + self.avatarImageView.width + 8 + self.nameLabel.width + 8;
     self.rightMetaLabel.centerY = self.height/2;
     
-    self.avatarButton.frame = CGRectMake(0.0, 0.0, self.nameLabel.width + 10, self.height);
+    self.avatarButton.frame = CGRectMake(10.0, 0.0, self.nameLabel.width + 25, self.height);
     self.avatarImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
-    
     
 }
 

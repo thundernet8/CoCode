@@ -35,8 +35,8 @@ static CGFloat const kAvatarHeight = 68.0;
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];
     if (self) {
-        //self.sectionIconArray = @[@"icon_menu_newest", @"icon_menu_latest", @"icon_menu_hot", @"icon_menu_cat", @"icon_menu_tag", @"icon_menu_profile"];
-        self.sectionIconArray = @[@"fa-clock-o", @"fa-calendar", @"fa-fire", @"fa-book",  @"fa-user"]; //@"fa-tags",
+        self.sectionIconArray = @[@"icon_menu_newest", @"icon_menu_latest", @"icon_menu_hot", @"icon_menu_cat",  @"icon_menu_profile"];
+        //self.sectionIconArray = @[@"fa-clock-o", @"fa-calendar", @"fa-fire", @"fa-book",  @"fa-user"]; //@"fa-tags",
         self.sectionTitleArray = @[NSLocalizedString(@"Recently Active", @"Recently replied,edited,new"), NSLocalizedString(@"Latest Publish", @"Latest published topics"), NSLocalizedString(@"Hot", @"Hot topics"), NSLocalizedString(@"Categories", @"Categories"),  NSLocalizedString(@"Profile", @"Personal related")]; //NSLocalizedString(@"Tags", @"Tags"),
         
         //TODO configure
@@ -112,7 +112,7 @@ static CGFloat const kAvatarHeight = 68.0;
     [self addSubview:self.avatarButton];
     
     self.divideView = [[UIView alloc] init];
-    self.divideView.backgroundColor = kBackgroundColorWhite;
+    self.divideView.backgroundColor = kLineColorBlackLight;
     [self addSubview:self.divideView];
 }
 
@@ -174,7 +174,7 @@ static CGFloat const kAvatarHeight = 68.0;
         self.avatarView.centerY = 36+kAvatarHeight/2.0;
     }
     
-    self.divideView.frame = CGRectMake(0, kAvatarHeight+50, self.width, 0.5);
+    self.divideView.frame = CGRectMake(0, kAvatarHeight+50, self.width, 1.0);
     self.tableView.frame = CGRectMake(0.0, 20.0, self.width, self.height);
     
     [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:kSetting.selectedSectionIndex inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
@@ -248,6 +248,7 @@ static CGFloat const kAvatarHeight = 68.0;
 - (void)didReceiveThemeChangeNotification{
     [self.tableView reloadData];
     [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:kSetting.selectedSectionIndex inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
+    self.divideView.backgroundColor = kLineColorBlackLight;
     self.avatarView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     self.divideView.alpha = kSetting.imageViewAlphaForCurrentTheme;
 }

@@ -432,6 +432,33 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     [[NSNotificationCenter defaultCenter] postNotificationName:kLogoutSuccessNotification object:nil];
 }
 
+- (NSURLSessionDataTask *)getNotificationListWithPage:(NSInteger)page username:(NSString *)username success:(void (^)(CCNotificationListModel *))success failure:(void (^)(NSError *))failure{
+    NSDictionary *parameters;
+    if (page && page > 0 && username.length > 0) {
+        parameters = @{@"offset":@((page-1)*60),@"username":username};
+    }
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@%@", kBaseUrl, @"notifications.json"];
+    
+    return [self requestWithMethod:CCRequestMethodJSONGET URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        CCNotificationListModel *model = [CCNotificationListModel getNotificationListFromResponseObject:responseObject];
+        
+        id aa = responseObject;
+        
+        if (model) {
+            success(model);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeGetNotificationsFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
+
 
 #pragma mark - Private Methods
 
