@@ -54,6 +54,8 @@
 
 //Posts
 @property (nonatomic ,strong) NSArray *posts;
+@property (nonatomic, strong) NSArray *stream;
+@property (nonatomic, strong) NSArray *streamDesc;
 
 @property (nonatomic, strong) CCMemberModel *author;
 

@@ -94,8 +94,7 @@
 
 - (void)viewWillLayoutSubviews{
     [super viewWillLayoutSubviews];
-    
-    self.hiddenEnabled = YES;
+
 }
 
 #pragma mark - Configure

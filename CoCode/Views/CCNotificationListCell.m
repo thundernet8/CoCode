@@ -28,6 +28,7 @@
     
     if (self) {
         self.selectionStyle = UITableViewCellSelectionStyleNone;
+        self.backgroundColor = kCellHighlightedColor;
         
         self.unreadMark = [[UIView alloc] init];
         self.unreadMark.clipsToBounds = YES;
@@ -58,6 +59,11 @@
         self.separatorLine = [[UIView alloc] init];
         self.separatorLine.backgroundColor = kSeparatorColor;
         [self addSubview:self.separatorLine];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+            self.backgroundColor = kCellHighlightedColor;
+            self.separatorLine.backgroundColor = kSeparatorColor;
+        }];
     }
     
     return self;

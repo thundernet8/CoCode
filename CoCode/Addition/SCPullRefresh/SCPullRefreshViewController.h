@@ -31,4 +31,6 @@
 @property (nonatomic, assign) BOOL isLoadingMore;
 @property (nonatomic, assign) BOOL isRefreshing;
 
+@property (nonatomic, assign) BOOL isForceLoadMoreView;
+
 @end

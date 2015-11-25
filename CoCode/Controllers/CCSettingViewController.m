@@ -224,7 +224,7 @@
 
 - (CCSettingCell *)configureCell:(CCSettingCell *)cell atIndexPath:(NSIndexPath *)indexPath{
     
-    cell.textLabel.textColor = [UIColor colorWithRed:0.208 green:0.212 blue:0.224 alpha:1.000];
+    cell.textLabel.textColor = kFontColorBlackDark;;
     
     if (indexPath.section == 0 && self.isLogged) {
         cell.textLabel.text = NSLocalizedString(@"My Account", nil);

@@ -13,7 +13,7 @@
 #import "CCMessageModel.h"
 #import "CCBadgeModel.h"
 #import "CCDataManager.h"
-
+#import "CCMessageTopicViewController.h"
 
 @interface CCNotificationListViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -222,7 +222,17 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    id model = self.notificationList.list[indexPath.row];
     
+    if ([model isKindOfClass:[CCMessageModel class]]) {
+        CCMessageTopicViewController *messagesVC = [[CCMessageTopicViewController alloc] init];
+        CCMessageModel *messageModel = (CCMessageModel *)model;
+        messagesVC.messageTopicID = messageModel.topicID;
+        messagesVC.senderName = messageModel.fromUserDisplayName.length >0 ? messageModel.fromUserDisplayName : messageModel.fromUsername;
+        
+        [self.navigationController pushViewController:messagesVC animated:YES];
+    }
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark - Configure Cell

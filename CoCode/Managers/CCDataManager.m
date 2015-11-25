@@ -444,8 +444,6 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         
         CCNotificationListModel *model = [CCNotificationListModel getNotificationListFromResponseObject:responseObject];
         
-        id aa = responseObject;
-        
         if (model) {
             success(model);
         }else{
@@ -458,9 +456,70 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
 }
 
+- (NSURLSessionDataTask *)getMessageTopicPostsWithPage:(NSInteger)page topicID:(NSNumber *)topicID success:(void (^)(CCMessageTopicPostsModel *, CCMemberModel *))success failure:(void (^)(NSError *))failure{
+    
+    NSString *urlString = [NSString stringWithFormat:@"t/topic/%d.json",[topicID intValue]];
+    return [self requestWithMethod:CCRequestMethodJSONGET URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        CCMessageTopicModel *topic = [CCMessageTopicModel getMessageTopicModelFromResponseObject:responseObject];
+        if (topic) {
+            [self getMessageTopicPostsWithPage:page topicModel:topic success:^(CCMessageTopicPostsModel *topicPostsModel) {
+                success(topicPostsModel, topic.author);
+            } failure:^(NSError *error) {
+                failure(error);
+            }];
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTopicError userInfo:nil];
+            failure(error);
+        }
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+    
+    
+    
+}
 
 
 #pragma mark - Private Methods
+
+- (NSURLSessionDataTask *)getMessageTopicPostsWithPage:(NSInteger)page topicModel:(CCMessageTopicModel *)model success:(void (^)(CCMessageTopicPostsModel *topicPostsModel))success failure:(void (^)(NSError *error))failure{
+    
+    CCMemberModel *sender = model.author;
+    
+    NSInteger totalCount = model.stream.count;
+    
+    if ((page-1)*20 >= totalCount) {
+        NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetMessagePostsFailure userInfo:nil];
+        failure(error);
+        return nil;
+    }
+    
+    NSRange range = NSMakeRange((unsigned)((page-1)*20), MAX(0, MIN(20, totalCount-(page-1)*20)));
+    
+    NSArray *nextPageStream = [[[model.streamDesc subarrayWithRange:range] reverseObjectEnumerator] allObjects];
+    
+    NSString *urlString = [NSString stringWithFormat:@"t/topic/%d.json?_=%@", [model.topicID intValue], [NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]];
+    
+    for (NSNumber *postID in nextPageStream) {
+        urlString = [NSString stringWithFormat:@"%@&post_ids%%5B%%5D=%d", urlString, [postID intValue]];
+    }
+
+    return [self requestWithMethod:CCRequestMethodJSONGET URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        CCMessageTopicPostsModel *topicPostsModel = [CCMessageTopicPostsModel getMessageTopicPostsModelFromResponseObject:responseObject sender:sender];
+        if (topicPostsModel) {
+            success(topicPostsModel);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTopicError userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+}
 
 
 @end

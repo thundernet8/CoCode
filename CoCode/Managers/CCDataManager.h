@@ -12,6 +12,7 @@
 #import "CCTopicPostModel.h"
 #import "CCTagModel.h"
 #import "CCNotificationListModel.h"
+#import "CCMessageTopicModel.h"
 
 typedef NS_ENUM(NSInteger, CCErrorType) {
     
@@ -28,7 +29,8 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypeGetTopicError            = 910,
     CCErrorTypeGetTagsFailure           = 911,
     CCErrorTypeGetCSRFTokenFailure      = 912,
-    CCErrorTypeGetNotificationsFailure  = 913
+    CCErrorTypeGetNotificationsFailure  = 913,
+    CCErrorTypeGetMessagePostsFailure   = 914
     
 };
 
@@ -79,5 +81,10 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
                                              username:(NSString *)username
                                               success:(void (^)(CCNotificationListModel *notificationList))success
                                               failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)getMessageTopicPostsWithPage:(NSInteger)page
+                                               topicID:(NSNumber *)topicID
+                                               success:(void (^)(CCMessageTopicPostsModel *messageTopicPosts, CCMemberModel *sender))success
+                                               failure:(void (^)(NSError *error))failure;
 
 @end

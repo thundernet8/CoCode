@@ -46,7 +46,7 @@ static NSString* const kRotationAnimation = @"RotationAnimation";
         self.circleView.hidden = YES;
         [self addSubview:self.circleView];
         
-        UIImage *loadingImage = [UIImage imageNamed:@"icon_loading"];
+        UIImage *loadingImage = [UIImage imageNamed:@"icon_loading2"];
         loadingImage = [loadingImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         self.loadingImageView = [[UIImageView alloc] initWithImage:loadingImage];
         self.loadingImageView.tintColor = [UIColor colorWithRed:0.333 green:0.691 blue:1.000 alpha:1.000];

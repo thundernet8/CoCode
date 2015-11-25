@@ -342,7 +342,7 @@
 - (UITableViewCell *)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath{
     if (indexPath.section == 0) {
         NSDictionary *cellInfo = self.userRelatedRows[indexPath.row];
-        [cell.imageView setImage:[UIImage imageNamed:[cellInfo objectForKey:@"icon"]]];
+        [cell.imageView setImage:[[UIImage imageNamed:[cellInfo objectForKey:@"icon"]] imageWithTintColor:[UIColor colorWithWhite:0.525 alpha:1.000]]];
         [cell.textLabel setText:[cellInfo objectForKey:@"text"]];
     }
     
@@ -374,7 +374,7 @@
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
     
-    cell.textLabel.textColor = [UIColor colorWithRed:0.208 green:0.212 blue:0.224 alpha:1.000];
+    cell.textLabel.textColor = kFontColorBlackDark;
     cell.backgroundColor = kCellHighlightedColor;
     
     return cell;

@@ -11,7 +11,7 @@
 #define kLineColorBlackDarkDefault    RGB(0xdbdbdb, 1.0)
 #define kLineColorBlackLightDefault   RGB(0xebebeb, 1.0)
 
-#define kFontColorBlackDarkDefault    RGB(0x333333, 1.0)
+#define kFontColorBlackDarkDefault    RGB(0x353639, 1.0)
 #define kFontColorBlackDarkMiddle     RGB(0x777777, 1.0)
 #define kFontColorBlackLightDefault   RGB(0x999999, 1.0)
 #define kFontColorBlackBlueDefault    RGB(0x778087, 1.0)

@@ -72,6 +72,8 @@
             [posts addObject:model];
         }
         self.posts = [NSArray arrayWithArray:posts];
+        self.stream = [[dict objectForKey:@"post_stream"] objectForKey:@"stream"];
+        self.streamDesc = [[self.stream reverseObjectEnumerator] allObjects];
         
         CCTopicPostModel *post = posts[0];
         

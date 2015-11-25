@@ -20,6 +20,9 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     
     if (self) {
+        
+        self.textLabel.textColor = kFontColorBlackDark;
+        
         self.switchButton = [[UISwitch alloc] initWithFrame:CGRectMake(kScreenWidth-68.0, 10.0, 50.0, 30.0)];
         self.switchButton.alpha = 0;
         [self addSubview:self.switchButton];
@@ -38,6 +41,7 @@
         [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
             self.backgroundColor = kCellHighlightedColor;
             self.separatorLine.backgroundColor = kSeparatorColor;
+            self.textLabel.textColor = kFontColorBlackDark;
         }];
     }
     

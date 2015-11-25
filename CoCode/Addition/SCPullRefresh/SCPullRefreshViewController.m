@@ -147,7 +147,7 @@ static CGFloat const kRefreshHeight = 44.0f;
     self.refreshView.timeOffset = MAX(offsetY / 60.0, 0);
     
     // LoadMore
-    if ((self.loadMoreBlock && scrollView.contentSizeHeight > 300) || !self.hadLoadMore) {
+    if ((self.loadMoreBlock && scrollView.contentSizeHeight > 300) || !self.hadLoadMore || self.isForceLoadMoreView) {
         self.loadMoreView.hidden = NO;
     } else {
         self.loadMoreView.hidden = YES;
