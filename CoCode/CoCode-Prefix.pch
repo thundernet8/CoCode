@@ -52,7 +52,7 @@
 #define kSetting        [CCSettingManager sharedManager]
 
 //theme
-#define kCurrentTheme kSetting.theme
+
 #define kNavigationBarTintColor    kSetting.navigationBarTintColor
 #define kNavigationBarColor        kSetting.navigationBarColor
 #define kNavigationBarLineColor    kSetting.navigationBarLineColor
@@ -74,6 +74,8 @@
 #define kMenuCellHighlightedColor  kSetting.menuCellHighlightedColor
 
 #define kCurrentTheme              kSetting.theme
+
+#define kMenuIconColor             kSetting.menuIconColor
 
 #define kStatusBarStyle            kSetting.currentStatusBarStyle
 

@@ -113,7 +113,7 @@
         [self.navigationController popViewControllerAnimated:YES];
     }];
     
-    self.sc_navigationItem.rightBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_profile2"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    self.sc_navigationItem.rightBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_profile"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
         
         CCMemberProfileViewController *memberProfileVC = [[CCMemberProfileViewController alloc] init];
@@ -238,7 +238,6 @@
     
     CCTopicPostModel *post = self.messagePosts.lists[indexPath.row];
     
-    NSLog(@"configurecell");
     return [cell configureWithMessagePost:post];
 }
 

@@ -8,7 +8,7 @@
 
 #import "CCLoginViewController.h"
 
-#import <SVProgressHUD.h>
+#import "SVProgressHUD.h"
 #import "CCDataManager.h"
 
 #define kViewOffsetYNormal 60.0

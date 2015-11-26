@@ -86,6 +86,7 @@ static CGFloat const kAvatarHeight = 68.0;
     self.usernameLabel = [[UILabel alloc] init];
     [self addSubview:self.usernameLabel];
     self.usernameLabel.font = [UIFont systemFontOfSize:16.0];
+    self.usernameLabel.textColor = kFontColorBlackDark;
     self.usernameLabel.alpha = 0;
     
     //TODO is logined
@@ -251,6 +252,7 @@ static CGFloat const kAvatarHeight = 68.0;
     self.divideView.backgroundColor = kLineColorBlackLight;
     self.avatarView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     self.divideView.alpha = kSetting.imageViewAlphaForCurrentTheme;
+    self.usernameLabel.textColor = kFontColorBlackDark;
 }
 
 #pragma mark - ActionSheet

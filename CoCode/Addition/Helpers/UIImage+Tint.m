@@ -15,6 +15,8 @@
 - (UIImage *)imageForCurrentTheme {
     UIImage *image = self;
     if (kCurrentTheme == CCThemeNight) {
+        image = [image imageWithTintColor:[UIColor colorWithWhite:0.918 alpha:1.000]];
+    }else{
         image = [image imageWithTintColor:[UIColor whiteColor]];
     }
     return image;

@@ -37,6 +37,29 @@ PODS:
     - BlocksKit/Core
     - BlocksKit/DynamicDelegate
   - DACircularProgress (2.3.1)
+  - DTCoreText (1.6.16):
+    - DTFoundation/Core (~> 1.7.5)
+    - DTFoundation/DTAnimatedGIF (~> 1.7.5)
+    - DTFoundation/DTHTMLParser (~> 1.7.5)
+    - DTFoundation/UIKit (~> 1.7.5)
+  - DTFoundation/Core (1.7.8)
+  - DTFoundation/DTAnimatedGIF (1.7.8)
+  - DTFoundation/DTHTMLParser (1.7.8):
+    - DTFoundation/Core
+  - DTFoundation/UIKit (1.7.8):
+    - DTFoundation/Core
+  - DTLoupe (1.5.7)
+  - DTRichTextEditor (1.6.11):
+    - DTCoreText (~> 1.6.16)
+    - DTFoundation/Core (~> 1.7.6)
+    - DTLoupe (~> 1.5.7)
+    - DTWebArchive (~> 0.0.2)
+  - DTWebArchive (0.0.3):
+    - DTWebArchive/Core (= 0.0.3)
+    - DTWebArchive/iOS (= 0.0.3)
+  - DTWebArchive/Core (0.0.3)
+  - DTWebArchive/iOS (0.0.3):
+    - DTWebArchive/Core
   - FontAwesome+iOS (0.0.1)
   - FrameAccessor (1.3.2)
   - FXKeychain (1.5.3)
@@ -57,7 +80,6 @@ PODS:
   - SDWebImage-Category (1.4):
     - SDWebImage
   - SDWebImage/Core (3.7.3)
-  - SVProgressHUD (1.1.3)
   - TTTAttributedLabel (1.13.4)
   - WeiboSDK (3.1.3)
   - WeixinSDK (1.4.3)
@@ -66,6 +88,8 @@ DEPENDENCIES:
   - AFNetworking (~> 2.6.0)
   - AnimatedGIFImageSerialization (~> 0.2.0)
   - BlocksKit (~> 2.2.5)
+  - DTCoreText (~> 1.6.16)
+  - DTRichTextEditor (~> 1.6.11)
   - FontAwesome+iOS (from `https://raw.githubusercontent.com/WuXueqian/PersonalPodSpec/master/Spec/FontAwesome%2BiOS.podspec`)
   - FrameAccessor (~> 1.3.2)
   - FXKeychain (~> 1.5.3)
@@ -79,7 +103,6 @@ DEPENDENCIES:
   - REFrostedViewController (~> 2.4)
   - RegexKitLite (~> 4.0)
   - SDWebImage-Category (~> 1.4)
-  - SVProgressHUD (~> 1.1.3)
   - TTTAttributedLabel (~> 1.13.4)
   - WeiboSDK (from `https://github.com/sinaweibosdk/weibo_ios_sdk.git`)
   - WeixinSDK (~> 1.4.3)
@@ -100,6 +123,11 @@ SPEC CHECKSUMS:
   AnimatedGIFImageSerialization: b0f0cfe71eac1ee45a3d57ae533c23b8e6f29501
   BlocksKit: 7f422b971407001178d181a43b99014ea2591fe6
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
+  DTCoreText: 934a16fe9ffdd169c96261721b39dc312b75713d
+  DTFoundation: 46e2b2fafe78d67febfd8d1f85fe9845a093f00e
+  DTLoupe: 0f9494c262830401983e50c5bbdda38b9660db5e
+  DTRichTextEditor: 0b2288f389df071622dde02b52f7c375e00b91af
+  DTWebArchive: 2029610e2e2fda5b6d51a386b13b1484b7b197ba
   FontAwesome+iOS: bdde1ebae05a0dd683af1759ed7177d77c86e168
   FrameAccessor: 0f7ba6ce37be9a5d0302a27c731dca70af8d438b
   FXKeychain: 2fe54573946ffef634f4e2a2851e6c8f4ea15e76
@@ -114,7 +142,6 @@ SPEC CHECKSUMS:
   RegexKitLite: c0e4c12e6e7de0769f3a3ed679f0f61604170661
   SDWebImage: 1d2b1a1efda1ade1b00b6f8498865f8ddedc8a84
   SDWebImage-Category: 1f1c00880a538f7faf5b726e1559cf1ca555c553
-  SVProgressHUD: 748080e4f36e603f6c02aec292664239df5279c1
   TTTAttributedLabel: 0a2ac7b2dd726d32a070dafb01446026b11e624f
   WeiboSDK: 5f2a707c4569a64f4641f4171acd712016f24342
   WeixinSDK: 012c72fbaf8cef68afa7b0d0bb81c67a7a5c9136

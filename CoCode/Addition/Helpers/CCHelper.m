@@ -1,6 +1,7 @@
 
 #import "CCHelper.h"
-#import <SVProgressHUD.h>
+#import "SVProgressHUD.h"
+#import "NSDate+Utilities.h"
 
 @implementation CCHelper
 
@@ -78,6 +79,39 @@
             timeString = dateStr;
         }
     }
+    return timeString;
+}
+
++ (NSString *)timeDetailedIntervalStringWithDate:(NSDate *)date{
+    NSString *timeString;
+    
+    if ([date isToday]) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"hh:mm"];
+        timeString = [dateFormatter stringFromDate:date];
+    }else if ([date isYesterday]){
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"hh:mm"];
+        timeString = [NSString stringWithFormat:@"%@%@", NSLocalizedString(@"Yesterday", nil), [dateFormatter stringFromDate:date]];
+    }else if ([date isInWeek]){
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"EEE hh:mm"];
+        timeString = [dateFormatter stringFromDate:date];
+    }else if ([date isThisYear]){
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"MM/dd hh:mm"];
+        timeString = [dateFormatter stringFromDate:date];
+    }else{
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
+        [dateFormatter setDateFormat:@"yy/MM/dd hh:mm"];
+        timeString = [dateFormatter stringFromDate:date];
+    }
+    
     return timeString;
 }
 

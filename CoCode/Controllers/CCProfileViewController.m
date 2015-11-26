@@ -10,7 +10,7 @@
 #import "CCDataManager.h"
 
 #import <MessageUI/MFMailComposeViewController.h>
-#import <SVProgressHUD.h>
+#import "SVProgressHUD.h"
 #import "CCSettingViewController.h"
 #import "CCSettingCell.h"
 #import "CCNotificationListViewController.h"
@@ -25,6 +25,8 @@
 @property (nonatomic) BOOL isMyself;
 
 @property (nonatomic, strong) UIView *headerView;
+
+@property (nonatomic, strong) UIImageView *backgroundImageView;
 
 @property (nonatomic, strong) UIImageView *avatarImageView;
 @property (nonatomic, strong) UIView *avatarMaskView;
@@ -45,7 +47,7 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        
+        self.backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, -20, kScreenWidth, 200)];
     }
     
     return self;
@@ -79,7 +81,6 @@
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
 }
 
 - (void)dealloc{
@@ -173,11 +174,12 @@
 
 - (UIView *)configureTableHeaderView{
     self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, kScreenWidth, 180)];
-    UIImageView *backgroundImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, -20, kScreenWidth, 200)];
-    backgroundImage.contentMode = UIViewContentModeScaleAspectFill;
-    backgroundImage.image = [[UIImage alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"profile_head_bg" ofType:@"png"]];
+
+    self.backgroundImageView.contentMode = UIViewContentModeScaleAspectFill;
+    self.backgroundImageView.image = [[UIImage alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"profile_head_bg" ofType:@"png"]];
+    self.backgroundImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     
-    [self.headerView addSubview:backgroundImage];
+    [self.headerView addSubview:self.backgroundImageView];
     
     //Avatar
     self.avatarImageView = [[UIImageView alloc] initWithFrame:CGRectMake(kAvatarMaskHeight/2.0-kAvatarHeight/2.0, kAvatarMaskHeight/2.0-kAvatarHeight/2.0, kAvatarHeight, kAvatarHeight)];
@@ -185,6 +187,7 @@
     self.avatarImageView.layer.cornerRadius = kAvatarHeight/2.0;
     self.avatarImageView.layer.borderColor = kWhiteColor.CGColor;
     self.avatarImageView.layer.borderWidth = 1.5;
+    self.avatarImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     if (self.member.memberAvatarLarge.length > 0) {
         [self.avatarImageView sd_setImageWithURL:[NSURL URLWithString:self.member.memberAvatarLarge] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
     }else{
@@ -231,6 +234,8 @@
 - (void)configureNotification{
     [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         self.tableView.backgroundColor = kBackgroundColorWhiteDark;
+        self.backgroundImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
+        self.avatarImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     }];
     
     [[NSNotificationCenter defaultCenter] addObserverForName:kLoginSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {

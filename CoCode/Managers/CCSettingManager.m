@@ -16,7 +16,8 @@
 #define kFontColorBlackLightDefault   RGB(0x999999, 1.0)
 #define kFontColorBlackBlueDefault    RGB(0x778087, 1.0)
 #define kColorBlueDefault             RGB(0x3fb7fc, 1.0)
-#define kColorPurpleDefault           RGB(0x6b6ee6, 1.0)
+#define kColorPurpleDefault           RGB(0x566fed, 1.0)
+#define kMenuIconDefault              RGB(0x566fed, 1.0)
 
 #define kCellHighlightColor           RGB(0xffffff, 1.0)
 #define kMenuCellHighlightColor       RGB(0xeaebeb, 1.0)
@@ -118,6 +119,9 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         self.cellHighlightedColor = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
         self.menuCellHighlightedColor = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
         
+        //Menu Icon
+        self.menuIconColor = [UIColor colorWithWhite:0.918 alpha:1.000];
+        
         //Status Bar Style
         self.currentStatusBarStyle = UIStatusBarStyleLightContent;
         
@@ -125,8 +129,8 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
     }else{
         //Navigation Color
-        self.navigationBarTintColor = kBlackColor;
-        self.navigationBarColor = [UIColor colorWithWhite:0.973 alpha:0.980];
+        self.navigationBarTintColor = kWhiteColor;
+        self.navigationBarColor = [UIColor colorWithRed:0.337 green:0.435 blue:0.929 alpha:0.980];
         self.navigationBarLineColor = [UIColor colorWithWhite:0.88 alpha:1.0];
         
         //Background Color dbdbdb
@@ -150,10 +154,13 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         self.cellHighlightedColor = kCellHighlightColor;
         self.menuCellHighlightedColor = kMenuCellHighlightColor;
         
-        //Status Bar Style
-        self.currentStatusBarStyle = UIStatusBarStyleDefault;
+        //Menu Icon
+        self.menuIconColor = kMenuIconDefault;
         
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+        //Status Bar Style
+        self.currentStatusBarStyle = UIStatusBarStyleLightContent;
+        
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
         [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
         
     }

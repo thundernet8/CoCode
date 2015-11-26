@@ -8,7 +8,7 @@
 
 #import "CCSettingViewController.h"
 #import "CCDataManager.h"
-#import <SVProgressHUD.h>
+#import "SVProgressHUD.h"
 #import "CCSettingManager.h"
 #import "CCSettingCell.h"
 

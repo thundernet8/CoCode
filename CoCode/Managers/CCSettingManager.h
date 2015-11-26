@@ -49,4 +49,6 @@ typedef NS_ENUM(NSInteger, CCTheme) {
 @property (nonatomic, assign) UIStatusBarStyle currentStatusBarStyle;
 @property (nonatomic, copy) UIColor *separatorColor;
 
+@property (nonatomic, copy) UIColor *menuIconColor;
+
 @end

@@ -126,7 +126,8 @@ static CGFloat const kFontSize = 18.0;
     //self.normalImage = [[UIImage imageNamed:highlightedImageName] imageWithTintColor:kFontColorBlackMid];
     //self.normalImage  = [UIImage imageWithIcon:self.iconName backgroundColor:[UIColor clearColor] iconColor:kFontColorBlackMid andSize:CGSizeMake(25.0, 25.0)];
     
-    self.normalImage = self.highlightedImage.imageForCurrentTheme;
+    
+    self.normalImage = [[UIImage imageNamed:self.iconName] imageWithTintColor:kMenuIconColor];
     self.iconView.alpha = kSetting.imageViewAlphaForCurrentTheme;
     
 }
