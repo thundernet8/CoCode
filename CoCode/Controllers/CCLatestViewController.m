@@ -65,6 +65,7 @@
     @weakify(self);
     [[NSNotificationCenter defaultCenter] addObserverForName:kLoginSuccessNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
         @strongify(self);
+        [self.loginButton.superview removeFromSuperview];
         [self beginRefresh];
     }];
     
@@ -273,14 +274,17 @@
     [self.loginButton setTitle:NSLocalizedString(@"Login to view", nil) forState:UIControlStateNormal];
     [self.loginButton setTitleColor:kPurpleColor forState:UIControlStateNormal];
     self.loginButton.layer.cornerRadius = 5.0;
-    self.loginButton.layer.borderColor = kColorPurple.CGColor;
+    self.loginButton.layer.borderColor = kPurpleColor.CGColor;
     self.loginButton.layer.borderWidth = 1.0;
     
     [self.loginButton bk_addEventHandler:^(id sender) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
     } forControlEvents:UIControlEventTouchUpInside];
     
-    [self.view addSubview:self.loginButton];
+    UIView *maskView = [[UIView alloc] initWithFrame:self.view.frame];
+    [maskView addSubview:_loginButton];
+    maskView.backgroundColor = kWhiteColor;
+    [self.view addSubview:maskView];
 }
 
 

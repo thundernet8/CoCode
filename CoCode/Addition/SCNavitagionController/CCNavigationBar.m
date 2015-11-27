@@ -26,12 +26,11 @@
         self.backgroundColor = kNavigationBarColor;
         
         self.lineView = [[UIView alloc] initWithFrame:(CGRect){0, 64, kScreenWidth, 0.5}];
-        self.lineView.backgroundColor = kNavigationBarLineColor;
+        //self.lineView.backgroundColor = kNavigationBarLineColor;
         
         [self addSubview:self.lineView];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveThemeChangeNotification) name:kThemeDidChangeNotification object:nil];
-//        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveClearBarBackgroundNotification) name:kClearNaviBarBackgroundColorNotification object:nil];
         
     }
     return self;
@@ -60,7 +59,7 @@
     }
     
     self.backgroundColor = kNavigationBarColor;
-    self.lineView.backgroundColor = kNavigationBarLineColor;
+    //self.lineView.backgroundColor = kNavigationBarLineColor;
 }
 
 - (void)didReceiveClearBarBackgroundNotification{

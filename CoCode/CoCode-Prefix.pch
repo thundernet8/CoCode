@@ -34,8 +34,6 @@
 #define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
 #define kScreenWidth ([UIScreen mainScreen].bounds.size.width)
 
-//background
-#define kBackgroundColorGray ([UIColor colorWithRed:247/255.0 green:247/255.0 blue:247/255.0 alpha:1.0])
 
 //color
 #define kWhiteColor [UIColor whiteColor]
@@ -80,6 +78,8 @@
 #define kStatusBarStyle            kSetting.currentStatusBarStyle
 
 #define kSeparatorColor            kSetting.separatorColor
+
+#define kBackgroundColorGray       kSetting.backgroundColorGray
 
 //Hottopic period
 typedef NS_ENUM(NSInteger, CCHotTopicsPeriod){

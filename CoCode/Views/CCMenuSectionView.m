@@ -37,7 +37,7 @@ static CGFloat const kAvatarHeight = 68.0;
     if (self) {
         self.sectionIconArray = @[@"icon_menu_newest", @"icon_menu_latest", @"icon_menu_hot", @"icon_menu_cat",  @"icon_menu_profile"];
         //self.sectionIconArray = @[@"fa-clock-o", @"fa-calendar", @"fa-fire", @"fa-book",  @"fa-user"]; //@"fa-tags",
-        self.sectionTitleArray = @[NSLocalizedString(@"Recently Active", @"Recently replied,edited,new"), NSLocalizedString(@"Latest Publish", @"Latest published topics"), NSLocalizedString(@"Hot", @"Hot topics"), NSLocalizedString(@"Categories", @"Categories"),  NSLocalizedString(@"Profile", @"Personal related")]; //NSLocalizedString(@"Tags", @"Tags"),
+        self.sectionTitleArray = @[NSLocalizedString(@"Recently Active-Menu", @"Recently replied,edited,new"), NSLocalizedString(@"Latest Publish-Menu", @"Latest published topics"), NSLocalizedString(@"Hot", @"Hot topics"), NSLocalizedString(@"Categories", @"Categories"),  NSLocalizedString(@"Profile", @"Personal related")]; //NSLocalizedString(@"Tags", @"Tags"),
         
         //TODO configure
         [self configureTableView];

@@ -34,6 +34,14 @@ static const CGFloat kTitleFontSize = 18.0;
         self.titleLabel.lineBreakMode = NSLineBreakByCharWrapping;
         
         [self addSubview:self.titleLabel];
+        
+        @weakify(self);
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+            
+            @strongify(self);
+            self.backgroundColor = kBackgroundColorWhite;
+        }];
     }
     
     return self;

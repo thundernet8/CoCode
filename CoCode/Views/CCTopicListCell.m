@@ -71,6 +71,14 @@ static CGFloat const kTitleFontSize = 18.0;
         self.separatorLine = [[UIView alloc] init];
         self.separatorLine.backgroundColor = kSeparatorColor;
         [self addSubview:self.separatorLine];
+        
+        @weakify(self);
+        [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+            @strongify(self);
+            self.backgroundColor = kCellHighlightedColor;
+            self.separatorLine.backgroundColor = kSeparatorColor;
+            self.titleLabel.textColor = kFontColorBlackDark;
+        }];
     }
     return self;
 }

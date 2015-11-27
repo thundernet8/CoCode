@@ -27,6 +27,7 @@ typedef NS_ENUM(NSInteger, CCTheme) {
 
 @property (nonatomic, copy) UIColor *backgroundColorWhite;
 @property (nonatomic, copy) UIColor *backgroundColorWhiteDark;
+@property (nonatomic, copy) UIColor *backgroundColorGray;
 
 @property (nonatomic, copy) UIColor *navigationBarColor;
 @property (nonatomic, copy) UIColor *navigationBarLineColor;

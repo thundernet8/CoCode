@@ -120,11 +120,11 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     switch (section) {
         case 0:
-            return self.isLogged?1:3;
+            return self.isLogged?1:4;
             break;
         
         case 1:
-            return self.isLogged?3:1;
+            return self.isLogged?4:1;
             break;
             
         case 2:
@@ -237,10 +237,14 @@
                 break;
                 
             case 1:
-                [self configurePicDownloadModeSwitchCell:cell];
+                [self configureThemeAutoSwithCell:cell];
                 break;
                 
             case 2:
+                [self configurePicDownloadModeSwitchCell:cell];
+                break;
+                
+            case 3:
                 [self configureClearCacheCell:cell];
                 break;
                 
@@ -280,6 +284,25 @@
             [[CCSettingManager sharedManager] setTheme:CCThemeNight];
         }else{
             [[CCSettingManager sharedManager] setTheme:CCThemeDefault];
+        }
+        cell.switchButton.enabled = YES;
+    } forControlEvents:UIControlEventTouchUpInside];
+    
+}
+
+- (void)configureThemeAutoSwithCell:(CCSettingCell *)cell{
+    cell.textLabel.text = NSLocalizedString(@"Auto Theme", nil);
+    
+    cell.switchButton.alpha = 1;
+    cell.switchButton.onTintColor = RGB(0x3975cf, 1.0);
+    cell.switchButton.on = [CCSettingManager sharedManager].themeAutoChange;
+    
+    [cell.switchButton bk_addEventHandler:^(id sender) {
+        cell.switchButton.enabled = NO;
+        if (cell.switchButton.isOn) {
+            [[CCSettingManager sharedManager] setThemeAutoChange:YES];
+        }else{
+            [[CCSettingManager sharedManager] setThemeAutoChange:NO];
         }
         cell.switchButton.enabled = YES;
     } forControlEvents:UIControlEventTouchUpInside];

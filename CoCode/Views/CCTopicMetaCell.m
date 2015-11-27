@@ -69,6 +69,13 @@ static const CGFloat kMetaFontSize = 12.0;
         } forControlEvents:UIControlEventTouchUpInside];
         
         [self addSubview:self.avatarButton];
+        
+        [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+            
+            @strongify(self);
+            self.backgroundColor = kBackgroundColorWhite;
+
+        }];
     }
     
     return self;

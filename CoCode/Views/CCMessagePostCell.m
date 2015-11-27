@@ -61,7 +61,9 @@ static UIEdgeInsets padding = {5, 5, 5, 5};
         [self addSubview:self.contentLabel];
         
         
+        @weakify(self);
         [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+            @strongify(self);
             self.backgroundColor = kCellHighlightedColor;
         }];
     }

@@ -49,15 +49,15 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-//    if (kSetting.themeAutoChange) {
-//        //AutoChange Theme Depends on Brightness
-//        CGFloat brightness = [UIScreen mainScreen].brightness;
-//        if (brightness < 0.2) {
-//            kSetting.theme = CCThemeNight;
-//        } else {
-//            kSetting.theme = CCThemeDefault;
-//        }
-//    }
+    if (kSetting.themeAutoChange) {
+        //AutoChange Theme Depends on Brightness
+        CGFloat brightness = [UIScreen mainScreen].brightness;
+        if (brightness < 0.2) {
+            kSetting.theme = CCThemeNight;
+        } else {
+            kSetting.theme = CCThemeDefault;
+        }
+    }
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

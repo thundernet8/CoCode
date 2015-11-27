@@ -15,6 +15,6 @@
 
 @property (nonatomic, copy) void (^reloadCellBlcok)();
 
-+ (CGFloat)getCellHeightWithTopicModel:(CCTopicModel *)topic;
+- (CGFloat)getCellHeight;
 
 @end

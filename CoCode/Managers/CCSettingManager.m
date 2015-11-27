@@ -101,6 +101,7 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         //Background Color
         self.backgroundColorWhite = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
         self.backgroundColorWhiteDark = [UIColor colorWithRed:0.071 green:0.118 blue:0.200 alpha:1.000];
+        self.backgroundColorGray = [UIColor colorWithRed:0.082 green:0.145 blue:0.243 alpha:1.000];
         
         //Line Color
         self.lineColorBlackDark = [UIColor colorWithWhite:0.28 alpha:1.0];
@@ -136,6 +137,7 @@ static NSString *const kSelectedSectionIndex = @"SelectedSectionIndex";
         //Background Color dbdbdb
         self.backgroundColorWhite = kWhiteColor;
         self.backgroundColorWhiteDark = [UIColor colorWithRed:0.941 green:0.945 blue:0.961 alpha:1.000];
+        self.backgroundColorGray = [UIColor colorWithWhite:0.969 alpha:1.000];
         
         //Line Color
         self.lineColorBlackDark = kLineColorBlackDarkDefault;

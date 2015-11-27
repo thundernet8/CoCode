@@ -37,6 +37,7 @@
 
 @property (nonatomic, assign) BOOL isDragging;
 
+@property (nonatomic, strong) NSCache *cellCache;
 
 @end
 
@@ -45,7 +46,7 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        
+        self.cellCache = [[NSCache alloc] init];
     }
     return self;
 }
@@ -62,6 +63,8 @@
     [super viewDidLoad];
     
     [self configureNaviBar];
+    
+    [self configureNotifications];
     
     [self configureBlocks];
     
@@ -103,8 +106,6 @@
 
 - (void)viewWillLayoutSubviews{
     [super viewWillLayoutSubviews];
-    
-    self.tableView.backgroundColor = kBackgroundColorWhite;
     
     self.hiddenEnabled = YES;
     
@@ -188,7 +189,7 @@
 
 - (void)configureTableView{
     self.tableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStylePlain];
-    self.tableView.backgroundColor = [UIColor clearColor];
+    self.tableView.backgroundColor = kBackgroundColorWhite;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     self.tableView.delegate = self;
@@ -199,7 +200,7 @@
 
 - (void)configureHeaderView{
     self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, kScreenWidth, 36.0)];
-    self.headerView.backgroundColor = kBackgroundColorWhiteDark;
+    self.headerView.backgroundColor = kBackgroundColorGray;
     
     self.categoryNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10.0, 0.0, 200.0, 36.0)];
     self.categoryNameLabel.textColor = kFontColorBlackLight;
@@ -228,6 +229,19 @@
         [self.navigationController pushViewController:catViewController animated:YES];
         
     } forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)configureNotifications{
+    
+    @weakify(self);
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        
+        @strongify(self);
+        self.headerView.backgroundColor = kBackgroundColorGray;
+        self.categoryNameLabel.textColor = kFontColorBlackLight;
+        self.tableView.backgroundColor = kBackgroundColorWhite;
+    }];
 }
 
 - (void)configureBlocks{
@@ -268,14 +282,8 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    if (section == 0) {
-
-        return 3;
-    }else if(section == 1){
-
-        return self.topic.posts.count > 0 ? self.topic.posts.count-1 : 0;
-    }
-    return 0;
+    
+    return 3;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -311,7 +319,8 @@
                 return [CCTopicMetaCell getCellHeightWithTopicModel:self.topic];
                 break;
             case 2:
-                return [CCTopicBodyCell getCellHeightWithTopicModel:self.topic];
+                //return [CCTopicBodyCell getCellHeightWithTopicModel:self.topic];
+                return [self getCellHeightForTableView:tableView atIndexPath:indexPath];
                 break;
                 
             default:
@@ -323,6 +332,25 @@
         return [CCTopicReplyCell getCellHeightWithPostModel:post];
     }
     return 0;
+}
+
+- (CCTopicBodyCell *)tableView:(UITableView *)tableView prepareCellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *bodyCellIdentifier = @"bodyCellIdentifier";
+    
+    NSString *key = [NSString stringWithFormat:@"%ld-%ld", (long)indexPath.section, (long)indexPath.row];
+    
+    CCTopicBodyCell *cell = [self.cellCache objectForKey:key];
+    
+    if (!cell) {
+        cell = [tableView dequeueReusableCellWithIdentifier:bodyCellIdentifier];
+        if (!cell) {
+            cell = [[CCTopicBodyCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:bodyCellIdentifier];
+        }
+    }
+    
+    return [self configureBodyCell:cell atIndexPath:indexPath];
+    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -339,11 +367,7 @@
         metaCell = [[CCTopicMetaCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:metaCellIdentifier];
     }
     
-    static NSString *bodyCellIdentifier = @"bodyCellIdentifier";
-    CCTopicBodyCell *bodyCell = [tableView dequeueReusableCellWithIdentifier:bodyCellIdentifier];
-    if (!bodyCell) {
-        bodyCell = [[CCTopicBodyCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:bodyCellIdentifier];
-    }
+    CCTopicBodyCell *bodyCell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
     
     static NSString *replyCellIdentifier = @"replyCellIdentifier";
     CCTopicReplyCell *replyCell = [tableView dequeueReusableCellWithIdentifier:replyCellIdentifier];
@@ -360,21 +384,19 @@
                 return [self configureMetaCell:metaCell atIndexPath:indexPath];
                 break;
             case 2:
-                return [self configureBodyCell:bodyCell atIndexPath:indexPath];
+                return bodyCell;
                 
             default:
                 break;
         }
     }
     
-    if (indexPath.section == 1) {
-        return [self configureReplyCell:replyCell atIndexPath:indexPath];
-    }
     return [UITableViewCell new];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark - Configure TableView Cell
@@ -416,23 +438,6 @@
     return cell;
 }
 
-- (CCTopicReplyCell *)configureReplyCell:(CCTopicReplyCell *)cell atIndexPath:(NSIndexPath *)indexPath{
-    CCTopicPostModel *post = self.topic.posts[indexPath.row+1];
-    cell.post = post;
-    cell.replyToPost = self.selectedReply;
-    cell.nav = self.navigationController;
-    
-    @weakify(self);
-    cell.reloadCellBlock = ^{
-        @strongify(self);
-        
-        [self.tableView beginUpdates];
-        [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [self.tableView endUpdates];
-    };
-    
-    return cell;
-}
 
 #pragma mark - ScrollView Delegate
 
@@ -472,7 +477,11 @@
 
 
 
-
+- (CGFloat)getCellHeightForTableView:(UITableView *)tableView atIndexPath:(NSIndexPath *)indexPath{
+    CCTopicBodyCell *cell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
+    
+    return [cell getCellHeight];
+}
 
 
 
