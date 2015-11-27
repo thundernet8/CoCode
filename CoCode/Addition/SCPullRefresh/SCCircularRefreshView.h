@@ -14,6 +14,8 @@
 
 @property (nonatomic, assign) CGFloat timeOffset;  // 0.0 ~ 1.0
 
+@property (nonatomic, strong) UIImageView *loadingImageView;
+
 - (void)beginRefreshing;
 - (void)endRefreshing;
 

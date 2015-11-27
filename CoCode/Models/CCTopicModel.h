@@ -46,6 +46,8 @@
 @property (nonatomic, copy) NSString *topicAuthorName;
 @property (nonatomic, copy) NSString *topicAuthorAvatar;
 
+@property (nonatomic, copy) NSURL *topicUrl;
+
 //Detailed Topic info
 @property (nonatomic, strong) CCCategoryModel *topicCategory;
 @property (nonatomic, copy) NSArray *topicPostIDs;

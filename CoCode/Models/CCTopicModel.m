@@ -36,6 +36,8 @@
         self.topicAuthorID = [self.topicPosters[0] objectForKey:@"user_id"];
         //self.topicAuthorName = @"";
         //self.topicAuthorAvatar = @"";
+        
+        self.topicUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@t/%@/%d", kBaseUrl, self.topicSlug, [self.topicID intValue]]];
     }
     return self;
 }
@@ -62,6 +64,8 @@
         CCMemberModel *member = [[CCMemberModel alloc] initWithPosterDictionary:authorDict];
         self.topicAuthorName = member.memberUserName;
         self.topicAuthorAvatar = member.memberAvatarLarge;
+        
+        self.topicUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@t/%@/%d", kBaseUrl, self.topicSlug, [self.topicID intValue]]];
         
         self.topicPostIDs = [[dict objectForKey:@"post_stream"] objectForKey:@"stream"];
         

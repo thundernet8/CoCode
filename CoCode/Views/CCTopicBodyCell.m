@@ -19,7 +19,9 @@
 #import <DTTiledLayerWithoutFade.h>
 #import <QuartzCore/QuartzCore.h>
 
-static const CGFloat kBodyFontSize = 16.0;
+#import "SCCircularRefreshView.h"
+
+// dstatic const CGFloat kBodyFontSize = 16.0;
 
 @interface CCTopicBodyCell() <IDMPhotoBrowserDelegate, DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, UIActionSheetDelegate>
 
@@ -29,13 +31,12 @@ static const CGFloat kBodyFontSize = 16.0;
 
 @property (nonatomic, assign) NSInteger bodyHeight;
 
-//Attributed resources
-@property (nonatomic, strong) NSMutableArray *attributedLabelArray;
 @property (nonatomic, strong) NSMutableArray *imageArray;
 @property (nonatomic, strong) NSMutableArray *imageButtonArray;
 @property (nonatomic, strong) NSMutableArray *imageUrls;
 
 @property (nonatomic, strong) NSURL *lastActionLink;
+@property (nonatomic, strong) UIImage *lastActionImage;
 
 @end
 
@@ -48,7 +49,6 @@ static const CGFloat kBodyFontSize = 16.0;
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         self.backgroundColor = kBackgroundColorWhite;
         
-        self.attributedLabelArray = [NSMutableArray array];
         self.imageArray = [NSMutableArray array];
         self.imageButtonArray = [NSMutableArray array];
         self.imageUrls = [NSMutableArray array];
@@ -72,7 +72,7 @@ static const CGFloat kBodyFontSize = 16.0;
     [super layoutSubviews];
     
     self.border.frame = CGRectMake(10.0, self.height - 0.5, kScreenWidth - 20, 0.5);
-    [self layoutContent];
+    
 }
 
 - (void)layoutContent{
@@ -125,6 +125,8 @@ static const CGFloat kBodyFontSize = 16.0;
 
 - (void)setTopic:(CCTopicModel *)topic{
     _topic = topic;
+    
+    [self layoutContent];
 }
 
 #pragma mark - Create View
@@ -164,8 +166,6 @@ static const CGFloat kBodyFontSize = 16.0;
     
     [self addSubview:textView];
     
-    
-    [self.attributedLabelArray addObject:textView];
     
     return textView;
     
@@ -207,67 +207,78 @@ static const CGFloat kBodyFontSize = 16.0;
 - (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForAttachment:(DTTextAttachment *)attachment frame:(CGRect)frame{
     if ([attachment isKindOfClass:[DTVideoTextAttachment class]])
     {
-        NSURL *url = (id)attachment.contentURL;
+        //NSURL *url = (id)attachment.contentURL;
         
-        // we could customize the view that shows before playback starts
         UIView *grayView = [[UIView alloc] initWithFrame:frame];
         grayView.backgroundColor = [DTColor blackColor];
-        
-        // find a player for this URL if we already got one
         
         return grayView;
     }
     else if ([attachment isKindOfClass:[DTImageTextAttachment class]])
     {
-        //CGRect new = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, 100.0); //TODO clear
+        
         DTLazyImageView *imageView = [[DTLazyImageView alloc] initWithFrame:frame];
         imageView.delegate = self;
         imageView.userInteractionEnabled = YES;
-        // url for deferred loading
-        if ([[attachment.contentURL.absoluteString substringWithRange:NSMakeRange(0, 5)] isEqualToString:@"//cocode.cc"]) {
-            imageView.url = [NSURL URLWithString:[@"http:" stringByAppendingString:attachment.contentURL.absoluteString]];
-        }else{
-            imageView.url = attachment.contentURL;
+        if ([attachment.contentURL.absoluteString hasPrefix:@"//cocode.cc"]) {
+            attachment.contentURL = [NSURL URLWithString:[@"http:" stringByAppendingString:attachment.contentURL.absoluteString]];
         }
+        imageView.url = attachment.contentURL;
+
+        
+        //Collect image urls for gallery
+        if (![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
+            [self.imageUrls addObject:imageView.url];
+        }
+        
+        
         DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:imageView.bounds];
+        button.minimumHitSize = CGSizeMake(25, 25);
+        button.URL = attachment.hyperLinkURL?attachment.hyperLinkURL:imageView.url;
         
         if (kSetting.nonePicsMode && ![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
+            UIImage *placeHolderImage = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"placeholder-image" ofType:@"png"]]];
+            imageView.image = placeHolderImage;
+            imageView.contentMode = UIViewContentModeScaleAspectFit;
             
-            imageView.image = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"placeholder-image" ofType:@"png"]]];
             
-            button.URL = attachment.contentURL;
-            button.minimumHitSize = CGSizeMake(25, 25); // adjusts it's bounds so that button is always large enough
             button.GUID = attachment.hyperLinkGUID;
+            
             
             // use normal push action for opening URL
             [button bk_addEventHandler:^(id sender) {
-                [imageView sd_setImageWithURL:imageView.url placeholderImage:[UIImage imageNamed:@"icon_loading"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-
+                
+                SCCircularRefreshView *loadingView = [[SCCircularRefreshView alloc] initWithFrame:CGRectMake(imageView.width/2.0-12.5, imageView.height/2.0-12.5, 25.0, 25.0)];
+                loadingView.timeOffset = 0;
+                loadingView.loadingImageView.tintColor = [UIColor grayColor];
+                [loadingView beginRefreshing];
+                
+                [imageView addSubview:loadingView];
+                
+                [imageView sd_setImageWithURL:imageView.url placeholderImage:placeHolderImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                    
+                    [loadingView removeFromSuperview];
+                    
+                    [button bk_removeEventHandlersForControlEvents:UIControlEventTouchUpInside];
+                    [button addTarget:self action:@selector(linkPushed:) forControlEvents:UIControlEventTouchUpInside];
                 }];
             } forControlEvents:UIControlEventTouchUpInside];
             
-            [imageView addSubview:button];
+
         }else{
             // sets the image if there is one
             imageView.image = [(DTImageTextAttachment *)attachment image];
-            // if there is a hyperlink then add a link button on top of this image
-            if (attachment.hyperLinkURL && ![attachment.contentURL.absoluteString containsString:@"images/emoji"])
+            if (![attachment.contentURL.absoluteString containsString:@"images/emoji"])
             {
-                button.URL = attachment.hyperLinkURL;
-                button.minimumHitSize = CGSizeMake(25, 25); // adjusts it's bounds so that button is always large enough
                 button.GUID = attachment.hyperLinkGUID;
-                
-                // use normal push action for opening URL
-
                 [button addTarget:self action:@selector(linkPushed:) forControlEvents:UIControlEventTouchUpInside];
-                
-                // demonstrate combination with long press
-                UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(linkLongPressed:)];
-                [button addGestureRecognizer:longPress];
-                
-                [imageView addSubview:button];
             }
         }
+        
+        UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(linkLongPressed:)];
+        [button addGestureRecognizer:longPress];
+        
+        [imageView addSubview:button];
         
         return imageView;
     }
@@ -381,30 +392,67 @@ static const CGFloat kBodyFontSize = 16.0;
     }
 }
 
+#pragma mark - ActionSheet Delegate
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
+    
+    switch (buttonIndex) {
+        case 0:
+            if ([[UIApplication sharedApplication] canOpenURL:self.lastActionLink]) {
+                [[UIApplication sharedApplication] openURL:self.lastActionLink];
+            }
+            break;
+            
+        case 1:
+            
+            if (self.lastActionImage) {
+                UIImageWriteToSavedPhotosAlbum(self.lastActionImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+            }
+            
+            break;
+            
+        default:
+            break;
+    }
+    
+}
+
 #pragma mark Actions
 
 - (void)linkPushed:(DTLinkButton *)button
 {
-    NSURL *URL = button.URL;
     
-    if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
-    {
-        [[UIApplication sharedApplication] openURL:[URL absoluteURL]];
-    }
-    else
-    {
-        if (![URL host] && ![URL path])
-        {
-            
-            // possibly a local anchor link
-            NSString *fragment = [URL fragment];
-            
-            if (fragment)
-            {
-                [self.bodyLabel scrollToAnchorNamed:fragment animated:NO];
-            }
-        }
-    }
+    NSArray *photos = [IDMPhoto photosWithURLs:_imageUrls];
+    
+    IDMPhotoBrowser *browser = [[IDMPhotoBrowser alloc] initWithPhotos:photos animatedFromView:self.nav.view];
+    browser.delegate = self;
+    browser.displayActionButton = NO;
+    browser.displayArrowButton = NO;
+    browser.displayCounterLabel = YES;
+    [browser setInitialPageIndex:0];
+    
+    [AppDelegate.window.rootViewController presentViewController:browser animated:YES completion:nil];
+    
+//    NSURL *URL = button.URL;
+//
+//    if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
+//    {
+//        [[UIApplication sharedApplication] openURL:[URL absoluteURL]];
+//    }
+//    else
+//    {
+//        if (![URL host] && ![URL path])
+//        {
+//            
+//            // possibly a local anchor link
+//            NSString *fragment = [URL fragment];
+//            
+//            if (fragment)
+//            {
+//                [self.bodyLabel scrollToAnchorNamed:fragment animated:NO];
+//            }
+//        }
+//    }
 }
 
 - (void)linkLongPressed:(UILongPressGestureRecognizer *)gesture
@@ -413,13 +461,26 @@ static const CGFloat kBodyFontSize = 16.0;
     {
         DTLinkButton *button = (id)[gesture view];
         button.highlighted = NO;
+        DTLazyImageView *imageView = (id)[button superview];
         self.lastActionLink = button.URL;
+        self.lastActionImage = imageView.image;
         
         if ([[UIApplication sharedApplication] canOpenURL:[button.URL absoluteURL]])
         {
-            UIActionSheet *action = [[UIActionSheet alloc] initWithTitle:[[button.URL absoluteURL] description] delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Open in Safari", nil];
+            UIActionSheet *action = [[UIActionSheet alloc] initWithTitle:[[button.URL absoluteURL] description] delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Open in Safari", nil), NSLocalizedString(@"Save Picture", nil), nil];
+            
             [action showFromRect:button.frame inView:button.superview animated:YES];
         }
+    }
+}
+
+#pragma mark - Selector
+
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo{
+    if (!error) {
+        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Picture Saved Successfully", nil)];
+    }else{
+       [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Picture Saved Failure", nil)];
     }
 }
 
@@ -427,7 +488,6 @@ static const CGFloat kBodyFontSize = 16.0;
 #pragma mark - Public Class Method
 
 - (CGFloat)getCellHeight{
-    NSLog(@"getCellHeight");
 
     return [self.bodyLabel.attributedTextContentView suggestedFrameSizeToFitEntireStringConstraintedToWidth:kScreenWidth-20].height+20;
 

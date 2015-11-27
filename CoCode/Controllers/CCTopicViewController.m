@@ -178,7 +178,7 @@
         
         @strongify(self);
         
-        NSLog(@"3");
+        [self shareActivity];
     }];
     self.sc_navigationItem.rightBarButtonItems = @[bar1, bar2, bar3];
     //self.sc_navigationItem.rightBarButtonItems = @[self.leftBarItem, self.leftBarItem];
@@ -485,6 +485,38 @@
 
 
 
+#pragma mark - Utilities
+
+- (void)shareActivity{
+    
+    //UIActivityViewController
+    NSString *textToShare = self.topic.topicTitle;
+    NSURL *urlToShare = self.topic.topicUrl;
+    NSArray *activityItems = @[textToShare, urlToShare];
+    
+    UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:activityItems applicationActivities:nil];
+    UIActivityViewControllerCompletionWithItemsHandler block = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError)
+    {
+        NSLog(@"activityType :%@", activityType);
+        if (completed)
+        {
+            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Share Article Successfully", nil)];
+            NSLog(@"completed");
+        }
+        else
+        {
+            NSLog(@"cancel");
+        }
+        
+        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+        
+    };
+    
+    activityVC.completionWithItemsHandler = block;
+    
+    [self.navigationController presentViewController:activityVC animated:YES completion:nil];
+    
+}
 
 
 

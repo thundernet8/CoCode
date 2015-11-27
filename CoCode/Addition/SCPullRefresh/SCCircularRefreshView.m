@@ -17,7 +17,6 @@ static NSString* const kRotationAnimation = @"RotationAnimation";
 @interface SCCircularRefreshView ()
 
 @property (nonatomic, strong) DACircularProgressView *circleView;
-@property (nonatomic, strong) UIImageView *loadingImageView;
 
 @property (nonatomic, assign) BOOL isRotating;
 @property (nonatomic, assign) BOOL endWillCalled;
