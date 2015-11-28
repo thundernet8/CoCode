@@ -14,12 +14,13 @@
 #define kUserAgentPC @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/537.75.14"
 
 typedef NS_ENUM(NSInteger, CCRequestMethod){
-    CCRequestMethodJSONGET = 1,
-    CCRequestMethodHTTPGET = 2,
-    CCRequestMethodHTTPPOST = 3,
-    CCRequestMethodHTTPGETPC = 4,
-    CCRequestMethodFADEXHR = 5,
-    CCRequestMethodJSONPOST = 6
+    CCRequestMethodJSONGET      = 1,
+    CCRequestMethodHTTPGET      = 2,
+    CCRequestMethodHTTPPOST     = 3,
+    CCRequestMethodHTTPGETPC    = 4,
+    CCRequestMethodFADEXHR      = 5,
+    CCRequestMethodJSONPOST     = 6,
+    CCRequestMethodFADEXHRPOST  = 7
 };
 
 @interface CCDataManager()
@@ -63,7 +64,8 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             user.member.memberUserName = [kUserDefaults objectForKey:kUsername];
             user.member.memberID = [kUserDefaults objectForKey:kUserid];
             user.member.memberAvatarLarge = [kUserDefaults objectForKey:kAvatarURL];
-            _user = user;
+            NSDictionary *accountInfo = [[FXKeychain defaultKeychain] objectForKey:[NSString stringWithFormat:@"CoCode_User_%@", user.member.memberUserName]];
+            user.password = [accountInfo objectForKey:@"password"];
         }
     }
     return self;
@@ -158,6 +160,18 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         [self.manager.requestSerializer setValue:@"XMLHttpRequest" forHTTPHeaderField:@"X-Requested-With"];
         [self.manager.requestSerializer setValue:URLString forHTTPHeaderField:@"Referer"];
         task = [self.manager GET:URLString parameters:parameters success:^(NSURLSessionDataTask * task, id responseObject) {
+            handleResponseBlock(task, responseObject);
+        } failure:^(NSURLSessionDataTask * task, NSError * error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            failure(error);
+        }];
+    }
+    if (method == CCRequestMethodFADEXHRPOST) {
+        AFHTTPResponseSerializer *responseSerializer = [AFJSONResponseSerializer serializer];
+        self.manager.responseSerializer = responseSerializer;
+        [self.manager.requestSerializer setValue:@"XMLHttpRequest" forHTTPHeaderField:@"X-Requested-With"];
+        [self.manager.requestSerializer setValue:URLString forHTTPHeaderField:@"Referer"];
+        task = [self.manager POST:URLString parameters:parameters success:^(NSURLSessionDataTask * task, id responseObject) {
             handleResponseBlock(task, responseObject);
         } failure:^(NSURLSessionDataTask * task, NSError * error) {
             [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
@@ -377,7 +391,12 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         if ([responseObject objectForKey:@"user"]) {
             
             CCUserModel *user = [CCUserModel getUserWithLoginRespondObject:[responseObject objectForKey:@"user"]];
+            user.password = [parameters objectForKey:@"password"];
             self.user = user;
+            NSDictionary *userAccountInfo = @{@"username":[parameters objectForKey:@"username"], @"password":[parameters objectForKey:@"password"]};
+            //Save Account Info to Keychain
+            [[FXKeychain defaultKeychain] setObject:userAccountInfo forKey:[NSString stringWithFormat:@"CoCode_User_%@", [parameters objectForKey:@"username"]]];
+            
             success(user);
             
             NSArray *cookies = [[ NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:kBaseUrl]];
@@ -428,7 +447,11 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     for (NSHTTPCookie *cookie in [storage cookies]) {
         [storage deleteCookie:cookie];
     }
+    
+    [[FXKeychain defaultKeychain] removeObjectForKey:[NSString stringWithFormat:@"CoCode_User_%@", self.user.member.memberUserName]];
+    
     self.user = nil;
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:kLogoutSuccessNotification object:nil];
 }
 
@@ -475,8 +498,62 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         failure(error);
     }];
     
+}
+
+//Post Action
+
+- (NSURLSessionDataTask *)actionForPost:(NSInteger)postID actionType:(CCPostActionType)actionType success:(void (^)(CCTopicPostModel *postModel))success failure:(void (^)(NSError *error))failure{
     
+    NSString *urlString = [NSString stringWithFormat:@"post_actions"];
     
+    NSDictionary *parameters = @{
+                                @"id" : [NSNumber numberWithInteger:postID],
+                                @"post_action_type_id" : [NSNumber numberWithInteger:actionType],
+                                @"flag_topic" : [NSNumber numberWithBool:NO]
+    };
+    //TODO
+    
+    return [self getCSRFTokenSuccess:^(NSString *token) {
+        
+        [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+        
+        [self requestWithMethod:CCRequestMethodFADEXHRPOST URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+            
+            CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:(NSDictionary *)responseObject];
+            if (model && model.postID.integerValue == postID) {
+                success(model);
+            }else{
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypePostActionFailure userInfo:nil];
+                failure(error);
+            }
+            
+        } failure:^(NSError *error) {
+            
+            failure(error);
+            
+        }];
+        
+        
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+//    return [self requestWithMethod:CCRequestMethodFADEXHRPOST URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+//        
+//        CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:(NSDictionary *)responseObject];
+//        if (model && model.postID.integerValue == postID) {
+//            success(model);
+//        }else{
+//            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypePostActionFailure userInfo:nil];
+//            failure(error);
+//        }
+//        
+//    } failure:^(NSError *error) {
+//        
+//        failure(error);
+//        
+//    }];
     
 }
 
@@ -512,6 +589,33 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             success(topicPostsModel);
         }else{
             NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetTopicError userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+}
+
+//Get CSRF Token
+
+- (NSURLSessionDataTask *)getCSRFTokenSuccess:(void (^)(NSString *token))success failure:(void (^)(NSError *error))failure{
+    
+    NSDictionary *parameters = @{
+                                 @"login":self.user.member.memberUserName,
+                                 @"username":self.user.member.memberUserName,
+                                 @"password":self.user.password,
+                                 @"redirect":kBaseUrl,
+                                 @"_":[NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]
+                                 };
+    
+    return [self requestWithMethod:CCRequestMethodFADEXHR URLString:@"/session/csrf" parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        if ([[responseObject objectForKey:@"csrf"] length] > 0) {
+            NSString *csrfToken = [responseObject objectForKey:@"csrf"];
+            success(csrfToken);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeGetCSRFTokenFailure userInfo:nil];
             failure(error);
         }
         

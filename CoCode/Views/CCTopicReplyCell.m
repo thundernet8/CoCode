@@ -89,9 +89,9 @@
     self.timeLabel.text = [CCHelper timeIntervalStringWithDate:_post.postCreatedTime];
     self.timeLabel.frame = CGRectMake(50.0, 29.0, 100.0, 12.0);
     
-    self.praiseImageView.frame = CGRectMake(kScreenWidth-65, 12.0, 20.0, 20.0);
+    self.praiseImageView.frame = CGRectMake(kScreenWidth-55, 12.0, 20.0, 20.0);
     self.praiseCountLabel.text = [NSString stringWithFormat:@"%d", (int)_post.postLikeCount];
-    self.praiseCountLabel.frame = CGRectMake(kScreenWidth-40, 13.0, 40.0, 20.0);
+    self.praiseCountLabel.frame = CGRectMake(kScreenWidth-30, 13.0, 30.0, 20.0);
     
     
     

@@ -24,6 +24,7 @@
 @interface CCTopicModel : NSObject
 
 @property (nonatomic, assign) NSNumber *topicID;
+@property (nonatomic, assign) NSNumber *postID;
 @property (nonatomic, copy) NSString *topicTitle;
 @property (nonatomic, copy) NSString *topicSlug;
 @property (nonatomic, copy) NSString *topicContent;

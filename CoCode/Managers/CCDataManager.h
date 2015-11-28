@@ -30,7 +30,14 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypeGetTagsFailure           = 911,
     CCErrorTypeGetCSRFTokenFailure      = 912,
     CCErrorTypeGetNotificationsFailure  = 913,
-    CCErrorTypeGetMessagePostsFailure   = 914
+    CCErrorTypeGetMessagePostsFailure   = 914,
+    CCErrorTypePostActionFailure        = 915
+    
+};
+
+typedef NS_ENUM(NSInteger, CCPostActionType) {
+    
+    CCPostActionTypeVote                = 2,
     
 };
 
@@ -86,5 +93,9 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
                                                topicID:(NSNumber *)topicID
                                                success:(void (^)(CCMessageTopicPostsModel *messageTopicPosts, CCMemberModel *sender))success
                                                failure:(void (^)(NSError *error))failure;
+
+//Post Action
+
+- (NSURLSessionDataTask *)actionForPost:(NSInteger)postID actionType:(CCPostActionType)actionType success:(void (^)(CCTopicPostModel *postModel))success failure:(void (^)(NSError *error))failure;
 
 @end

@@ -44,15 +44,14 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        
+       
     }
     return self;
 }
 
 - (void)loadView{
     [super loadView];
-    
-    [self configureBarItems];
+
     [self configureTableView];
     [self configureHeaderView];
 }
@@ -81,8 +80,7 @@
 #pragma mark - Life Cycle
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-
-    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -118,22 +116,15 @@
     
     BOOL isFirstSet = topic.posts.count > 0 ? NO : YES;
     
-    //self.sc_navigationItem.title = topic.topicTitle;
-    
     self.topicCategory = (CCCategoryModel *)topic.topicCategory;
     self.categoryNameLabel.text = self.topicCategory.name;
     
-    
-//    [self.tableView beginUpdates];
-//    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
-//    [self.tableView endUpdates];
     if (!isFirstSet) {
         //[self.tableView reloadData];
         NSIndexPath *metaIndexPath = [NSIndexPath indexPathForRow:1 inSection:0];
         NSIndexPath *bodyIndexPath = [NSIndexPath indexPathForRow:2 inSection:0];
         [self.tableView beginUpdates];
         [self.tableView reloadRowsAtIndexPaths:@[metaIndexPath, bodyIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-        //[self.tableView reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView endUpdates];
 
     }
@@ -141,20 +132,14 @@
 
 #pragma mark - Configuration
 
-- (void)configureBarItems{
+- (void)configureNaviBar{
+    
     @weakify(self);
-    self.leftBarItem = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_back"] imageWithTintColor:kBlackColor] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    
+    self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_back"] imageWithTintColor:kBlackColor] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
         [self.navigationController popViewControllerAnimated:YES];
-    }];
-    
-    //TODO 右导航按钮 分享功能
-}
-
-- (void)configureNaviBar{
-    self.sc_navigationItem.leftBarButtonItem = self.leftBarItem;
-    
-    @weakify(self);
+    }];;
     
     NSString *heartIconName = self.topic.isLiked ? @"icon_heart" : @"icon_heart_o";
     
@@ -164,15 +149,8 @@
         [self likeActivity];
     }];
     SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_comment"] style:SCBarButtonItemStylePlain handler:^(id sender) {
-        CCTopicRepliesViewController *repliesVC = [[CCTopicRepliesViewController alloc] init];
         @strongify(self);
-        
-        repliesVC.posts = self.topic.posts;
-        repliesVC.topic = self.topic;
-        SCNavigationController *navController = [[SCNavigationController alloc] initWithRootViewController:repliesVC];
-        [AppDelegate.window.rootViewController presentViewController:navController animated:YES completion:^{
-            
-        }];
+        [self showComments];
     }];
     SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_nav_share2"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         
@@ -181,10 +159,6 @@
         [self shareActivity];
     }];
     self.sc_navigationItem.rightBarButtonItems = @[bar1, bar2, bar3];
-    //self.sc_navigationItem.rightBarButtonItems = @[self.leftBarItem, self.leftBarItem];
-    //self.sc_navigationItem.title = self.topic ? self.topic.topicTitle : NSLocalizedString(@"Topic", nil);
-    //self.sc_navigationItem.titleLabel.font = [UIFont systemFontOfSize:14.0];
-    //self.sc_navigationItem.titleLabel.frame = CGRectMake(45.0, 32.0, kScreenWidth-90.0, 20.0);
 }
 
 - (void)configureTableView{
@@ -487,8 +461,37 @@
     }else if (self.topic.isLiked){
         [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Do not like it again", nil)];
     }else{
-        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Liked", nil)]; //TODO
+        
+        
+        if (self.topic.postID) {
+            [[CCDataManager sharedManager] actionForPost:[self.topic.postID integerValue] actionType:CCPostActionTypeVote success:^(CCTopicPostModel *postModel) {
+                
+                self.topic.isLiked = YES;
+                
+                [self configureNaviBar];
+                [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Liked", nil)];
+                
+            } failure:^(NSError *error) {
+                
+                [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Vote Failed", nil)];
+                NSLog(@"%@", error.description);
+            }];
+        }
+        
+        
+        
     }
+}
+
+- (void)showComments{
+    
+    CCTopicRepliesViewController *repliesVC = [[CCTopicRepliesViewController alloc] init];
+    repliesVC.posts = self.topic.posts;
+    repliesVC.topic = self.topic;
+    SCNavigationController *navController = [[SCNavigationController alloc] initWithRootViewController:repliesVC];
+    [AppDelegate.window.rootViewController presentViewController:navController animated:YES completion:^{
+        
+    }];
 }
 
 - (void)shareActivity{

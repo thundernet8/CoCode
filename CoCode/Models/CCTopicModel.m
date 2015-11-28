@@ -72,6 +72,7 @@
         self.topicUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@t/%@/%d", kBaseUrl, self.topicSlug, [self.topicID intValue]]];
         
         self.topicPostIDs = [[dict objectForKey:@"post_stream"] objectForKey:@"stream"];
+        self.postID = self.topicPostIDs[0];
         
         NSMutableArray *posts = [NSMutableArray array];
         NSArray *stream_posts = [[dict objectForKey:@"post_stream"] objectForKey:@"posts"];

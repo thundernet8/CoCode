@@ -142,7 +142,7 @@
     self.tableView.contentInsetTop = 44.0;
     
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
-    self.tableView.separatorColor = kSeparatorColor;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.tableFooterView = [UIView new];
     
     self.tableView.delegate = self;
