@@ -353,7 +353,7 @@
 
     if (self.usernameField.text.length > 0 && self.passwordField.text.length > 0) {
         [self hideKeyboard];
-        [self showProgressHudWithText:@"登录中···"];
+        [CCHelper showBlackProgressHudWithText:@"登录中···"];
         
         [[CCDataManager sharedManager] loginWithUsername:self.usernameField.text password:self.passwordField.text success:^(id respondeObject) {
             [[NSNotificationCenter defaultCenter] postNotificationName:kLoginSuccessNotification object:respondeObject];
@@ -382,24 +382,20 @@
 }
 
 - (void)endLogin{
+    self.usernameField.enabled = YES;
+    self.passwordField.enabled = YES;
     
+    //[self.loginButton setTitle:@"登录" forState:UIControlStateNormal];
+    
+    self.isLogging = NO;
 }
 
-- (void)cancelLogin{
-    
-}
-
+//- (void)cancelLogin{
+//    
+//}
+//
 - (void)registerCocode{
     
 }
 
-#pragma mark - Hud
-
-- (void)showProgressHudWithText:(NSString *)text{
-    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
-    [SVProgressHUD setForegroundColor:kWhiteColor];
-    [SVProgressHUD setBackgroundColor:[UIColor colorWithWhite:0.0 alpha:0.8]];
-    [SVProgressHUD showWithStatus:text];
-}
-    
 @end

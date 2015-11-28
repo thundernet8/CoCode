@@ -13,10 +13,10 @@
 @property (nonatomic, strong) CCTopicPostModel *post;
 @property (nonatomic, strong) CCTopicPostModel *replyToPost;
 @property (nonatomic, assign) UINavigationController *nav;
-@property (nonatomic, assign) CGFloat textHeight;
+@property (nonatomic) CGFloat cellHeight;
 
 @property (nonatomic, copy) void (^reloadCellBlock)();
 
-+ (CGFloat)getCellHeightWithPostModel:(CCTopicPostModel *)post;
+- (CGFloat)getCellHeight;
 
 @end

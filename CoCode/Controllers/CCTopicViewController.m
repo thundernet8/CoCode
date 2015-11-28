@@ -37,8 +37,6 @@
 
 @property (nonatomic, assign) BOOL isDragging;
 
-@property (nonatomic, strong) NSCache *cellCache;
-
 @end
 
 @implementation CCTopicViewController
@@ -46,7 +44,7 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.cellCache = [[NSCache alloc] init];
+        
     }
     return self;
 }
@@ -158,10 +156,12 @@
     
     @weakify(self);
     
-    SCBarButtonItem *bar1 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_heart_o"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    NSString *heartIconName = self.topic.isLiked ? @"icon_heart" : @"icon_heart_o";
+    
+    SCBarButtonItem *bar1 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:heartIconName] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
         
-        NSLog(@"1");
+        [self likeActivity];
     }];
     SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_comment"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         CCTopicRepliesViewController *repliesVC = [[CCTopicRepliesViewController alloc] init];
@@ -327,10 +327,7 @@
                 break;
         }
     }
-    if (indexPath.section == 1) {
-        CCTopicPostModel *post = self.topic.posts[indexPath.row + 1];
-        return [CCTopicReplyCell getCellHeightWithPostModel:post];
-    }
+
     return 0;
 }
 
@@ -338,18 +335,14 @@
     
     static NSString *bodyCellIdentifier = @"bodyCellIdentifier";
     
-    NSString *key = [NSString stringWithFormat:@"%ld-%ld", (long)indexPath.section, (long)indexPath.row];
-    
-    CCTopicBodyCell *cell = [self.cellCache objectForKey:key];
-    
+    CCTopicBodyCell *cell = [tableView dequeueReusableCellWithIdentifier:bodyCellIdentifier];
     if (!cell) {
-        cell = [tableView dequeueReusableCellWithIdentifier:bodyCellIdentifier];
-        if (!cell) {
-            cell = [[CCTopicBodyCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:bodyCellIdentifier];
-        }
+        cell = [[CCTopicBodyCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:bodyCellIdentifier];
     }
-    
-    return [self configureBodyCell:cell atIndexPath:indexPath];
+        
+    cell = [self configureBodyCell:cell atIndexPath:indexPath];
+
+    return cell;
     
 }
 
@@ -368,12 +361,6 @@
     }
     
     CCTopicBodyCell *bodyCell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
-    
-    static NSString *replyCellIdentifier = @"replyCellIdentifier";
-    CCTopicReplyCell *replyCell = [tableView dequeueReusableCellWithIdentifier:replyCellIdentifier];
-    if (!replyCell) {
-        replyCell = [[CCTopicReplyCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:replyCellIdentifier];
-    }
     
     if (indexPath.section == 0) {
         switch (indexPath.row) {
@@ -486,6 +473,23 @@
 
 
 #pragma mark - Utilities
+
+- (void)likeActivity{
+    
+    if (![CCDataManager sharedManager].user.isLogin) {
+        UIAlertView *alert = [UIAlertView bk_showAlertViewWithTitle:NSLocalizedString(@"Need Login", nil) message:NSLocalizedString(@"You need login to vote this topic", nil) cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:@[NSLocalizedString(@"Login", nil)] handler:^(UIAlertView *alertView, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+            }
+        }];
+        
+        [alert show];
+    }else if (self.topic.isLiked){
+        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Do not like it again", nil)];
+    }else{
+        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Liked", nil)]; //TODO
+    }
+}
 
 - (void)shareActivity{
     

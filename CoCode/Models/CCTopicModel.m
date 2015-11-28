@@ -54,6 +54,10 @@
         self.isPinned = [[dict objectForKey:@"pinned"] boolValue];
         self.isClosed = [[dict objectForKey:@"closed"] boolValue];
         self.isBookmarked = [dict objectForKey:@"bookmarked"] != [NSNull null]?[[dict objectForKey:@"bookmarked"] boolValue]:NO;
+        
+        NSArray *actionArray = [[[[dict objectForKey:@"post_stream"] objectForKey:@"posts"] firstObject] objectForKey:@"actions_summary"];
+        
+        self.isLiked = [actionArray[0] objectForKey:@"acted"] != [NSNull null]?[[actionArray[0] objectForKey:@"acted"] boolValue]:NO;
         self.topicViews = [dict objectForKey:@"views"];
         self.topicLikeCount = [dict objectForKey:@"like_count"];
         self.topicCategoryID = [dict objectForKey:@"category_id"];
@@ -77,7 +81,9 @@
         }
         self.posts = [NSArray arrayWithArray:posts];
         self.stream = [[dict objectForKey:@"post_stream"] objectForKey:@"stream"];
-        self.streamDesc = [[self.stream reverseObjectEnumerator] allObjects];
+        self.replyStream = [self.stream subarrayWithRange:NSMakeRange(1, self.stream.count-1)];
+        
+        self.replyStreamDesc = [[self.replyStream reverseObjectEnumerator] allObjects];
         
         CCTopicPostModel *post = posts[0];
         

@@ -86,20 +86,20 @@
             
             // the block is being called for an entire paragraph, so we check the individual elements
             
-//            for (DTHTMLElement *oneChildElement in element.childNodes)
-//            {
-//
-//                // if an element is larger than twice the font size put it in it's own block
-//                if (oneChildElement.displayStyle == DTHTMLElementDisplayStyleInline && oneChildElement.textAttachment.displaySize.height > 2.0 * oneChildElement.fontDescriptor.pointSize)
-//                {
-//                    oneChildElement.displayStyle = DTHTMLElementDisplayStyleBlock;
-//                    oneChildElement.paragraphStyle.minimumLineHeight = element.textAttachment.displaySize.height;
-//                    oneChildElement.paragraphStyle.maximumLineHeight = element.textAttachment.displaySize.height;
-//                }
-//            }
+            for (DTHTMLElement *oneChildElement in element.childNodes)
+            {
+
+                //if an element is larger than twice the font size put it in it's own block
+                if (oneChildElement.displayStyle == DTHTMLElementDisplayStyleInline && oneChildElement.textAttachment.displaySize.height > 2.0 * oneChildElement.fontDescriptor.pointSize)
+                {
+                    oneChildElement.displayStyle = DTHTMLElementDisplayStyleBlock;
+                    oneChildElement.paragraphStyle.minimumLineHeight = element.textAttachment.displaySize.height;
+                    oneChildElement.paragraphStyle.maximumLineHeight = element.textAttachment.displaySize.height;
+                }
+            }
         };
         
-        DTCSSStylesheet *css = [[DTCSSStylesheet alloc] initWithStyleBlock:[NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"default" ofType:@"css"] encoding:NSUTF8StringEncoding error:nil]];
+        DTCSSStylesheet *css = [[DTCSSStylesheet alloc] initWithStyleBlock:[NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"topic" ofType:@"css"] encoding:NSUTF8StringEncoding error:nil]];
         
         
         
@@ -230,7 +230,6 @@
         if (![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
             [self.imageUrls addObject:imageView.url];
         }
-        
         
         DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:imageView.bounds];
         button.minimumHitSize = CGSizeMake(25, 25);
@@ -365,6 +364,9 @@
 #pragma mark - DTLazyImageViewDelegate
 
 - (void)lazyImageView:(DTLazyImageView *)lazyImageView didChangeImageSize:(CGSize)size {
+    
+    NSLog(@"resize");
+    
     NSURL *url = lazyImageView.url;
 
     CGSize imageSize = size;

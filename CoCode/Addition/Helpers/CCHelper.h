@@ -15,6 +15,8 @@
 //SVProgressHud
 + (void)showBlackHudWithImage:(UIImage *)image withText:(NSString *)text;
 
++ (void)showBlackProgressHudWithText:(NSString *)text;
+
 //Category info from plist
 + (NSDictionary *)getCategoryInfoFromPlistForID:(NSNumber *)catID;
 

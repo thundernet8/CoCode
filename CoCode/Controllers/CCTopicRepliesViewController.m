@@ -13,6 +13,8 @@
 
 @property (nonatomic, strong) CCTopicPostModel *selectedReply;
 
+@property (nonatomic, strong) NSCache *cellHeightCache;
+
 @end
 
 @implementation CCTopicRepliesViewController
@@ -20,7 +22,7 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        
+        self.cellHeightCache = [[NSCache alloc] init];
     }
     
     return self;
@@ -105,24 +107,48 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    CCTopicPostModel *post = _posts[indexPath.row+1];
+    
+    NSString *key = [NSString stringWithFormat:@"%ld-%ld", (long)indexPath.section, (long)indexPath.row];
+    
+    CGFloat cellHeight = [[self.cellHeightCache objectForKey:key] floatValue];
+    
+    if (!cellHeight) {
+        CCTopicReplyCell *cell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
+        cellHeight = [cell getCellHeight];
+    }
+    
+    return cellHeight;
+}
 
-    return [CCTopicReplyCell getCellHeightWithPostModel:post];
+- (CCTopicReplyCell *)tableView:(UITableView *)tableView prepareCellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *identifier = @"ReplyCell";
+    
+    NSString *key = [NSString stringWithFormat:@"%ld-%ld", (long)indexPath.section, (long)indexPath.row];
+    
+
+    CCTopicReplyCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    if (!cell) {
+        cell = [[CCTopicReplyCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        
+        cell = [self configureReplyCell:cell atIndexPath:indexPath];
+        [self.cellHeightCache setObject:[NSNumber numberWithFloat:cell.cellHeight] forKey:key];
+    }else{
+       cell = [self configureReplyCell:cell atIndexPath:indexPath];
+    }
+    
+ 
+    return cell;
+    
 }
 
 - (CCTopicReplyCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-
-    static NSString *identifier = @"ReplyCell";
-    CCTopicReplyCell *cell = (CCTopicReplyCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
-    if (!cell) {
-        cell = [[CCTopicReplyCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
-    }
     
-    return [self configureReplyCell:cell atIndexPath:indexPath];
+    return [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    
+    //TODO reply's action
 }
 
 

@@ -124,6 +124,13 @@
     [SVProgressHUD showSuccessWithStatus:text];
 }
 
++ (void)showBlackProgressHudWithText:(NSString *)text{
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
+    [SVProgressHUD setForegroundColor:kWhiteColor];
+    [SVProgressHUD setBackgroundColor:[UIColor colorWithWhite:0.0 alpha:0.8]];
+    [SVProgressHUD showWithStatus:text];
+}
+
 //Category info from plist
 + (NSDictionary *)getCategoryInfoFromPlistForID:(NSNumber *)catID{
     NSDictionary *categories = [[NSDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Categories" ofType:@"plist"]];

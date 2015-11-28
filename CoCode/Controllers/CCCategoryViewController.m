@@ -57,7 +57,6 @@
     
     [self configureCategory];
     
-    [self configureNavi];
     [self configureTableView];
 }
 
@@ -78,7 +77,10 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated{
+    
     [super viewWillAppear:animated];
+    
+    [self configureNavi];
     
 }
 
@@ -117,6 +119,7 @@
 }
 
 - (void)configureNavi{
+    NSLog(@"%d", (int)self.navigationController.viewControllers.count);
     if (self.navigationController.viewControllers.count > 1) {
         self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_back"] style:SCBarButtonItemStylePlain handler:^(id sender) {
             [self.navigationController popViewControllerAnimated:YES];

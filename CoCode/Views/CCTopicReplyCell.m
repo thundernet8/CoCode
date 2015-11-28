@@ -11,12 +11,14 @@
 #import <UIImageView+WebCache.h>
 #import "CoCodeAppDelegate.h"
 
+#import <DTCoreText.h>
+
 #define kReplyFontSize 16.0
 #define kAvatarHeight 30.0
 
-@interface CCTopicReplyCell() <UITextViewDelegate, IDMPhotoBrowserDelegate>
+@interface CCTopicReplyCell() <DTAttributedTextContentViewDelegate, IDMPhotoBrowserDelegate>
 
-@property (nonatomic, strong) UITextView *textView;
+@property (nonatomic, strong) DTAttributedTextView *textView;
 @property (nonatomic, strong) UIImageView *avatarImageView;
 @property (nonatomic, strong) UILabel *nameLabel;
 @property (nonatomic, strong) UILabel *timeLabel;
@@ -68,8 +70,15 @@
     return self;
 }
 
+- (void)prepareForReuse{
+    
+
+}
+
 - (void)layoutSubviews{
+
     [super layoutSubviews];
+
     
     [self.avatarImageView sd_setImageWithURL:[NSURL URLWithString:_post.postUserAvatar] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
     self.avatarImageView.frame = CGRectMake(10.0, 10.0, kAvatarHeight, kAvatarHeight);
@@ -84,31 +93,63 @@
     self.praiseCountLabel.text = [NSString stringWithFormat:@"%d", (int)_post.postLikeCount];
     self.praiseCountLabel.frame = CGRectMake(kScreenWidth-40, 13.0, 40.0, 20.0);
     
-    self.textView.attributedText = [[NSAttributedString alloc] initWithData:[_post.postContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType} documentAttributes:nil error:nil];
     
     
-    self.textView.font = [UIFont systemFontOfSize:kReplyFontSize];
-    
-    self.textHeight = [self.textView sizeThatFits:CGSizeMake(kScreenWidth-55, CGFLOAT_MAX)].height;
-    self.textView.frame = CGRectMake(45.0, 45.0, kScreenWidth-55.0, self.textHeight);
 }
 
+- (void)setPost:(CCTopicPostModel *)post{
+    _post = post;
 
-- (UITextView *)createAttributedTextView{
-    UITextView *textView = [[UITextView alloc] initWithFrame:CGRectZero];
+    [self configureTextView];
 
+}
+
+- (void)configureTextView{
     
-    textView.backgroundColor = [UIColor whiteColor];
-    textView.textColor = kFontColorBlackDark;
-    textView.font = [UIFont systemFontOfSize:kReplyFontSize];
+    _post.postContent = [_post.postContent stringByReplacingOccurrencesOfString:@"<h2></h2>" withString:@""];
+    
+    void (^callBackBlock)(DTHTMLElement *element) = ^(DTHTMLElement *element) {
+        
+        for (DTHTMLElement *oneChildElement in element.childNodes)
+        {
+            
+            //if an element is larger than twice the font size put it in it's own block
+            if (oneChildElement.displayStyle == DTHTMLElementDisplayStyleInline && oneChildElement.textAttachment.displaySize.height > 2.0 * oneChildElement.fontDescriptor.pointSize)
+            {
+                oneChildElement.displayStyle = DTHTMLElementDisplayStyleBlock;
+                oneChildElement.paragraphStyle.minimumLineHeight = element.textAttachment.displaySize.height;
+                oneChildElement.paragraphStyle.maximumLineHeight = element.textAttachment.displaySize.height;
+            }
+        }
+    };
+    
+    DTCSSStylesheet *css = [[DTCSSStylesheet alloc] initWithStyleBlock:[NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"topic" ofType:@"css"] encoding:NSUTF8StringEncoding error:nil]];
+    
+    NSMutableDictionary *options = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:1.0], NSTextSizeMultiplierDocumentOption, [NSValue valueWithCGSize:CGSizeMake(kScreenWidth, CGFLOAT_MAX)], DTMaxImageSize,
+                                    @"Arial", DTDefaultFontFamily, @"blue", DTDefaultLinkHighlightColor, callBackBlock, DTWillFlushBlockCallBack, css, DTDefaultStyleSheet, kFontColorBlackDark, DTDefaultTextColor, @kReplyFontSize, DTDefaultFontSize, nil];
+    [options setObject:[NSURL URLWithString:@"http://cocode.cc"] forKey:NSBaseURLDocumentOption];
+    
+    self.textView.attributedString = [[NSAttributedString alloc] initWithHTMLData:[_post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+    
+    self.textView.frame = CGRectMake(45.0, 45.0, kScreenWidth-55.0, [self getCellHeight]);
+    
+}
+
+#pragma mark - Create Attributed View
+
+- (DTAttributedTextView *)createAttributedTextView{
+    DTAttributedTextView *textView = [[DTAttributedTextView alloc] initWithFrame:CGRectZero];
+
+    textView.backgroundColor = [UIColor clearColor];
+    //textView.textColor = kFontColorBlackDark;
+    //textView.font = [UIFont systemFontOfSize:kReplyFontSize];
     textView.scrollEnabled = NO;
-    textView.editable = NO;
-    textView.tintColor = kColorPurple;
+    //textView.editable = NO;
     
-    textView.delegate = self;
+    
+    textView.textDelegate = self;
     
     [self addSubview:textView];
-    
     
     return textView;
     
@@ -149,7 +190,7 @@
     return NO;
 }
 
-#pragma mark - Public Class Method
+#pragma mark - Public Method
 
 + (CGFloat)getCellHeightWithPostModel:(CCTopicPostModel *)post{
     
@@ -166,6 +207,15 @@
         return bodyHeight+20.0;
     }
     
+}
+
+- (CGFloat)getCellHeight{
+   
+    if (!self.cellHeight) {
+        self.cellHeight = [self.textView.attributedTextContentView suggestedFrameSizeToFitEntireStringConstraintedToWidth:kScreenWidth-55].height+60;
+    }
+    
+    return self.cellHeight;
 }
 
 @end
