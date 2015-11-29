@@ -12,6 +12,5 @@
 @interface CCTopicRepliesViewController : SCPullRefreshViewController
 
 @property (nonatomic, strong) CCTopicModel *topic;
-@property (nonatomic, strong) NSArray *posts;
 
 @end

@@ -83,6 +83,7 @@ PODS:
   - TTTAttributedLabel (1.13.4)
   - WeiboSDK (3.1.3)
   - WeixinSDK (1.4.3)
+  - YYText (0.9.4)
 
 DEPENDENCIES:
   - AFNetworking (~> 2.6.0)
@@ -106,6 +107,7 @@ DEPENDENCIES:
   - TTTAttributedLabel (~> 1.13.4)
   - WeiboSDK (from `https://github.com/sinaweibosdk/weibo_ios_sdk.git`)
   - WeixinSDK (~> 1.4.3)
+  - YYText (~> 0.9.4)
 
 EXTERNAL SOURCES:
   FontAwesome+iOS:
@@ -145,5 +147,6 @@ SPEC CHECKSUMS:
   TTTAttributedLabel: 0a2ac7b2dd726d32a070dafb01446026b11e624f
   WeiboSDK: 5f2a707c4569a64f4641f4171acd712016f24342
   WeixinSDK: 012c72fbaf8cef68afa7b0d0bb81c67a7a5c9136
+  YYText: 67a80bd0ac293832dae4830c7e25f837ffd99488
 
 COCOAPODS: 0.39.0

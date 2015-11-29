@@ -351,6 +351,46 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
 }
 
+//Fetch Comments
+
+- (NSURLSessionDataTask *)getTopicReplyListWithTopicID:(NSInteger)topicID inPage:(NSInteger)page replyStream:(NSArray *)stream success:(void (^)(NSArray *replyList))success failure:(void (^)(NSError *error))failure{
+    
+    NSInteger totalCount = stream.count;
+    if ((page-1)*20 >= totalCount) {
+        NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetReplyListError userInfo:nil];
+        failure(error);
+        return nil;
+    }
+    
+    NSRange range = NSMakeRange((unsigned)((page-1)*20), MAX(0, MIN(20, totalCount-(page-1)*20)));
+    
+    NSArray *nextPageStream = [[[stream subarrayWithRange:range] reverseObjectEnumerator] allObjects];
+    
+    NSString *urlString = [NSString stringWithFormat:@"t/%d/posts.json?_=%@", (int)topicID, [NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]];
+    
+    for (NSNumber *postID in nextPageStream) {
+        urlString = [NSString stringWithFormat:@"%@&post_ids%%5B%%5D=%d", urlString, [postID intValue]];
+    }
+    
+    return [self requestWithMethod:CCRequestMethodFADEXHR URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        NSArray *replyList = [CCTopicPostModel getTopicReplyListWithResponseObject:(NSDictionary *)responseObject];
+        
+        if (replyList) {
+            success(replyList);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetReplyListError userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+}
+
+//Login and Logout
+
 - (NSURLSessionDataTask *)loginWithUsername:(NSString *)username password:(NSString *)password success:(void (^)(id))success failure:(void (^)(NSError *))failure{
     NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
     for (NSHTTPCookie *cookie in [storage cookies]) {
@@ -479,6 +519,8 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
 }
 
+//Fetch Message
+
 - (NSURLSessionDataTask *)getMessageTopicPostsWithPage:(NSInteger)page topicID:(NSNumber *)topicID success:(void (^)(CCMessageTopicPostsModel *, CCMemberModel *))success failure:(void (^)(NSError *))failure{
     
     NSString *urlString = [NSString stringWithFormat:@"t/topic/%d.json",[topicID intValue]];
@@ -511,7 +553,6 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
                                 @"post_action_type_id" : [NSNumber numberWithInteger:actionType],
                                 @"flag_topic" : [NSNumber numberWithBool:NO]
     };
-    //TODO
     
     return [self getCSRFTokenSuccess:^(NSString *token) {
         
@@ -533,27 +574,9 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             
         }];
         
-        
-        
     } failure:^(NSError *error) {
         failure(error);
     }];
-    
-//    return [self requestWithMethod:CCRequestMethodFADEXHRPOST URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
-//        
-//        CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:(NSDictionary *)responseObject];
-//        if (model && model.postID.integerValue == postID) {
-//            success(model);
-//        }else{
-//            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypePostActionFailure userInfo:nil];
-//            failure(error);
-//        }
-//        
-//    } failure:^(NSError *error) {
-//        
-//        failure(error);
-//        
-//    }];
     
 }
 
@@ -576,7 +599,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     
     NSArray *nextPageStream = [[[model.streamDesc subarrayWithRange:range] reverseObjectEnumerator] allObjects];
     
-    NSString *urlString = [NSString stringWithFormat:@"t/topic/%d.json?_=%@", [model.topicID intValue], [NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]];
+    NSString *urlString = [NSString stringWithFormat:@"t/%d/posts.json?_=%@", [model.topicID intValue], [NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]];
     
     for (NSNumber *postID in nextPageStream) {
         urlString = [NSString stringWithFormat:@"%@&post_ids%%5B%%5D=%d", urlString, [postID intValue]];

@@ -9,11 +9,21 @@
 #import "CCTopicRepliesViewController.h"
 #import "CCTopicReplyCell.h"
 
+#import "CCDataManager.h"
+
 @interface CCTopicRepliesViewController () <UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) CCTopicPostModel *selectedReply;
 
 @property (nonatomic, strong) NSCache *cellHeightCache;
+
+@property (nonatomic, copy) NSURLSessionDataTask *(^getReplyListBlock)(NSInteger page);
+
+@property (nonatomic, strong) NSArray *replyStream;
+
+@property (nonatomic) NSInteger pageCount;
+
+@property (nonatomic, strong) NSArray *replyList;
 
 @end
 
@@ -22,6 +32,8 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        
+        self.pageCount = 1;
         self.cellHeightCache = [[NSCache alloc] init];
     }
     
@@ -37,18 +49,48 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    [self configureBlocks];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     
-    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
+    if (self.replyStream) {
+        [self beginRefresh];
+    }
+}
+
+- (void)dealloc{
+    NSLog(@"dealloc");
+}
+
+#pragma mark - Setter
+
+- (void)setTopic:(CCTopicModel *)topic{
+    _topic = topic;
+    
+    self.replyStream = self.topic.replyStream;
+}
+
+- (void)setReplyList:(NSArray *)replyList{
+    
+    if (_replyList) {
+        replyList = [_replyList arrayByAddingObjectsFromArray:replyList];
+    }
+    _replyList = replyList;
+    
+    [self.tableView reloadData];
 }
 
 #pragma mark - Configuration
@@ -58,7 +100,7 @@
     self.tableView.contentInsetTop = 44.0;
     
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
-    self.tableView.separatorColor = kSeparatorColor;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.tableFooterView = [UIView new];
     
     self.tableView.delegate = self;
@@ -69,16 +111,67 @@
 
 - (void)configureNaviBar{
     @weakify(self);
-    self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_cancel"] imageWithTintColor:kBlackColor] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    self.sc_navigationItem.leftBarButtonItem = [[SCBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"icon_back"] imageWithTintColor:kBlackColor] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self.navigationController popViewControllerAnimated:YES];
     }];
     
     self.sc_navigationItem.title = NSLocalizedString(@"Comments", nil);
 }
 
+- (void)configureBlocks{
+    
+    @weakify(self);
+    
+    self.getReplyListBlock = ^(NSInteger page){
+        
+        @strongify(self);
+        
+        self.pageCount = page;
+        
+        return [[CCDataManager sharedManager] getTopicReplyListWithTopicID:[self.topic.topicID integerValue] inPage:page replyStream:self.replyStream success:^(NSArray *replyList) {
+            
+            self.replyList = replyList;
+            
+            if (self.pageCount > 1) {
+                [self endLoadMore];
+            }else{
+                [self endRefresh];
+                if (replyList.count >= 20) {
+                    self.loadMoreBlock = ^{
+                        @strongify(self);
+                        self.pageCount ++;
+                        
+                        self.getReplyListBlock(self.pageCount);
+                    };
+                }
+            }
+            
+        } failure:^(NSError *error) {
+            @strongify(self);
+            if (self.pageCount > 1) {
+                [self endLoadMore];
+                if (error.code >= 900) {
+                    //Reached the end, no more topics
+                    [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"No more replies", nil)];
+                }
+            }else{
+                [self endRefresh];
+            }
+        }];
+        
+    };
+    
+    self.refreshBlock = ^{
+        @strongify(self);
+        
+        self.getReplyListBlock(1);
+    };
+}
+
 - (CCTopicReplyCell *)configureReplyCell:(CCTopicReplyCell *)cell atIndexPath:(NSIndexPath *)indexPath{
-    CCTopicPostModel *post = self.topic.posts[indexPath.row+1];
+    
+    CCTopicPostModel *post = self.replyList[indexPath.row];
     cell.post = post;
     cell.replyToPost = self.selectedReply;
     cell.nav = self.navigationController;
@@ -99,7 +192,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return _posts.count > 0 ? _posts.count-1 : 0;
+    return self.replyList.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{

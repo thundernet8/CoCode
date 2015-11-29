@@ -31,7 +31,8 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypeGetCSRFTokenFailure      = 912,
     CCErrorTypeGetNotificationsFailure  = 913,
     CCErrorTypeGetMessagePostsFailure   = 914,
-    CCErrorTypePostActionFailure        = 915
+    CCErrorTypePostActionFailure        = 915,
+    CCErrorTypeGetReplyListError        = 916
     
 };
 
@@ -73,6 +74,10 @@ typedef NS_ENUM(NSInteger, CCPostActionType) {
 
 - (NSURLSessionDataTask *)getTagsSuccess:(void (^)(CCTagsModel *tagsModel))success
                                  failure:(void (^)(NSError *error))failure;
+
+//Fetch Comments
+
+- (NSURLSessionDataTask *)getTopicReplyListWithTopicID:(NSInteger)topicID inPage:(NSInteger)page replyStream:(NSArray *)stream success:(void (^)(NSArray *replyList))success failure:(void (^)(NSError *error))failure;
 
 //Login/Logout and Register
 

@@ -114,12 +114,12 @@
         {
             
             //if an element is larger than twice the font size put it in it's own block
-            if (oneChildElement.displayStyle == DTHTMLElementDisplayStyleInline && oneChildElement.textAttachment.displaySize.height > 2.0 * oneChildElement.fontDescriptor.pointSize)
-            {
-                oneChildElement.displayStyle = DTHTMLElementDisplayStyleBlock;
-                oneChildElement.paragraphStyle.minimumLineHeight = element.textAttachment.displaySize.height;
-                oneChildElement.paragraphStyle.maximumLineHeight = element.textAttachment.displaySize.height;
-            }
+//            if (oneChildElement.displayStyle == DTHTMLElementDisplayStyleInline && oneChildElement.textAttachment.displaySize.height > 2.0 * oneChildElement.fontDescriptor.pointSize)
+//            {
+//                oneChildElement.displayStyle = DTHTMLElementDisplayStyleBlock;
+//                oneChildElement.paragraphStyle.minimumLineHeight = element.textAttachment.displaySize.height;
+//                oneChildElement.paragraphStyle.maximumLineHeight = element.textAttachment.displaySize.height;
+//            }
         }
     };
     
@@ -131,7 +131,7 @@
     
     self.textView.attributedString = [[NSAttributedString alloc] initWithHTMLData:[_post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
     
-    self.textView.frame = CGRectMake(45.0, 45.0, kScreenWidth-55.0, [self getCellHeight]);
+    self.textView.frame = CGRectMake(45.0, 45.0, kScreenWidth-55.0, [self getCellHeight]-60);
     
 }
 
@@ -191,23 +191,6 @@
 }
 
 #pragma mark - Public Method
-
-+ (CGFloat)getCellHeightWithPostModel:(CCTopicPostModel *)post{
-    
-    if (!post) {
-        return 0;
-    }
-    
-    @autoreleasepool {
-        UITextView *textView = [[UITextView alloc] init];
-        textView.attributedText = [[NSAttributedString alloc] initWithData:[post.postContent dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType} documentAttributes:nil error:nil];
-        textView.font = [UIFont systemFontOfSize:kReplyFontSize];
-        
-        CGFloat bodyHeight = [textView sizeThatFits:CGSizeMake(kScreenWidth-55, CGFLOAT_MAX)].height;
-        return bodyHeight+20.0;
-    }
-    
-}
 
 - (CGFloat)getCellHeight{
    

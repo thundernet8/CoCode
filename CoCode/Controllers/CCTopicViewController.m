@@ -22,9 +22,6 @@
 
 @interface CCTopicViewController () <UITableViewDelegate, UITableViewDataSource>
 
-@property (nonatomic, strong) SCBarButtonItem *leftBarItem;
-@property (nonatomic, strong) SCBarButtonItem *rightBarItem;
-
 @property (nonatomic, strong) UIView *headerView;
 
 @property (nonatomic, strong) UILabel *categoryNameLabel;
@@ -35,6 +32,8 @@
 
 @property (nonatomic, strong) CCTopicPostModel *selectedReply;
 
+@property (nonatomic, assign) BOOL isLoaded;
+
 @property (nonatomic, assign) BOOL isDragging;
 
 @end
@@ -44,7 +43,7 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-       
+        self.isLoaded = NO;
     }
     return self;
 }
@@ -68,9 +67,6 @@
     if (!self.topic.posts) {
         self.getTopicBlock();
     }
-    
-    //TODO
-    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -95,7 +91,7 @@
 }
 
 - (void)dealloc{
-    
+    NSLog(@"dealloc");
 }
 
 #pragma mark - Layout
@@ -228,24 +224,29 @@
             
             self.topic = topic;
             
+            self.isLoaded = YES;
+            
             if ([self isLoadingMore]) {
-                self.loadMoreBlock = nil;
                 [self endLoadMore];
+                self.loadMoreBlock = nil;
             }
             
         } failure:^(NSError *error) {
+            
             if ([self isLoadingMore]) {
-                self.loadMoreBlock = nil;
                 [self endLoadMore];
+                self.loadMoreBlock = nil;
             }
+            
+            [self handleLoadingFailure];
         }];
     };
     
     self.loadMoreBlock = ^{
-        //@strongify(self);
-        //self.getTopicBlock();
+//        
+//        @strongify(self);
+//        self.getTopicBlock();
     };
-    
 }
 
 
@@ -375,7 +376,6 @@
     cell.reloadCellBlcok = ^{
         @strongify(self);
         
-        NSLog(@"wo");
         [self.tableView beginUpdates];
         [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView endUpdates];
@@ -450,6 +450,10 @@
 
 - (void)likeActivity{
     
+    if (!_isLoaded) {
+        return;
+    }
+    
     if (![CCDataManager sharedManager].user.isLogin) {
         UIAlertView *alert = [UIAlertView bk_showAlertViewWithTitle:NSLocalizedString(@"Need Login", nil) message:NSLocalizedString(@"You need login to vote this topic", nil) cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:@[NSLocalizedString(@"Login", nil)] handler:^(UIAlertView *alertView, NSInteger buttonIndex) {
             if (buttonIndex == 1) {
@@ -485,16 +489,27 @@
 
 - (void)showComments{
     
+    if (!_isLoaded) {
+        return;
+    }
+    
     CCTopicRepliesViewController *repliesVC = [[CCTopicRepliesViewController alloc] init];
-    repliesVC.posts = self.topic.posts;
     repliesVC.topic = self.topic;
-    SCNavigationController *navController = [[SCNavigationController alloc] initWithRootViewController:repliesVC];
-    [AppDelegate.window.rootViewController presentViewController:navController animated:YES completion:^{
-        
-    }];
+    
+    
+    [self.navigationController pushViewController:repliesVC animated:YES];
+    
+//    SCNavigationController *navController = [[SCNavigationController alloc] initWithRootViewController:repliesVC];
+//    [AppDelegate.window.rootViewController presentViewController:navController animated:YES completion:^{
+//        
+//    }];
 }
 
 - (void)shareActivity{
+    
+    if (!_isLoaded) {
+        return;
+    }
     
     //UIActivityViewController
     NSString *textToShare = self.topic.topicTitle;
@@ -525,7 +540,11 @@
     
 }
 
+//Error handle
 
+- (void)handleLoadingFailure{
+    [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Load topic failure, please try again", nil)];
+}
 
 
 @end

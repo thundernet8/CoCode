@@ -19,7 +19,9 @@
 //@property (nonatomic, copy) CCMessageTopicModel *messageTopic;
 @property (nonatomic, copy) CCMessageTopicPostsModel *messagePosts;
 @property (nonatomic, strong) CCMemberModel *sender;
-
+@property (nonatomic, strong) NSCache *cellCache;
+@property (nonatomic) unsigned long previousTimestamp;
+@property (nonatomic, strong) NSNumber *previousPostID;
 @property (nonatomic, copy) NSURLSessionDataTask * (^getMessagePostsBlock)(NSInteger, NSNumber *);
 
 @end
@@ -30,6 +32,8 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.isForceLoadMoreView = YES;
+        self.previousTimestamp = 0;
+        self.previousPostID = @0;
     }
     
     return self;
@@ -54,9 +58,6 @@
     
     [self beginLoadMore];
     
-    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
-    
-    NSLog(@"message id %d", [self.messageTopicID intValue]);
 }
 
 - (void)viewDidLayoutSubviews{
@@ -209,19 +210,55 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    return [self getCellHeightAtIndexPath:indexPath];
+    CCMessagePostCell *cell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
+    
+    return [cell getCellHeightOfAll:YES];
+}
+
+- (CCMessagePostCell *)tableView:(UITableView *)tableView prepareCellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *identifier = @"MessagePostCell";
+    NSString *key = [NSString stringWithFormat:@"%ld-%ld", (long)indexPath.section, (long)indexPath.row];
+    CCMessagePostCell *cell = [self.cellCache objectForKey:key];
+    
+    if (!cell) {
+        cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+        
+        if (!cell) {
+            cell = [[CCMessagePostCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        }
+        CCTopicPostModel *post = self.messagePosts.lists[indexPath.row];
+        
+        BOOL needTimeLabel;
+        if (![post.postID isEqualToNumber:self.previousPostID]) {
+            unsigned long postTimestamp = [post.postCreatedTime timeIntervalSince1970];
+            needTimeLabel = self.previousTimestamp - postTimestamp > 60;
+            self.previousPostID = post.postID;
+            self.previousTimestamp = postTimestamp;
+        }
+        
+        cell = [cell configureWithMessagePost:post needTimeLabel:needTimeLabel];
+        
+        [self.cellCache setObject:cell forKey:key];
+    }
+    
+    return cell;
 }
 
 - (CCMessagePostCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    static NSString *identifier = @"MessagePostCell";
     
-    CCMessagePostCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     
-    if (!cell) {
-        cell = [[CCMessagePostCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
-    }
+    return [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
     
-    return [self configureCell:cell atIndexPath:indexPath];
+//    static NSString *identifier = @"MessagePostCell";
+//    
+//    CCMessagePostCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+//    
+//    if (!cell) {
+//        cell = [[CCMessagePostCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+//    }
+//    
+//    return [self configureCell:cell atIndexPath:indexPath];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -229,25 +266,6 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-
-
-
-#pragma mark - Configure Cell
-
-- (CCMessagePostCell *)configureCell:(CCMessagePostCell *)cell atIndexPath:(NSIndexPath *)indexPath{
-    
-    CCTopicPostModel *post = self.messagePosts.lists[indexPath.row];
-    
-    return [cell configureWithMessagePost:post];
-}
-
-- (CGFloat)getCellHeightAtIndexPath:(NSIndexPath *)indexPath{
-    
-    CCTopicPostModel *post = self.messagePosts.lists[indexPath.row];
-    
-    return [CCMessagePostCell getCellHeightWithMessagePost:post];
-    
-}
 
 #pragma mark - Scrollview Delegate
 

@@ -35,4 +35,6 @@
 
 - (instancetype)initWithDictionary:(NSDictionary *)dict;
 
++ (NSArray *)getTopicReplyListWithResponseObject:(NSDictionary *)responseObject; //For fetch comments only
+
 @end

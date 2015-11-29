@@ -43,4 +43,25 @@
     return self;
 }
 
++ (NSArray *)getTopicReplyListWithResponseObject:(NSDictionary *)responseObject{
+    
+    if (!responseObject || ![responseObject objectForKey:@"post_stream"]) {
+        return nil;
+    }
+    NSArray *posts = [[responseObject objectForKey:@"post_stream"] objectForKey:@"posts"];
+    
+    NSMutableArray *tempReplyList = [NSMutableArray array];
+    
+    for (NSDictionary *replyPostDict in posts) {
+        
+        CCTopicPostModel *replyPost = [[CCTopicPostModel alloc] initWithDictionary:replyPostDict];
+        [tempReplyList addObject:replyPost];
+    }
+    
+    NSArray *replyList = [NSArray arrayWithArray:tempReplyList];
+    
+    return replyList;
+    
+}
+
 @end
