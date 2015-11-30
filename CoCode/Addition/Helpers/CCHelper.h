@@ -29,42 +29,8 @@
 //Get text height
 + (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width;
 
-
-
-+ (NSArray *)localDateStringWithUTCString:(NSString *)dateString;
-
-+ (NSArray *)localDateStringWithUTCString:(NSString *)dateString Separation:(NSString *)separation;
-
-+ (NSTimeInterval)timeIntervalWithUTCString:(NSString *)dateString;
-
-+ (NSString *)timeRemainDescriptionWithTimeInterval:(NSTimeInterval)interval;
-
-+ (NSString *)timeRemainDescriptionWithUTCString:(NSString *)dateString;
-
-+ (NSString *)timeRemainDescriptionWithDateSP:(NSNumber *)dateSP;
-
-+ (CGFloat)getTextWidthWithText:(NSString *)text Font:(UIFont *)font;
-
-
-
-/**
- *  Other
- */
-
-+ (NSString *)encodeUrlString:(NSString *)urlString;
-
-
-
-+ (UIImage *)getImageWithColor:(UIColor *)color;
-
-+ (UIImage *)getImageWithColor:(UIColor *)color size:(CGSize)size;
-
-
-/**
- *  Setting
- */
-
-+ (UIImage *)getUserAvatarDefaultFromGender:(NSInteger)gender;
+//Bubble Sort CCTextAttachment
++ (NSArray *)bubbleSortMediaAttachArray:(NSArray *)array;
 
 
 @end

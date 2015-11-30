@@ -209,10 +209,10 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    
+
     CCMessagePostCell *cell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
     
-    return [cell getCellHeightOfAll:YES];
+    return [cell getCellHeight];
 }
 
 - (CCMessagePostCell *)tableView:(UITableView *)tableView prepareCellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -222,6 +222,8 @@
     CCMessagePostCell *cell = [self.cellCache objectForKey:key];
     
     if (!cell) {
+        NSLog(@"prepare");
+        
         cell = [tableView dequeueReusableCellWithIdentifier:identifier];
         
         if (!cell) {
@@ -236,10 +238,12 @@
             self.previousPostID = post.postID;
             self.previousTimestamp = postTimestamp;
         }
-        
-        cell = [cell configureWithMessagePost:post needTimeLabel:needTimeLabel];
+        cell.needTimeLabel = needTimeLabel;
+        cell.nav = self.navigationController;
+        cell = [cell configureWithMessagePost:post];
         
         [self.cellCache setObject:cell forKey:key];
+        
     }
     
     return cell;

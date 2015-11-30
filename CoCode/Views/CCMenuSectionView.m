@@ -89,7 +89,7 @@ static CGFloat const kAvatarHeight = 68.0;
     self.usernameLabel.textColor = kFontColorBlackDark;
     self.usernameLabel.alpha = 0;
     
-    //TODO is logined
+    //TODO is logged
     if ([CCDataManager sharedManager].user.isLogin) {
         self.usernameLabel.text = [kUserDefaults objectForKey:kUsername];
         self.usernameLabel.alpha = 1;

@@ -85,10 +85,11 @@
 
 - (void)setReplyList:(NSArray *)replyList{
     
-    if (_replyList) {
-        replyList = [_replyList arrayByAddingObjectsFromArray:replyList];
+    if (_replyList&&self.pageCount > 1) {
+        _replyList = [_replyList arrayByAddingObjectsFromArray:replyList];
+    }else{
+        _replyList = replyList;
     }
-    _replyList = replyList;
     
     [self.tableView reloadData];
 }

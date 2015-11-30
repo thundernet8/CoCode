@@ -2,6 +2,7 @@
 #import "CCHelper.h"
 #import "SVProgressHUD.h"
 #import "NSDate+Utilities.h"
+#import "CCTextAttachment.h"
 
 @implementation CCHelper
 
@@ -171,7 +172,25 @@
 }
 
 
-
++ (NSArray *)bubbleSortMediaAttachArray:(NSArray *)array{
+    NSMutableArray *mutableArray = [array mutableCopy];
+    NSInteger count = array.count;
+    NSInteger i, j;
+    CCTextAttachment *attach;
+    CCTextAttachment *attachBeside;
+    for (i = 0; i<count; i++) {
+        for (j = 1; j<count-i; j++) {
+            attach = mutableArray[j-1];
+            attachBeside = mutableArray[j];
+            if (attach.range.location > attachBeside.range.location) {
+                mutableArray[j] = attach;
+                mutableArray[j-1] = attachBeside;
+            }
+        }
+    }
+    
+    return [NSArray arrayWithArray:mutableArray];
+}
 
 
 

@@ -64,10 +64,12 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             user.member.memberUserName = [kUserDefaults objectForKey:kUsername];
             user.member.memberID = [kUserDefaults objectForKey:kUserid];
             user.member.memberAvatarLarge = [kUserDefaults objectForKey:kAvatarURL];
-            NSDictionary *accountInfo = [[FXKeychain defaultKeychain] objectForKey:[NSString stringWithFormat:@"CoCode_User_%@", user.member.memberUserName]];
+            NSDictionary *accountInfo = [[FXKeychain defaultKeychain] objectForKey:[NSString stringWithFormat:@"CoCode_User_%@", [kUserDefaults objectForKey:kUsername]]];
             user.password = [accountInfo objectForKey:@"password"];
+            self.user = user;
         }
     }
+    
     return self;
 }
 
@@ -433,9 +435,10 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             CCUserModel *user = [CCUserModel getUserWithLoginRespondObject:[responseObject objectForKey:@"user"]];
             user.password = [parameters objectForKey:@"password"];
             self.user = user;
-            NSDictionary *userAccountInfo = @{@"username":[parameters objectForKey:@"username"], @"password":[parameters objectForKey:@"password"]};
+            NSDictionary *userAccountInfo = @{@"username":user.member.memberUserName, @"password":[parameters objectForKey:@"password"]};
+            
             //Save Account Info to Keychain
-            [[FXKeychain defaultKeychain] setObject:userAccountInfo forKey:[NSString stringWithFormat:@"CoCode_User_%@", [parameters objectForKey:@"username"]]];
+            [[FXKeychain defaultKeychain] setObject:userAccountInfo forKey:[NSString stringWithFormat:@"CoCode_User_%@", user.member.memberUserName]];
             
             success(user);
             

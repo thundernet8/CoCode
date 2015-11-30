@@ -10,10 +10,12 @@
 
 @interface CCMessagePostCell : UITableViewCell
 
+@property (nonatomic, strong) UINavigationController *nav;
 @property (nonatomic) CGFloat cellHeight;
+@property (nonatomic) BOOL needTimeLabel;
 
-- (CCMessagePostCell *)configureWithMessagePost:(CCTopicPostModel *)post needTimeLabel:(BOOL)needTimeLabel;
+- (CCMessagePostCell *)configureWithMessagePost:(CCTopicPostModel *)post;
 
-- (CGFloat)getCellHeightOfAll:(BOOL)all;
+- (CGFloat)getCellHeight;
 
 @end

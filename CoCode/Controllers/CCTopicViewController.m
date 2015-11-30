@@ -108,8 +108,15 @@
 #pragma mark - Setter
 
 - (void)setTopic:(CCTopicModel *)topic{
+
+    BOOL needUpdateNavi = _topic && (_topic.isLiked^topic.isLiked);
+    
     _topic = topic;
     
+    if (needUpdateNavi) {
+        [self configureNaviBar];
+    }
+
     BOOL isFirstSet = topic.posts.count > 0 ? NO : YES;
     
     self.topicCategory = (CCCategoryModel *)topic.topicCategory;
@@ -230,7 +237,6 @@
                 [self endLoadMore];
                 self.loadMoreBlock = nil;
             }
-            
         } failure:^(NSError *error) {
             
             if ([self isLoadingMore]) {

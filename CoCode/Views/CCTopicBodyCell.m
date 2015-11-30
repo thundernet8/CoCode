@@ -21,6 +21,8 @@
 
 #import "SCCircularRefreshView.h"
 
+#import "HTMLParser.h"
+
 // dstatic const CGFloat kBodyFontSize = 16.0;
 
 @interface CCTopicBodyCell() <IDMPhotoBrowserDelegate, DTAttributedTextContentViewDelegate, DTLazyImageViewDelegate, UIActionSheetDelegate>
@@ -81,6 +83,7 @@
 
         post.postContent = [post.postContent stringByReplacingOccurrencesOfString:@"<h2></h2>" withString:@""];
 
+        
         // example for setting a willFlushCallback, that gets called before elements are written to the generated attributed string
         void (^callBackBlock)(DTHTMLElement *element) = ^(DTHTMLElement *element) {
             
@@ -112,9 +115,18 @@
         
         self.bodyLabel.frame = CGRectMake(10.0, 5.0, kScreenWidth-20.0, [self getCellHeight]);
 
-
-    
-
+//TODO clear
+//        HTMLParser *parser = [[HTMLParser alloc] initWithData:[post.postContent dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+//        HTMLNode *body = [parser body];
+//        NSString *string = [body rawContents];
+//        NSArray *imageNodes = [body findChildrenWithAttribute:@"class" matchingName:@"lightbox-wrapper" allowPartial:YES];
+//        NSMutableArray *tempImgAttachArray = [NSMutableArray array];
+//        for (HTMLNode *lightBoxNode in imageNodes) {
+//            HTMLNode *link = [lightBoxNode findChildTag:@"a"];
+//            NSURL *defaultUrl = [NSURL URLWithString:[[lightBoxNode findChildTag:@"img"] getAttributeNamed:@"src"]];
+//            NSLog(@"%@", defaultUrl.absoluteString);
+//        }
+        
     }
 
     
@@ -125,7 +137,7 @@
 
 - (void)setTopic:(CCTopicModel *)topic{
     _topic = topic;
-    
+
     [self layoutContent];
 }
 
@@ -161,7 +173,7 @@
 //    textView.linkTextAttributes = @{NSBackgroundColorAttributeName:kColorPurple, NSForegroundColorAttributeName:kColorPurple, NSUnderlineStyleAttributeName:[NSNumber numberWithInteger:NSUnderlineStyleNone], NSUnderlineColorAttributeName:[UIColor clearColor]};
     textView.textDelegate = self;
     textView.shouldDrawImages = NO;
-    textView.attributedTextContentView.shouldLayoutCustomSubviews = NO;
+    textView.attributedTextContentView.shouldLayoutCustomSubviews = YES;
     textView.shouldDrawLinks = NO;
     
     [self addSubview:textView];
@@ -198,7 +210,7 @@
     
     // demonstrate combination with long press
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(linkLongPressed:)];
-    [button addGestureRecognizer:longPress];
+    //[button addGestureRecognizer:longPress];
     
     return button;
 
@@ -270,7 +282,7 @@
             if (![attachment.contentURL.absoluteString containsString:@"images/emoji"])
             {
                 button.GUID = attachment.hyperLinkGUID;
-                [button addTarget:self action:@selector(linkPushed:) forControlEvents:UIControlEventTouchUpInside];
+                [button addTarget:self action:@selector(imagePushed:) forControlEvents:UIControlEventTouchUpInside];
             }
         }
         
@@ -291,7 +303,7 @@
     else if ([attachment isKindOfClass:[DTObjectTextAttachment class]])
     {
         // somecolorparameter has a HTML color
-        NSString *colorName = [attachment.attributes objectForKey:@"somecolorparameter"];
+        NSString *colorName = [attachment.attributes objectForKey:@"#000"];
         UIColor *someColor = DTColorCreateWithHTMLName(colorName);
         
         UIView *someView = [[UIView alloc] initWithFrame:frame];
@@ -368,7 +380,7 @@
     NSLog(@"resize");
     
     NSURL *url = lazyImageView.url;
-
+    
     CGSize imageSize = size;
     
     NSPredicate *pred = [NSPredicate predicateWithFormat:@"contentURL == %@", url];
@@ -422,6 +434,30 @@
 #pragma mark Actions
 
 - (void)linkPushed:(DTLinkButton *)button
+{
+    NSURL *URL = button.URL;
+    
+    if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
+    {
+        [[UIApplication sharedApplication] openURL:[URL absoluteURL]];
+    }
+    else
+    {
+        if (![URL host] && ![URL path])
+        {
+    
+            // possibly a local anchor link
+            NSString *fragment = [URL fragment];
+    
+            if (fragment)
+            {
+                [self.bodyLabel scrollToAnchorNamed:fragment animated:NO];
+            }
+        }
+    }
+}
+
+- (void)imagePushed:(DTLinkButton *)button
 {
     
     NSArray *photos = [IDMPhoto photosWithURLs:_imageUrls];
