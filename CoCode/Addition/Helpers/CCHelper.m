@@ -132,13 +132,17 @@
     [SVProgressHUD showWithStatus:text];
 }
 
++ (void)dismissAllHud{
+    [SVProgressHUD dismiss];
+}
+
 //Category info from plist
 + (NSDictionary *)getCategoryInfoFromPlistForID:(NSNumber *)catID{
     NSDictionary *categories = [[NSDictionary alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Categories" ofType:@"plist"]];
     return [categories objectForKey:[NSString stringWithFormat:@"Cat%d", catID.intValue]];
 }
 
-//Evaluate title height for topic cell
+//Evaluate text height
 + (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width {
     
     NSDictionary *attributes = @{NSFontAttributeName:font};
@@ -146,8 +150,17 @@
                                                   options:NSStringDrawingUsesLineFragmentOrigin
                                                attributes:attributes
                                                   context:nil];
-    return CGRectGetHeight(expectedLabelRect);
+    return ceil(CGRectGetHeight(expectedLabelRect));
     
+}
+
++ (CGFloat)getTextWidthWithText:(NSString *)text Font:(UIFont *)font height:(CGFloat)height{
+    NSDictionary *attributes = @{NSFontAttributeName:font};
+    CGRect expectedLabelRect = [text boundingRectWithSize:(CGSize){CGFLOAT_MAX, height}
+                                                  options:NSStringDrawingUsesLineFragmentOrigin
+                                               attributes:attributes
+                                                  context:nil];
+    return ceil(CGRectGetHeight(expectedLabelRect));
 }
 
 + (UIImage *)getImageFromView:(UIView *)orgView{

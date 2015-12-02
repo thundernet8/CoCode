@@ -32,7 +32,8 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypeGetNotificationsFailure  = 913,
     CCErrorTypeGetMessagePostsFailure   = 914,
     CCErrorTypePostActionFailure        = 915,
-    CCErrorTypeGetReplyListError        = 916
+    CCErrorTypeGetReplyListError        = 916,
+    CCErrorTypeSubmitReplyError         = 917,
     
 };
 
@@ -99,8 +100,16 @@ typedef NS_ENUM(NSInteger, CCPostActionType) {
                                                success:(void (^)(CCMessageTopicPostsModel *messageTopicPosts, CCMemberModel *sender))success
                                                failure:(void (^)(NSError *error))failure;
 
-//Post Action
+//Post Action - e.g. Like / Collect
 
 - (NSURLSessionDataTask *)actionForPost:(NSInteger)postID actionType:(CCPostActionType)actionType success:(void (^)(CCTopicPostModel *postModel))success failure:(void (^)(NSError *error))failure;
+
+//Reply
+
+- (NSURLSessionDataTask *)submitReplyWithContent:(NSString *)replyContent
+                                         toTopic:(CCTopicModel *)topic
+                                     replyNested:(BOOL)nestStatus
+                                         success:(void (^)(CCTopicPostModel *postModel))success
+                                         failure:(void (^)(NSError *error))failure;
 
 @end

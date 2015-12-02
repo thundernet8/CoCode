@@ -583,6 +583,46 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     
 }
 
+//Reply
+
+- (NSURLSessionDataTask *)submitReplyWithContent:(NSString *)replyContent toTopic:(CCTopicModel *)topic replyNested:(BOOL)nestStatus success:(void (^)(CCTopicPostModel *postModel))success failure:(void (^)(NSError *error))failure;{
+    
+    NSString *urlString = @"posts";
+    NSDictionary *parameters = @{
+                                 @"raw":replyContent,
+                                 @"category":topic.topicCategoryID,
+                                 @"topic_id":topic.topicID,
+                                 @"is_warning":[NSNumber numberWithBool:NO],
+                                 @"archetype":@"regular",
+                                 @"typing_duration_msecs":@800,
+                                 @"composer_open_duration_msecs":@10000,
+                                 @"nested_post":[NSNumber numberWithBool:nestStatus]
+                                 };
+    
+    return [self getCSRFTokenSuccess:^(NSString *token) {
+        [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+        
+        [self requestWithMethod:CCRequestMethodFADEXHRPOST URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+            
+            if ([responseObject objectForKey:@"success"] && [[responseObject objectForKey:@"success"] boolValue]) {
+                CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:(NSDictionary *)[responseObject objectForKey:@"post"]];
+                success(model);
+            }else{
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeSubmitReplyError userInfo:nil];
+                failure(error);
+            }
+            
+        } failure:^(NSError *error) {
+            
+            failure(error);
+            
+        }];
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+}
+
 
 #pragma mark - Private Methods
 

@@ -13,6 +13,8 @@
 #import "CCTopicMetaCell.h"
 #import "CCTopicBodyCell.h"
 #import "CCTopicReplyCell.h"
+#import "CCTopicViewToolBar.h"
+#import "CCTopicViewReplyInput.h"
 
 #import "CCTopicPostModel.h"
 #import "CCCategoryModel.h"
@@ -25,6 +27,9 @@
 @property (nonatomic, strong) UIView *headerView;
 
 @property (nonatomic, strong) UILabel *categoryNameLabel;
+
+@property (nonatomic, strong) CCTopicViewToolBar *footerToolBar;
+@property (nonatomic, strong) CCTopicViewReplyInput *replyInput;
 
 @property (nonatomic, strong) NSURLSessionDataTask * (^getTopicBlock)();
 
@@ -44,6 +49,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.isLoaded = NO;
+        
     }
     return self;
 }
@@ -77,6 +83,8 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     
+    [self configureToolBar];
+    //[self configureReplyInputView];
 }
 
 - (void)viewDidAppear:(BOOL)animated{
@@ -116,11 +124,12 @@
     if (needUpdateNavi) {
         [self configureNaviBar];
     }
-
+    
     BOOL isFirstSet = topic.posts.count > 0 ? NO : YES;
     
     self.topicCategory = (CCCategoryModel *)topic.topicCategory;
     self.categoryNameLabel.text = self.topicCategory.name;
+    
     
     if (!isFirstSet) {
         //[self.tableView reloadData];
@@ -151,7 +160,7 @@
         
         [self likeActivity];
     }];
-    SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_comment"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_star"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
         [self showComments];
     }];
@@ -206,6 +215,35 @@
         [self.navigationController pushViewController:catViewController animated:YES];
         
     } forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)configureToolBar{
+    self.footerToolBar = [[CCTopicViewToolBar alloc] initWithFrame:CGRectMake(0, kScreenHeight-45, kScreenWidth, 45.0)];
+    self.footerToolBar.model = self.topic;
+    @weakify(self);
+    self.footerToolBar.showCommentsActionBlock = ^{
+        @strongify(self);
+        [self showComments];
+    };
+    self.footerToolBar.showCommentEditorActionBlock = ^{
+        @strongify(self);
+        [self configureReplyInputView];
+        [self.replyInput showView];
+    };
+    [self.view addSubview:self.footerToolBar];
+}
+
+- (void)configureReplyInputView{
+    UIWindow *mainWindow = [UIApplication sharedApplication].keyWindow;
+    self.replyInput = [[CCTopicViewReplyInput alloc] initWithFrame:mainWindow.bounds];
+    self.replyInput.model = self.topic;
+    @weakify(self);
+    self.replyInput.dismissViewBlock = ^{
+        @strongify(self);
+        [self.replyInput removeFromSuperview];
+        self.replyInput = nil;
+    };
+    [mainWindow addSubview:self.replyInput];
 }
 
 - (void)configureNotifications{

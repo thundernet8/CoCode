@@ -12,7 +12,12 @@
 @interface CCTopicListCell : UITableViewCell
 
 @property (nonatomic, strong) CCTopicModel *topic;
-@property (nonatomic, assign, setter=isUnderCategory:) BOOL inCategory; // If it is under a single category view, do not show the category label
+
+/**
+ *  If it is under a single category view, do not show the category label
+ */
+@property (nonatomic, assign, setter=isUnderCategory:) BOOL inCategory;
+
 @property (nonatomic, assign) UINavigationController *navi;
 
 + (CGFloat)getCellHeightWithTopicModel:(CCTopicModel *)topic;

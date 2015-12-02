@@ -17,6 +17,8 @@
 
 + (void)showBlackProgressHudWithText:(NSString *)text;
 
++ (void)dismissAllHud;
+
 //Category info from plist
 + (NSDictionary *)getCategoryInfoFromPlistForID:(NSNumber *)catID;
 
@@ -28,6 +30,9 @@
 
 //Get text height
 + (CGFloat)getTextHeightWithText:(NSString *)text Font:(UIFont *)font Width:(CGFloat)width;
+
+//Get  single line text width
++ (CGFloat)getTextWidthWithText:(NSString *)text Font:(UIFont *)font height:(CGFloat)height;
 
 //Bubble Sort CCTextAttachment
 + (NSArray *)bubbleSortMediaAttachArray:(NSArray *)array;

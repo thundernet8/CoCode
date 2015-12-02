@@ -102,7 +102,7 @@
     
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.tableFooterView = [UIView new];
+    //self.tableView.tableFooterView = [UIView new];
     
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
