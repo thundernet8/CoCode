@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypePostActionFailure        = 915,
     CCErrorTypeGetReplyListError        = 916,
     CCErrorTypeSubmitReplyError         = 917,
+    CCErrorTypeBookmarkError            = 918,
     
 };
 
@@ -100,9 +101,26 @@ typedef NS_ENUM(NSInteger, CCPostActionType) {
                                                success:(void (^)(CCMessageTopicPostsModel *messageTopicPosts, CCMemberModel *sender))success
                                                failure:(void (^)(NSError *error))failure;
 
-//Post Action - e.g. Like / Collect
+//Post Action - e.g. Like
 
 - (NSURLSessionDataTask *)actionForPost:(NSInteger)postID actionType:(CCPostActionType)actionType success:(void (^)(CCTopicPostModel *postModel))success failure:(void (^)(NSError *error))failure;
+
+//Post Action - Bookmark
+- (NSURLSessionDataTask *)bookmarkTopic:(NSInteger)topicID
+                                success:(void (^)(BOOL collectStatus))success
+                                failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)unBookmarkTopic:(NSInteger)topicID
+                                  success:(void (^)(BOOL collectStatus))success
+                                  failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)bookmarkPost:(NSInteger)postID
+                               success:(void (^)(BOOL collectStatus))success
+                               failure:(void (^)(NSError *error))failure;
+
+- (NSURLSessionDataTask *)unBookmarkPost:(NSInteger)postID
+                                 success:(void (^)(BOOL collectStatus))success
+                                 failure:(void (^)(NSError *error))failure;
 
 //Reply
 

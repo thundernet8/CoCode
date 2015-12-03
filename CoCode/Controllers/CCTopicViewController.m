@@ -162,7 +162,7 @@
     }];
     SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_star"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
-        [self showComments];
+        [self bookmarkPost];
     }];
     SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_nav_share2"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         
@@ -526,9 +526,44 @@
             }];
         }
         
+    }
+}
+
+- (void)bookmarkPost{
+    if (!_isLoaded) {
+        return;
+    }
+    
+    if (![CCDataManager sharedManager].user.isLogin) {
+        UIAlertView *alert = [UIAlertView bk_showAlertViewWithTitle:NSLocalizedString(@"Need Login", nil) message:NSLocalizedString(@"You need login to collect this topic", nil) cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:@[NSLocalizedString(@"Login", nil)] handler:^(UIAlertView *alertView, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+            }
+        }];
         
+        [alert show];
+    }else if (self.topic.isBookmarked){
+        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Do not bookmark it again", nil)];
+    }else{
+        
+        if (self.topic.postID) {
+            
+            @weakify(self);
+            [[CCDataManager sharedManager] bookmarkTopic:[self.topic.topicID integerValue] success:^(BOOL collectStatus) {
+                @strongify(self);
+                self.topic.isBookmarked = YES;
+                
+                [self configureNaviBar];
+                [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Bookmarked", nil)];
+            } failure:^(NSError *error) {
+                [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Bookmark Failed", nil)];
+                NSLog(@"%@", error.description);
+            }];
+            
+        }
         
     }
+    
 }
 
 - (void)showComments{

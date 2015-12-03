@@ -20,7 +20,9 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     CCRequestMethodHTTPGETPC    = 4,
     CCRequestMethodFADEXHR      = 5,
     CCRequestMethodJSONPOST     = 6,
-    CCRequestMethodFADEXHRPOST  = 7
+    CCRequestMethodFADEXHRPOST  = 7,
+    CCRequestMethodFADEXHRPUT   = 8,
+    
 };
 
 @interface CCDataManager()
@@ -174,6 +176,18 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         [self.manager.requestSerializer setValue:@"XMLHttpRequest" forHTTPHeaderField:@"X-Requested-With"];
         [self.manager.requestSerializer setValue:URLString forHTTPHeaderField:@"Referer"];
         task = [self.manager POST:URLString parameters:parameters success:^(NSURLSessionDataTask * task, id responseObject) {
+            handleResponseBlock(task, responseObject);
+        } failure:^(NSURLSessionDataTask * task, NSError * error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+            failure(error);
+        }];
+    }
+    if (method == CCRequestMethodFADEXHRPUT) {
+        AFHTTPResponseSerializer *responseSerializer = [AFJSONResponseSerializer serializer];
+        self.manager.responseSerializer = responseSerializer;
+        [self.manager.requestSerializer setValue:@"XMLHttpRequest" forHTTPHeaderField:@"X-Requested-With"];
+        [self.manager.requestSerializer setValue:URLString forHTTPHeaderField:@"Referer"];
+        task = [self.manager PUT:URLString parameters:parameters success:^(NSURLSessionDataTask * task, id responseObject) {
             handleResponseBlock(task, responseObject);
         } failure:^(NSURLSessionDataTask * task, NSError * error) {
             [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
@@ -545,7 +559,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     
 }
 
-//Post Action
+//Post Action - Like
 
 - (NSURLSessionDataTask *)actionForPost:(NSInteger)postID actionType:(CCPostActionType)actionType success:(void (^)(CCTopicPostModel *postModel))success failure:(void (^)(NSError *error))failure{
     
@@ -582,6 +596,113 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
     
 }
+
+//Post Action - Bookmark
+
+- (NSURLSessionDataTask *)bookmarkTopic:(NSInteger)topicID success:(void (^)(BOOL))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = [NSString stringWithFormat:@"t/%d/bookmark", (int)topicID];
+    return [self getCSRFTokenSuccess:^(NSString *token) {
+        
+        [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+        
+        [self requestWithMethod:CCRequestMethodFADEXHRPUT URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+            //responseObject is null
+            success(YES);
+            
+        } failure:^(NSError *error) {
+            
+            failure(error);
+            
+        }];
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+
+}
+
+- (NSURLSessionDataTask *)unBookmarkTopic:(NSInteger)topicID success:(void (^)(BOOL))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = [NSString stringWithFormat:@"t/%d/remove_bookmarks", (int)topicID];
+    return [self getCSRFTokenSuccess:^(NSString *token) {
+        
+        [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+        
+        [self requestWithMethod:CCRequestMethodFADEXHRPUT URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+            //responseObject is null
+            success(YES);
+            
+        } failure:^(NSError *error) {
+            
+            failure(error);
+            
+        }];
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+    
+}
+
+- (NSURLSessionDataTask *)bookmarkPost:(NSInteger)postID success:(void (^)(BOOL))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = [NSString stringWithFormat:@"posts/%d/bookmark", (int)postID];
+    NSDictionary *parameters = @{
+                                 @"bookmarked":@YES,
+                                 };
+    
+    return [self getCSRFTokenSuccess:^(NSString *token) {
+        
+        [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+        
+        [self requestWithMethod:CCRequestMethodFADEXHRPUT URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+
+            if ([responseObject objectForKey:@"topic_bookmarked"] != [NSNull null] && [[responseObject objectForKey:@"topic_bookmarked"] boolValue]) {
+                success(YES);
+            }else{
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeBookmarkError userInfo:nil];
+                failure(error);
+            }
+            
+        } failure:^(NSError *error) {
+            
+            failure(error);
+            
+        }];
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
+- (NSURLSessionDataTask *)unBookmarkPost:(NSInteger)postID success:(void (^)(BOOL))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = [NSString stringWithFormat:@"posts/%d/bookmark", (int)postID];
+    NSDictionary *parameters = @{
+                                 @"bookmarked":@NO,
+                                 };
+    
+    return [self getCSRFTokenSuccess:^(NSString *token) {
+        
+        [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+        
+        [self requestWithMethod:CCRequestMethodFADEXHRPUT URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+
+            if ([responseObject objectForKey:@"topic_bookmarked"] != [NSNull null] && ![[responseObject objectForKey:@"topic_bookmarked"] boolValue]) {
+                success(YES);
+            }else{
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeBookmarkError userInfo:nil];
+                failure(error);
+            }
+            
+        } failure:^(NSError *error) {
+            
+            failure(error);
+            
+        }];
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
 
 //Reply
 
