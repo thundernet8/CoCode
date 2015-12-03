@@ -654,7 +654,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
         
         [self requestWithMethod:CCRequestMethodFADEXHRPUT URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
-
+            NSLog(@"%@", responseObject);
             if ([responseObject objectForKey:@"topic_bookmarked"] != [NSNull null] && [[responseObject objectForKey:@"topic_bookmarked"] boolValue]) {
                 success(YES);
             }else{

@@ -88,6 +88,8 @@ static NSInteger const kFontSize = 15;
 }
 
 - (void)prepareForReuse{
+    [super prepareForReuse];
+    
     _cellHeight = 0;
     _contentLabelHeight = 0;
     _needTimeLabel = NO;
@@ -131,7 +133,7 @@ static NSInteger const kFontSize = 15;
 
     DTCSSStylesheet *css = [[DTCSSStylesheet alloc] initWithStyleBlock:[NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"topic" ofType:@"css"] encoding:NSUTF8StringEncoding error:nil]];
     
-    NSMutableDictionary *options = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:1.0], NSTextSizeMultiplierDocumentOption, [NSValue valueWithCGSize:CGSizeMake(kScreenWidth, CGFLOAT_MAX)], DTMaxImageSize,
+    NSMutableDictionary *options = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:1.0], NSTextSizeMultiplierDocumentOption, [NSValue valueWithCGSize:CGSizeMake(kScreenWidth-40-kAvatarHeight, CGFLOAT_MAX)], DTMaxImageSize,
                                     @"Arial", DTDefaultFontFamily, @"blue", DTDefaultLinkHighlightColor, css, DTDefaultStyleSheet, kFontColorBlackDark, DTDefaultTextColor, [NSNumber numberWithInteger:kFontSize], DTDefaultFontSize, nil];
     [options setObject:[NSURL URLWithString:@"http://cocode.cc"] forKey:NSBaseURLDocumentOption];
     NSAttributedString *aString = [[NSAttributedString alloc] initWithHTMLData:[post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
@@ -198,7 +200,7 @@ static NSInteger const kFontSize = 15;
         
         //Collect image urls for gallery
         if (![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
-            [self.imageUrls addObject:imageView.url];
+            [self.imageUrls addObject:attachment.hyperLinkURL?attachment.hyperLinkURL:imageView.url];
         }
         
         DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:imageView.bounds];

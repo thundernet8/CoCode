@@ -11,7 +11,7 @@
 
 #import "CCDataManager.h"
 
-@interface CCTopicRepliesViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface CCTopicRepliesViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate>
 
 @property (nonatomic, strong) CCTopicPostModel *selectedReply;
 
@@ -242,10 +242,10 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    //TODO reply's action
+
+    CCTopicReplyCell *cell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
+    
+    [cell showActionSheet];
 }
-
-
-
 
 @end

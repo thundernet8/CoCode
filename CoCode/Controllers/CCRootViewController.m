@@ -85,6 +85,8 @@
     
     [self configureGestures];
     [self configureNotifications];
+    
+    [NSThread sleepForTimeInterval:2.0f];
 }
 
 #pragma mark - View Life Cycle

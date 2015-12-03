@@ -128,6 +128,7 @@ static NSInteger const kInputTextMinLength = 10;
     } forControlEvents:UIControlEventTouchUpInside];
     
     [self.submitButton bk_addEventHandler:^(id sender) {
+        @strongify(self);
         [self submitReply];
     } forControlEvents:UIControlEventTouchUpInside];
     
@@ -151,6 +152,8 @@ static NSInteger const kInputTextMinLength = 10;
 
 - (void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    NSLog(@"dealloc");
 }
 
 #pragma mark - Show and Hidden
@@ -171,9 +174,12 @@ static NSInteger const kInputTextMinLength = 10;
 
 - (void)hiddenView{
     [self.inputView resignFirstResponder];
+    @weakify(self);
     [UIView animateWithDuration:0.3 animations:^{
+        @strongify(self);
         self.inputBackView.y = self.frame.origin.y+kScreenHeight;
     } completion:^(BOOL finished) {
+        @strongify(self);
         self.hidden = YES;
         self.dismissViewBlock();
     }];
@@ -205,7 +211,7 @@ static NSInteger const kInputTextMinLength = 10;
     [CCHelper showBlackProgressHudWithText:NSLocalizedString(@"Submitting the reply...", nil)];
     
     @weakify(self);
-    [[CCDataManager sharedManager] submitReplyWithContent:self.inputView.text toTopic:self.model replyNested:YES success:^(CCTopicPostModel *postModel) {
+    [[CCDataManager sharedManager] submitReplyWithContent:self.inputView.text toTopic:self.topic replyNested:YES success:^(CCTopicPostModel *postModel) {
         @strongify(self);
         self.isSubmitting = NO;
         [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Reply submitted successfully", nil)];

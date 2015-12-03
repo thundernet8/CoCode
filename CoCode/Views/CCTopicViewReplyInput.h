@@ -7,11 +7,13 @@
 //
 
 #import "CCTopicModel.h"
+#import "CCTopicPostModel.h"
 
 @interface CCTopicViewReplyInput : UIView
 
-@property (nonatomic, strong) void (^dismissViewBlock)();
-@property (nonatomic, strong) CCTopicModel *model;
+@property (nonatomic, copy) void (^dismissViewBlock)();
+@property (nonatomic, strong) CCTopicModel *topic;
+@property (nonatomic, strong) CCTopicPostModel *post;
 
 - (void)showView;
 

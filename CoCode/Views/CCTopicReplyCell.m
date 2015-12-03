@@ -15,6 +15,8 @@
 #import <DTCoreText.h>
 #import "SCCircularRefreshView.h"
 
+#import "CCTopicViewReplyInput.h"
+
 #define kReplyFontSize 16.0
 #define kAvatarHeight 30.0
 
@@ -29,6 +31,8 @@
 @property (nonatomic, strong) NSMutableArray *imageUrls;
 @property (nonatomic, strong) NSURL *lastActionLink;
 @property (nonatomic, strong) UIImage *lastActionImage;
+
+@property (nonatomic, strong) CCTopicViewReplyInput *replyInput;
 
 @end
 
@@ -71,14 +75,15 @@
         [self addSubview:self.praiseCountLabel];
         
         self.textView = [self createAttributedTextView];
+        
     }
     
     return self;
 }
 
 - (void)prepareForReuse{
+    [super prepareForReuse];
     
-
 }
 
 - (void)layoutSubviews{
@@ -127,7 +132,11 @@
     
     self.textView.attributedString = [[NSAttributedString alloc] initWithHTMLData:[_post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
     self.textView.frame = CGRectMake(45.0, 45.0, kScreenWidth-55.0, CGFLOAT_HEIGHT_UNKNOWN);
-    
+    @weakify(self);
+    [self.textView bk_whenTapped:^{
+        @strongify(self);
+        [self showActionSheet];
+    }];
 }
 
 #pragma mark - Create Attributed View
@@ -173,7 +182,7 @@
         
         //Collect image urls for gallery
         if (![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
-            [self.imageUrls addObject:imageView.url];
+            [self.imageUrls addObject:attachment.hyperLinkURL?attachment.hyperLinkURL:imageView.url];
         }
         
         DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:imageView.bounds];
@@ -240,31 +249,33 @@
 #pragma mark - ActionSheet Delegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
-    
-    switch (buttonIndex) {
-        case 0:
-            if ([[UIApplication sharedApplication] canOpenURL:self.lastActionLink]) {
-                [[UIApplication sharedApplication] openURL:self.lastActionLink];
-            }
-            break;
-            
-        case 1:
-            
-            if (self.lastActionImage) {
-                UIImageWriteToSavedPhotosAlbum(self.lastActionImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
-            }
-            break;
-            
-        default:
-            break;
+    if (actionSheet.tag == 100) {
+        switch (buttonIndex) {
+            case 0:
+                if ([[UIApplication sharedApplication] canOpenURL:self.lastActionLink]) {
+                    [[UIApplication sharedApplication] openURL:self.lastActionLink];
+                }
+                break;
+                
+            case 1:
+                
+                if (self.lastActionImage) {
+                    UIImageWriteToSavedPhotosAlbum(self.lastActionImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+                }
+                break;
+                
+            default:
+                break;
+        }
+    }else if (actionSheet.tag == 200){
+        //reply like bookmark -- has moved to sheet's block
+
     }
-    
 }
 
 #pragma mark Actions
 
-- (void)linkPushed:(DTLinkButton *)button
-{
+- (void)linkPushed:(DTLinkButton *)button{
     NSURL *URL = button.URL;
     
     if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
@@ -287,8 +298,7 @@
     }
 }
 
-- (void)imagePushed:(DTLinkButton *)button
-{
+- (void)imagePushed:(DTLinkButton *)button{
     
     NSArray *photos = [IDMPhoto photosWithURLs:self.imageUrls];
     
@@ -314,9 +324,9 @@
         
         if ([[UIApplication sharedApplication] canOpenURL:[button.URL absoluteURL]])
         {
-            UIActionSheet *action = [[UIActionSheet alloc] initWithTitle:[[button.URL absoluteURL] description] delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Open in Safari", nil), NSLocalizedString(@"Save Picture", nil), nil];
-            
-            [action showFromRect:button.frame inView:button.superview animated:YES];
+            UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:[[button.URL absoluteURL] description] delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Open in Safari", nil), NSLocalizedString(@"Save Picture", nil), nil];
+            sheet.tag = 100;
+            [sheet showFromRect:button.frame inView:button.superview animated:YES];
         }
     }
 }
@@ -333,6 +343,23 @@
 
 #pragma mark - Utilities
 
+- (void)replyActivity{
+
+    UIWindow *mainWindow = [UIApplication sharedApplication].keyWindow;
+    self.replyInput = [[CCTopicViewReplyInput alloc] initWithFrame:mainWindow.bounds];
+    NSLog(@"count %d", (int)CFGetRetainCount((__bridge CFTypeRef)self.replyInput));
+    self.replyInput.post = self.post;
+    @weakify(self);
+    self.replyInput.dismissViewBlock = ^{
+        @strongify(self);
+        [self.replyInput removeFromSuperview];
+        self.replyInput = nil;
+    };
+    [mainWindow addSubview:self.replyInput];
+    NSLog(@"count %d", (int)CFGetRetainCount((__bridge CFTypeRef)self.replyInput));
+    [self.replyInput showView];
+}
+
 - (void)likeActivity{
     
     if (![CCDataManager sharedManager].user.isLogin) {
@@ -348,6 +375,7 @@
     }else{
         
         if (self.post.postID) {
+            [CCHelper showBlackProgressHudWithText:NSLocalizedString(@"In requesting", nil)];
             [[CCDataManager sharedManager] actionForPost:[self.post.postID integerValue] actionType:CCPostActionTypeVote success:^(CCTopicPostModel *postModel) {
                 
                 self.post.postLiked = YES;
@@ -362,15 +390,62 @@
             }];
         }
         
+    }
+}
+
+- (void)bookmarkActivity{
+    
+    if (![CCDataManager sharedManager].user.isLogin) {
+        UIAlertView *alert = [UIAlertView bk_showAlertViewWithTitle:NSLocalizedString(@"Need Login", nil) message:NSLocalizedString(@"You need login to collect this topic", nil) cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:@[NSLocalizedString(@"Login", nil)] handler:^(UIAlertView *alertView, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kShowLoginVCNotification object:nil];
+            }
+        }];
         
+        [alert show];
+    }else if (self.post.postBookmarked){
+        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Do not bookmark it again", nil)];
+    }else{
+        if (self.post) {
+            [CCHelper showBlackProgressHudWithText:NSLocalizedString(@"In requesting", nil)];
+            @weakify(self);
+            [[CCDataManager sharedManager] bookmarkPost:[self.post.postID integerValue] success:^(BOOL collectStatus) {
+                @strongify(self);
+                self.post.postBookmarked = YES;
+                
+                [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Bookmarked", nil)];
+            } failure:^(NSError *error) {
+                [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Bookmark Failed", nil)];
+                NSLog(@"%@", error.description);
+            }];
+            
+        }
         
     }
 }
 
 
-
-
 #pragma mark - Public Method
+
+- (void)showActionSheet{
+    
+    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:nil, nil];
+    sheet.tag = 200;
+    @weakify(self);
+    [sheet bk_addButtonWithTitle:NSLocalizedString(@"Reply", nil) handler:^{
+        @strongify(self);
+        [self replyActivity];
+    }];
+    [sheet bk_addButtonWithTitle:NSLocalizedString(@"Vote", nil) handler:^{
+        @strongify(self);
+        [self likeActivity];
+    }];
+    [sheet bk_addButtonWithTitle:NSLocalizedString(@"Bookmark", nil) handler:^{
+        @strongify(self);
+        [self bookmarkActivity];
+    }];
+    [sheet showInView:self.nav.view];
+}
 
 - (CGFloat)getCellHeight{
    

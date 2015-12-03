@@ -240,7 +240,7 @@
         
         //Collect image urls for gallery
         if (![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
-            [self.imageUrls addObject:imageView.url];
+            [self.imageUrls addObject:attachment.hyperLinkURL?attachment.hyperLinkURL:imageView.url];
         }
         
         DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:imageView.bounds];

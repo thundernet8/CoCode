@@ -22,7 +22,7 @@
 
 #import "CoCodeAppDelegate.h"
 
-@interface CCTopicViewController () <UITableViewDelegate, UITableViewDataSource>
+@interface CCTopicViewController () <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate>
 
 @property (nonatomic, strong) UIView *headerView;
 
@@ -43,7 +43,9 @@
 
 @end
 
-@implementation CCTopicViewController
+@implementation CCTopicViewController{
+    CGFloat _oldContentOffsetY;
+}
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -117,7 +119,7 @@
 
 - (void)setTopic:(CCTopicModel *)topic{
 
-    BOOL needUpdateNavi = _topic && (_topic.isLiked^topic.isLiked);
+    BOOL needUpdateNavi = (_topic && (_topic.isLiked^topic.isLiked)) || (_topic && (_topic.isBookmarked^topic.isBookmarked));
     
     _topic = topic;
     
@@ -154,13 +156,14 @@
     }];;
     
     NSString *heartIconName = self.topic.isLiked ? @"icon_heart" : @"icon_heart_o";
+    NSString *starIconName = self.topic.isBookmarked ? @"icon_star" : @"icon_star_o";
     
     SCBarButtonItem *bar1 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:heartIconName] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
         
         [self likeActivity];
     }];
-    SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_star"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    SCBarButtonItem *bar2 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:starIconName] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
         [self bookmarkPost];
     }];
@@ -236,7 +239,7 @@
 - (void)configureReplyInputView{
     UIWindow *mainWindow = [UIApplication sharedApplication].keyWindow;
     self.replyInput = [[CCTopicViewReplyInput alloc] initWithFrame:mainWindow.bounds];
-    self.replyInput.model = self.topic;
+    self.replyInput.topic = self.topic;
     @weakify(self);
     self.replyInput.dismissViewBlock = ^{
         @strongify(self);
@@ -456,7 +459,8 @@
     [super scrollViewWillBeginDragging:scrollView];
     
     self.isDragging = YES;
-    
+    _oldContentOffsetY = scrollView.contentOffsetY;
+    //NSLog(@"%f", _oldContentOffsetY);
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
@@ -478,6 +482,17 @@
         self.tableView.contentInsetTop = 64 - 36;
     }
     
+    //Judge move direction and hide or show footer toolbar
+    if (scrollView.contentOffsetY-_oldContentOffsetY > 0 && scrollView.contentOffsetY > 0 && self.tableView.contentSize.height > kScreenHeight) {
+        //Up direction, hide the toolbar
+        [UIView animateWithDuration:0.3 animations:^{
+            self.footerToolBar.y = kScreenHeight;
+        }];
+    }else{
+        [UIView animateWithDuration:0.3 animations:^{
+            self.footerToolBar.y = kScreenHeight-45;
+        }];
+    }
 }
 
 
@@ -509,9 +524,8 @@
     }else if (self.topic.isLiked){
         [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Do not like it again", nil)];
     }else{
-        
-        
         if (self.topic.postID) {
+            [CCHelper showBlackProgressHudWithText:NSLocalizedString(@"In requesting", nil)];
             [[CCDataManager sharedManager] actionForPost:[self.topic.postID integerValue] actionType:CCPostActionTypeVote success:^(CCTopicPostModel *postModel) {
                 
                 self.topic.isLiked = YES;
@@ -545,9 +559,8 @@
     }else if (self.topic.isBookmarked){
         [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Do not bookmark it again", nil)];
     }else{
-        
         if (self.topic.postID) {
-            
+            [CCHelper showBlackProgressHudWithText:NSLocalizedString(@"In requesting", nil)];
             @weakify(self);
             [[CCDataManager sharedManager] bookmarkTopic:[self.topic.topicID integerValue] success:^(BOOL collectStatus) {
                 @strongify(self);
@@ -557,7 +570,6 @@
                 [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Bookmarked", nil)];
             } failure:^(NSError *error) {
                 [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Bookmark Failed", nil)];
-                NSLog(@"%@", error.description);
             }];
             
         }

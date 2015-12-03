@@ -17,6 +17,7 @@
 
 @property (nonatomic, copy) void (^reloadCellBlock)();
 
+- (void)showActionSheet;
 - (CGFloat)getCellHeight;
 
 @end
