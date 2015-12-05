@@ -10,7 +10,7 @@
 #import "CCDataManager.h"
 
 static CGFloat const kInputBackViewHeight = 180.0;
-static NSInteger const kInputTextMinLength = 10;
+static NSInteger const kInputTextMinLength = 1;
 
 @interface CCTopicViewReplyInput() <UITextViewDelegate>
 
@@ -39,9 +39,11 @@ static NSInteger const kInputTextMinLength = 10;
         UIView *contentView;
 #ifdef __IPHONE_8_0
         self.blurBackgroundBar = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleDark]];
+        self.blurBackgroundBar.alpha = 1;
         contentView = self.blurBackgroundBar.contentView;
 #else
         self.blurBackgroundBar = [[UIView alloc] init];
+        self.blurBackgroundBar.backgroundColor = [UIColor colorWithWhite:0.000 alpha:0.200];
         contentView = self.blurBackgroundBar;
 #endif
         self.hidden = YES;
@@ -137,7 +139,7 @@ static NSInteger const kInputTextMinLength = 10;
     self.backgroundButton.frame = self.frame;
     self.inputBackView.frame = CGRectMake(0, self.frame.origin.y+kScreenHeight-kInputBackViewHeight, kScreenWidth, 200.0);
     self.cancelButton.frame = CGRectMake(15.0, 15.0, 50.0, 25.0);
-    self.centerLabel.frame = CGRectMake(60.0, 15.0, kScreenWidth-140, 25.0);
+    self.centerLabel.frame = CGRectMake(60.0, 15.0, kScreenWidth-120, 25.0);
     self.submitButton.frame = CGRectMake(kScreenWidth-65, 15.0, 50.0, 25.0);
     
     self.inputView.frame = CGRectMake(15.0, 55.0, kScreenWidth-30, kInputBackViewHeight-75);
@@ -148,6 +150,12 @@ static NSInteger const kInputTextMinLength = 10;
 - (void)layoutSubviews{
     [super layoutSubviews];
     
+}
+
+- (void)setPost:(CCTopicPostModel *)post{
+    _post = post;
+    
+    self.centerLabel.text = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Reply to", nil), post.postUserDisplayname.length?post.postUserDisplayname:post.postUsername];
 }
 
 - (void)dealloc{
@@ -188,7 +196,7 @@ static NSInteger const kInputTextMinLength = 10;
 #pragma mark - TextView Delegate
 
 - (void)textViewDidBeginEditing:(UITextView *)textView{
-    NSLog(@"begin edit");
+
 }
 
 - (void)textViewDidChange:(UITextView *)textView{
@@ -196,7 +204,7 @@ static NSInteger const kInputTextMinLength = 10;
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView{
-    NSLog(@"endedit");
+
 }
 
 #pragma mark - Submit Reply
@@ -207,21 +215,34 @@ static NSInteger const kInputTextMinLength = 10;
         return;
     }
     self.isSubmitting = YES;
-    
     [CCHelper showBlackProgressHudWithText:NSLocalizedString(@"Submitting the reply...", nil)];
+    if (_topic && !_post) {
+        @weakify(self);
+        [[CCDataManager sharedManager] submitReplyWithContent:self.inputView.text toTopic:self.topic replyNested:YES success:^(CCTopicPostModel *postModel) {
+            @strongify(self);
+            self.isSubmitting = NO;
+            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Reply submitted successfully", nil)];
+            [self hiddenView];
+            
+        } failure:^(NSError *error) {
+            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Reply failed", nil)];
+            self.isSubmitting = NO;
+            NSLog(@"%@", error.localizedDescription);
+        }];
+    }else if (self.topic && self.post) {
+        @weakify(self);
+        [[CCDataManager sharedManager] submitReplyWithContent:self.inputView.text toTopic:self.topic toPostRankID:[NSNumber numberWithInteger:self.rankInList] replyNested:YES success:^(CCTopicPostModel *postModel) {
+            @strongify(self);
+            self.isSubmitting = NO;
+            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Reply submitted successfully", nil)];
+            [self hiddenView];
+        } failure:^(NSError *error) {
+            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Reply failed", nil)];
+            self.isSubmitting = NO;
+            NSLog(@"%@", error.localizedDescription);
+        }];
+    }
     
-    @weakify(self);
-    [[CCDataManager sharedManager] submitReplyWithContent:self.inputView.text toTopic:self.topic replyNested:YES success:^(CCTopicPostModel *postModel) {
-        @strongify(self);
-        self.isSubmitting = NO;
-        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Reply submitted successfully", nil)];
-        [self hiddenView];
-        
-    } failure:^(NSError *error) {
-        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_error"] withText:NSLocalizedString(@"Reply failed", nil)];
-        self.isSubmitting = NO;
-        NSLog(@"%@", error.localizedDescription);
-    }];
     
 }
 

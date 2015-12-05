@@ -14,6 +14,7 @@
 @property (nonatomic, copy) void (^dismissViewBlock)();
 @property (nonatomic, strong) CCTopicModel *topic;
 @property (nonatomic, strong) CCTopicPostModel *post;
+@property (nonatomic, assign) NSInteger rankInList;
 
 - (void)showView;
 

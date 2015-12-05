@@ -18,10 +18,14 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="CoCode_transparent" translatesAutoresizingMaskIntoConstraints="NO" id="D1D-lh-FgB">
-                    <rect key="frame" x="165" y="180" width="150" height="150"/>
+                    <rect key="frame" x="184" y="180" width="112" height="100"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="112" id="9wz-C9-5kE"/>
+                        <constraint firstAttribute="height" constant="100" id="Puh-bo-9w6"/>
+                    </constraints>
                 </imageView>
             </subviews>
-            <color key="backgroundColor" red="0.070588235294117646" green="0.68627450980392157" blue="0.99607843137254903" alpha="1" colorSpace="calibratedRGB"/>
+            <color key="backgroundColor" red="0.33725490196078434" green="0.43529411764705883" blue="0.92941176470588238" alpha="1" colorSpace="calibratedRGB"/>
             <constraints>
                 <constraint firstAttribute="centerX" secondItem="D1D-lh-FgB" secondAttribute="centerX" id="2pv-GU-wPr"/>
                 <constraint firstAttribute="bottom" secondItem="8ie-xW-0ye" secondAttribute="bottom" constant="20" id="Kzo-t9-V3l"/>

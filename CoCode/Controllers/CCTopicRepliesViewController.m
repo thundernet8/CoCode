@@ -13,8 +13,6 @@
 
 @interface CCTopicRepliesViewController () <UITableViewDelegate, UITableViewDataSource, UIActionSheetDelegate>
 
-@property (nonatomic, strong) CCTopicPostModel *selectedReply;
-
 @property (nonatomic, strong) NSCache *cellHeightCache;
 
 @property (nonatomic, copy) NSURLSessionDataTask *(^getReplyListBlock)(NSInteger page);
@@ -173,9 +171,13 @@
 - (CCTopicReplyCell *)configureReplyCell:(CCTopicReplyCell *)cell atIndexPath:(NSIndexPath *)indexPath{
     
     CCTopicPostModel *post = self.replyList[indexPath.row];
-    cell.post = post;
-    cell.replyToPost = self.selectedReply;
+    cell.rankInList = indexPath.row+2;
     cell.nav = self.navigationController;
+    if (post.postReplyTo != (id)[NSNull null]) {
+        cell.replyToPost = post.postReplyTo.integerValue-2>=0&&post.postReplyTo.integerValue-1<=_replyList.count?_replyList[post.postReplyTo.integerValue-2]:nil;
+    }
+    cell.topic = self.topic;
+    cell.post = post;
     
     @weakify(self);
     cell.reloadCellBlock = ^{
@@ -244,7 +246,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
 
     CCTopicReplyCell *cell = [self tableView:tableView prepareCellForRowAtIndexPath:indexPath];
-    
+
     [cell showActionSheet];
 }
 

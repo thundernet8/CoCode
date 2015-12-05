@@ -108,9 +108,6 @@
     } forControlEvents:UIControlEventTouchUpInside];
     self.praiseCountLabel.text = [NSString stringWithFormat:@"%d", (int)_post.postLikeCount];
     self.praiseCountLabel.frame = CGRectMake(kScreenWidth-30, 13.0, 30.0, 20.0);
-    
-    
-    
 }
 
 - (void)setPost:(CCTopicPostModel *)post{
@@ -123,6 +120,15 @@
 - (void)configureTextView{
     
     _post.postContent = [_post.postContent stringByReplacingOccurrencesOfString:@"<h2></h2>" withString:@""];
+    NSString *postContent = _post.postContent;
+    if (_post.postReplyTo != (id)[NSNull null] && _replyToPost) {
+        //postContent = [NSString stringWithFormat:@"<a class=\"mention\" href=\"%@/users/%@\">@%@</a>%@", kBaseUrl, _replyToPost.postUsername, _replyToPost.postUsername, _post.postContent];
+        if ([postContent hasPrefix:@"<p>"]) {
+            postContent = [NSString stringWithFormat:@"<p><a class=\"mention\" href=\"%@/users/%@\">@%@ </a>%@", kBaseUrl, _replyToPost.postUsername, _replyToPost.postUsername, [postContent substringWithRange:NSMakeRange(3, postContent.length-3)]];
+        }else{
+            postContent = [NSString stringWithFormat:@"<a class=\"mention\" href=\"%@/users/%@\">@%@ </a>%@", kBaseUrl, _replyToPost.postUsername, _replyToPost.postUsername, postContent];
+        }
+    }
     
     DTCSSStylesheet *css = [[DTCSSStylesheet alloc] initWithStyleBlock:[NSString stringWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"topic" ofType:@"css"] encoding:NSUTF8StringEncoding error:nil]];
     
@@ -130,12 +136,13 @@
                                     @"Arial", DTDefaultFontFamily, css, DTDefaultStyleSheet, kFontColorBlackDark, DTDefaultTextColor, @kReplyFontSize, DTDefaultFontSize, nil];
     [options setObject:[NSURL URLWithString:@"http://cocode.cc"] forKey:NSBaseURLDocumentOption];
     
-    self.textView.attributedString = [[NSAttributedString alloc] initWithHTMLData:[_post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+    self.textView.attributedString = [[NSAttributedString alloc] initWithHTMLData:[postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
     self.textView.frame = CGRectMake(45.0, 45.0, kScreenWidth-55.0, CGFLOAT_HEIGHT_UNKNOWN);
     @weakify(self);
     [self.textView bk_whenTapped:^{
         @strongify(self);
         [self showActionSheet];
+        //[self replyActivity];
     }];
 }
 
@@ -267,9 +274,6 @@
             default:
                 break;
         }
-    }else if (actionSheet.tag == 200){
-        //reply like bookmark -- has moved to sheet's block
-
     }
 }
 
@@ -344,11 +348,13 @@
 #pragma mark - Utilities
 
 - (void)replyActivity{
-
+    
     UIWindow *mainWindow = [UIApplication sharedApplication].keyWindow;
     self.replyInput = [[CCTopicViewReplyInput alloc] initWithFrame:mainWindow.bounds];
-    NSLog(@"count %d", (int)CFGetRetainCount((__bridge CFTypeRef)self.replyInput));
+    //NSLog(@"count %d", (int)CFGetRetainCount((__bridge CFTypeRef)self.replyInput));
     self.replyInput.post = self.post;
+    self.replyInput.topic = self.topic;
+    self.replyInput.rankInList = self.rankInList;
     @weakify(self);
     self.replyInput.dismissViewBlock = ^{
         @strongify(self);
@@ -356,7 +362,7 @@
         self.replyInput = nil;
     };
     [mainWindow addSubview:self.replyInput];
-    NSLog(@"count %d", (int)CFGetRetainCount((__bridge CFTypeRef)self.replyInput));
+    //NSLog(@"count %d", (int)CFGetRetainCount((__bridge CFTypeRef)self.replyInput));
     [self.replyInput showView];
 }
 
@@ -429,22 +435,33 @@
 
 - (void)showActionSheet{
     
-    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:nil, nil];
+    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"Cancel", nil) destructiveButtonTitle:nil otherButtonTitles:nil, nil];
     sheet.tag = 200;
-    @weakify(self);
-    [sheet bk_addButtonWithTitle:NSLocalizedString(@"Reply", nil) handler:^{
-        @strongify(self);
-        [self replyActivity];
-    }];
-    [sheet bk_addButtonWithTitle:NSLocalizedString(@"Vote", nil) handler:^{
-        @strongify(self);
-        [self likeActivity];
-    }];
-    [sheet bk_addButtonWithTitle:NSLocalizedString(@"Bookmark", nil) handler:^{
-        @strongify(self);
-        [self bookmarkActivity];
-    }];
+    [sheet addButtonWithTitle:NSLocalizedString(@"Reply", nil)];
+    [sheet addButtonWithTitle:NSLocalizedString(@"Vote", nil)];
+    [sheet addButtonWithTitle:NSLocalizedString(@"Bookmark", nil)];
+    // Bug - the editor view that pushed from keywindow would be dismissed with actionsheet
+    // so you should push editor view after actionsheet dismissed
+    sheet.bk_didDismissBlock = ^(UIActionSheet *sheet, NSInteger buttonIndex){
+        
+        switch (buttonIndex) {
+            case 1:
+                [self replyActivity];
+                break;
+            case 2:
+                [self likeActivity];
+                break;
+            case 3:
+                [self bookmarkActivity];
+                break;
+                
+            default:
+                break;
+        }
+        
+    };
     [sheet showInView:self.nav.view];
+
 }
 
 - (CGFloat)getCellHeight{

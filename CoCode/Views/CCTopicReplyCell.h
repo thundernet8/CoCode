@@ -7,11 +7,14 @@
 //
 
 #import "CCTopicPostModel.h"
+#import "CCTopicModel.h"
 
 @interface CCTopicReplyCell : UITableViewCell
 
+@property (nonatomic, strong) CCTopicModel *topic;
 @property (nonatomic, strong) CCTopicPostModel *post;
 @property (nonatomic, strong) CCTopicPostModel *replyToPost;
+@property (nonatomic, assign) NSInteger rankInList;
 @property (nonatomic, assign) UINavigationController *nav;
 @property (nonatomic) CGFloat cellHeight;
 

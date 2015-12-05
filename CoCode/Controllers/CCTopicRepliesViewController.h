@@ -8,9 +8,11 @@
 
 #import "SCPullRefreshViewController.h"
 #import "CCTopicModel.h"
+#import "CCTopicPostModel.h"
 
 @interface CCTopicRepliesViewController : SCPullRefreshViewController
 
 @property (nonatomic, strong) CCTopicModel *topic;
+//@property (nonatomic, copy) void (^shouldShowReplyEditorBlock)(CCTopicPostModel *);
 
 @end

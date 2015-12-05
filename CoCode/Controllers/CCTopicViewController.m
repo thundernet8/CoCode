@@ -119,13 +119,13 @@
 
 - (void)setTopic:(CCTopicModel *)topic{
 
-    BOOL needUpdateNavi = (_topic && (_topic.isLiked^topic.isLiked)) || (_topic && (_topic.isBookmarked^topic.isBookmarked));
+//    BOOL needUpdateNavi = (_topic && (_topic.isLiked^topic.isLiked)) || (_topic && (_topic.isBookmarked^topic.isBookmarked));
     
     _topic = topic;
-    
-    if (needUpdateNavi) {
-        [self configureNaviBar];
-    }
+//    if (needUpdateNavi) {
+//        [self configureNaviBar];
+//    }
+    [self configureNaviBar];
     
     BOOL isFirstSet = topic.posts.count > 0 ? NO : YES;
     
@@ -156,7 +156,8 @@
     }];;
     
     NSString *heartIconName = self.topic.isLiked ? @"icon_heart" : @"icon_heart_o";
-    NSString *starIconName = self.topic.isBookmarked ? @"icon_star" : @"icon_star_o";
+    CCTopicPostModel *firstPost = self.topic.posts[0];
+    NSString *starIconName = self.topic.isBookmarked||firstPost.postBookmarked ? @"icon_star" : @"icon_star_o";
     
     SCBarButtonItem *bar1 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:heartIconName] style:SCBarButtonItemStylePlain handler:^(id sender) {
         @strongify(self);
@@ -547,7 +548,7 @@
     if (!_isLoaded) {
         return;
     }
-    
+    CCTopicPostModel *firstPost = self.topic.posts[0];
     if (![CCDataManager sharedManager].user.isLogin) {
         UIAlertView *alert = [UIAlertView bk_showAlertViewWithTitle:NSLocalizedString(@"Need Login", nil) message:NSLocalizedString(@"You need login to collect this topic", nil) cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:@[NSLocalizedString(@"Login", nil)] handler:^(UIAlertView *alertView, NSInteger buttonIndex) {
             if (buttonIndex == 1) {
@@ -556,7 +557,7 @@
         }];
         
         [alert show];
-    }else if (self.topic.isBookmarked){
+    }else if (self.topic.isBookmarked||firstPost.postBookmarked){
         [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Do not bookmark it again", nil)];
     }else{
         if (self.topic.postID) {
@@ -586,7 +587,6 @@
     
     CCTopicRepliesViewController *repliesVC = [[CCTopicRepliesViewController alloc] init];
     repliesVC.topic = self.topic;
-    
     
     [self.navigationController pushViewController:repliesVC animated:YES];
     

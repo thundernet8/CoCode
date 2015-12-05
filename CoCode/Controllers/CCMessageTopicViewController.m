@@ -222,7 +222,6 @@
     CCMessagePostCell *cell = [self.cellCache objectForKey:key];
     
     if (!cell) {
-        NSLog(@"prepare");
         
         cell = [tableView dequeueReusableCellWithIdentifier:identifier];
         

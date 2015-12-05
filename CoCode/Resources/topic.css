@@ -327,3 +327,7 @@ img.emoji{
 div.meta{
     display:none;
 }
+
+a.mention{
+    display:inline-block;
+}

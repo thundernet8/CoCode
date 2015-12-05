@@ -130,4 +130,11 @@ typedef NS_ENUM(NSInteger, CCPostActionType) {
                                          success:(void (^)(CCTopicPostModel *postModel))success
                                          failure:(void (^)(NSError *error))failure;
 
+- (NSURLSessionDataTask *)submitReplyWithContent:(NSString *)replyContent
+                                         toTopic:(CCTopicModel *)topic
+                                    toPostRankID:(NSNumber *)rankID
+                                     replyNested:(BOOL)nestStatus
+                                         success:(void (^)(CCTopicPostModel *postModel))success
+                                         failure:(void (^)(NSError *error))failure;
+
 @end

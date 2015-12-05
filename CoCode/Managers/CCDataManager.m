@@ -607,6 +607,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         
         [self requestWithMethod:CCRequestMethodFADEXHRPUT URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
             //responseObject is null
+            NSLog(@"%@", responseObject);
             success(YES);
             
         } failure:^(NSError *error) {
@@ -742,6 +743,44 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         failure(error);
     }];
     
+}
+
+- (NSURLSessionDataTask *)submitReplyWithContent:(NSString *)replyContent toTopic:(CCTopicModel *)topic toPostRankID:(NSNumber *)rankID replyNested:(BOOL)nestStatus success:(void (^)(CCTopicPostModel *))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = @"posts";
+    NSDictionary *parameters = @{
+                                 @"raw":replyContent,
+                                 @"category":topic.topicCategoryID,
+                                 @"topic_id":topic.topicID,
+                                 @"is_warning":[NSNumber numberWithBool:NO],
+                                 @"archetype":@"regular",
+                                 @"typing_duration_msecs":@800,
+                                 @"composer_open_duration_msecs":@10000,
+                                 @"nested_post":[NSNumber numberWithBool:nestStatus],
+                                 @"whisper":@NO,
+                                 @"reply_to_post_number":rankID
+                                 };
+    
+    return [self getCSRFTokenSuccess:^(NSString *token) {
+        [self.manager.requestSerializer setValue:token forHTTPHeaderField:@"X-CSRF-Token"];
+        
+        [self requestWithMethod:CCRequestMethodFADEXHRPOST URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+            
+            if ([responseObject objectForKey:@"success"] && [[responseObject objectForKey:@"success"] boolValue]) {
+                CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:(NSDictionary *)[responseObject objectForKey:@"post"]];
+                success(model);
+            }else{
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeSubmitReplyError userInfo:nil];
+                failure(error);
+            }
+            
+        } failure:^(NSError *error) {
+            
+            failure(error);
+            
+        }];
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
 }
 
 

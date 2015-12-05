@@ -138,11 +138,16 @@ static NSInteger const kFontSize = 15;
     [options setObject:[NSURL URLWithString:@"http://cocode.cc"] forKey:NSBaseURLDocumentOption];
     NSAttributedString *aString = [[NSAttributedString alloc] initWithHTMLData:[post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
     self.contentLabel.attributedString = aString;
-    DTCoreTextLayouter *layouter = [[DTCoreTextLayouter alloc] initWithAttributedString:aString];
-    DTCoreTextLayoutFrame *layoutFrame = [layouter layoutFrameWithRect:CGRectMake(0, 0, kScreenWidth-10-kAvatarHeight-10-10, CGFLOAT_HEIGHT_UNKNOWN) range:NSMakeRange(0, aString.length)];
+//    DTCoreTextLayouter *layouter = [[DTCoreTextLayouter alloc] initWithAttributedString:aString];
+//    DTCoreTextLayoutFrame *layoutFrame = [layouter layoutFrameWithRect:CGRectMake(0, 0, kScreenWidth-10-kAvatarHeight-10-10, CGFLOAT_HEIGHT_UNKNOWN) range:NSMakeRange(0, aString.length)];
+    CGSize textViewSize = [self.contentLabel.attributedTextContentView suggestedFrameSizeToFitEntireStringConstraintedToWidth:CGFLOAT_WIDTH_UNKNOWN];
+    if (textViewSize.width>kScreenWidth-10-kAvatarHeight-10-10) {
+        textViewSize = [self.contentLabel.attributedTextContentView suggestedFrameSizeToFitEntireStringConstraintedToWidth:kScreenWidth-10-kAvatarHeight-10-10];
+    }
+    NSLog(@"w-%f h-%f", textViewSize.width, textViewSize.height);
     //self.contentLabel.textLayout = layout;
-    self.contentLabelHeight = [layoutFrame frame].size.height+10;
-    
+    //self.contentLabelHeight = [layoutFrame frame].size.height+10;
+    self.contentLabelHeight = textViewSize.height + 10;
     
     
     CGFloat timeLabelHeight = 0.0;
@@ -155,10 +160,10 @@ static NSInteger const kFontSize = 15;
     
     if (self.isMe) {
         self.avatarImageView.frame = CGRectMake(kScreenWidth-kAvatarHeight-10, timeLabelHeight+5, kAvatarHeight, kAvatarHeight);
-        self.contentLabel.frame = CGRectMake(10.0, timeLabelHeight+5, kScreenWidth-10-kAvatarHeight-10-10, self.contentLabelHeight);
+        self.contentLabel.frame = CGRectMake(kScreenWidth-kAvatarHeight-10-10-textViewSize.width, timeLabelHeight+5, textViewSize.width, self.contentLabelHeight);
     }else{
         self.avatarImageView.frame = CGRectMake(10, timeLabelHeight+5, kAvatarHeight, kAvatarHeight);
-        self.contentLabel.frame = CGRectMake(10.0+kAvatarHeight+10, timeLabelHeight+5, [layoutFrame frame].size.width, self.contentLabelHeight);
+        self.contentLabel.frame = CGRectMake(10.0+kAvatarHeight+10, timeLabelHeight+5, textViewSize.width, self.contentLabelHeight);
     }
     
 }
@@ -171,10 +176,7 @@ static NSInteger const kFontSize = 15;
     }
     
     self.contentLabelHeight = self.contentLabel.size.height;
-    
     self.cellHeight = MAX(kAvatarHeight, self.contentLabelHeight) + _timeLabelHeight + 20;
-    
-    NSLog(@"getCellHeight%f / %f", self.cellHeight, self.contentLabelHeight);
     
     return self.cellHeight;
 
