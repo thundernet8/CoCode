@@ -66,7 +66,8 @@
         self.topicAuthorID = [self.topicPosters[0] objectForKey:@"user_id"];
         NSDictionary *authorDict = [[dict objectForKey:@"details"] objectForKey:@"created_by"];
         CCMemberModel *member = [[CCMemberModel alloc] initWithPosterDictionary:authorDict];
-        self.topicAuthorName = member.memberUserName;
+        self.topicAuthorUserName = member.memberUserName;
+        self.topicAuthorName = member.memberName;
         self.topicAuthorAvatar = member.memberAvatarLarge;
         
         self.topicUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@t/%@/%d", kBaseUrl, self.topicSlug, [self.topicID intValue]]];
@@ -96,6 +97,26 @@
         
         self.author = author;
 
+    }
+    return self;
+}
+
+//From user_actions JSON data
+- (instancetype)initWithUserActionsDictionary:(NSDictionary *)dict{
+    if (self = [super init]) {
+        self.topicID = [dict objectForKey:@"topic_id"];
+        self.topicTitle = [dict objectForKey:@"title"];
+        self.topicContent = [dict objectForKey:@"excerpt"];
+        self.topicSlug = [dict objectForKey:@"slug"];
+        self.topicCreatedTime = [CCHelper localDateWithString:[dict objectForKey:@"created_at"]];
+        self.isClosed = [[dict objectForKey:@"closed"] boolValue];
+        self.topicCategoryID = [dict objectForKey:@"category_id"];
+        self.topicAuthorID = [self.topicPosters[0] objectForKey:@"user_id"];
+        self.topicAuthorUserName = [dict objectForKey:@"username"];
+        self.topicAuthorName = [dict objectForKey:@"name"];
+        self.topicAuthorAvatar = [dict objectForKey:@"avatar_template"]?[CCHelper getAvatarFromTemplate:[dict objectForKey:@"avatar_template"] withSize:60]:nil;
+        
+        self.topicUrl = [NSURL URLWithString:[NSString stringWithFormat:@"%@t/%@/%d", kBaseUrl, self.topicSlug, [self.topicID intValue]]];
     }
     return self;
 }

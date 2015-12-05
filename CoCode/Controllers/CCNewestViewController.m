@@ -79,8 +79,6 @@
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     
-    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
-    
     //weakify and strongify is from ReactiveCocoa(EXTScope)
     @weakify(self);
     static dispatch_once_t onceToken;
@@ -138,6 +136,8 @@
                         
                         self.getTopicListBlock(self.pageCount);
                     };
+                }else{
+                    self.loadMoreBlock = nil;
                 }
             }
             

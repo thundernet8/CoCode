@@ -21,3 +21,11 @@
 + (CCUserModel *)getUserWithLoginRespondObject:(NSDictionary *)respondeObject;
 
 @end
+
+@interface CCUserBookmarksModel : NSObject
+
+@property (nonatomic, strong) NSArray *list;
+
+- (instancetype)initWithResponseObject:(NSDictionary *)responseObject;
+
+@end

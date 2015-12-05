@@ -14,6 +14,9 @@
 #import "CCSettingViewController.h"
 #import "CCSettingCell.h"
 #import "CCNotificationListViewController.h"
+#import "CCMemberTopicsViewController.h"
+#import "CCMemberPostsViewController.h"
+#import "CCMyBookmarksViewController.h"
 
 #define kAvatarHeight 76.0
 #define kAvatarMaskHeight 90.0
@@ -110,7 +113,7 @@
     [tempRows addObject:@{@"icon":@"icon_reply", @"text":NSLocalizedString(@"Replies(setting)", nil)}];
     
     if (self.isLogged && self.isMyself) {
-        [tempRows addObject:@{@"icon":@"icon_favorite", @"text":NSLocalizedString(@"Favorites", nil)}];
+        [tempRows addObject:@{@"icon":@"icon_favorite", @"text":NSLocalizedString(@"Bookmarks", nil)}];
         [tempRows addObject:@{@"icon":@"icon_notification", @"text":NSLocalizedString(@"Notifications", nil)}];
     }
     
@@ -302,15 +305,15 @@
         
         switch (indexPath.row) {
             case 0:
-                
+                [self pushMemberTopicsViewController];
                 break;
                 
             case 1:
-                
+                [self pushMemberPostsViewController];
                 break;
                 
             case 2:
-                
+                [self pushUserBookmarksViewController];
                 break;
                 
             case 3:
@@ -438,6 +441,23 @@
 - (void)pushNotificationListViewController{
     CCNotificationListViewController *notificationListVC = [[CCNotificationListViewController alloc] init];
     [self.navigationController pushViewController:notificationListVC animated:YES];
+}
+
+- (void)pushMemberTopicsViewController{
+    CCMemberTopicsViewController *memberTopicsVC = [[CCMemberTopicsViewController alloc] init];
+    memberTopicsVC.member = self.member;
+    [self.navigationController pushViewController:memberTopicsVC animated:YES];
+}
+
+- (void)pushMemberPostsViewController{
+    CCMemberPostsViewController *memberPostsVC = [[CCMemberPostsViewController alloc] init];
+    memberPostsVC.member = self.member;
+    [self.navigationController pushViewController:memberPostsVC animated:YES];
+}
+
+- (void)pushUserBookmarksViewController{
+    CCMyBookmarksViewController *userBookmarksVC = [[CCMyBookmarksViewController alloc] init];
+    [self.navigationController pushViewController:userBookmarksVC animated:YES];
 }
 
 @end

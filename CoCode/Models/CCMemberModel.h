@@ -32,3 +32,19 @@
 - (instancetype)initWithUserDictionary:(NSDictionary *)dict;
 
 @end
+
+@interface CCMemberPostsModel : NSObject
+
+@property (nonatomic, strong) NSArray *list;
+
+- (instancetype)initWithResponseObject:(NSDictionary *)responseObject;
+
+@end
+
+@interface CCMemberTopicsModel : NSObject
+
+@property (nonatomic, strong) NSArray *list;
+
+- (instancetype)initWithResponseObject:(NSDictionary *)responseObject;
+
+@end

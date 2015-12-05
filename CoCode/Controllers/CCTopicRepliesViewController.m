@@ -143,6 +143,8 @@
                         
                         self.getReplyListBlock(self.pageCount);
                     };
+                }else{
+                    self.loadMoreBlock = nil;
                 }
             }
             

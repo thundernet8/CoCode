@@ -373,7 +373,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     
     NSInteger totalCount = stream.count;
     if ((page-1)*20 >= totalCount) {
-        NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetReplyListError userInfo:nil];
+        NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetReplyListFailure userInfo:nil];
         failure(error);
         return nil;
     }
@@ -395,7 +395,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         if (replyList) {
             success(replyList);
         }else{
-            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetReplyListError userInfo:nil];
+            NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeGetReplyListFailure userInfo:nil];
             failure(error);
         }
         
@@ -659,7 +659,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             if ([responseObject objectForKey:@"topic_bookmarked"] != [NSNull null] && [[responseObject objectForKey:@"topic_bookmarked"] boolValue]) {
                 success(YES);
             }else{
-                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeBookmarkError userInfo:nil];
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeBookmarkFailure userInfo:nil];
                 failure(error);
             }
             
@@ -689,7 +689,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
             if ([responseObject objectForKey:@"topic_bookmarked"] != [NSNull null] && ![[responseObject objectForKey:@"topic_bookmarked"] boolValue]) {
                 success(YES);
             }else{
-                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeBookmarkError userInfo:nil];
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeBookmarkFailure userInfo:nil];
                 failure(error);
             }
             
@@ -730,7 +730,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
                 CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:(NSDictionary *)[responseObject objectForKey:@"post"]];
                 success(model);
             }else{
-                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeSubmitReplyError userInfo:nil];
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeSubmitReplyFailure userInfo:nil];
                 failure(error);
             }
             
@@ -769,7 +769,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
                 CCTopicPostModel *model = [[CCTopicPostModel alloc] initWithDictionary:(NSDictionary *)[responseObject objectForKey:@"post"]];
                 success(model);
             }else{
-                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeSubmitReplyError userInfo:nil];
+                NSError *error = [[NSError alloc] initWithDomain:self.manager.baseURL.absoluteString code:CCErrorTypeSubmitReplyFailure userInfo:nil];
                 failure(error);
             }
             
@@ -782,6 +782,108 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
         failure(error);
     }];
 }
+
+//Member's posts
+
+- (NSURLSessionDataTask *)getPostsWithPage:(NSInteger)page forMemberName:(NSString *)username success:(void (^)(CCMemberPostsModel *))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = @"user_actions.json";
+    NSDictionary *parameters = @{
+                                 @"offset":@((page-1)*60),
+                                 @"username":username,
+                                 @"filter":@5,
+                                 @"_":[NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]
+                                 };
+    
+    return [self requestWithMethod:CCRequestMethodFADEXHR URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        if (responseObject && [responseObject objectForKey:@"user_actions"]) {
+            CCMemberPostsModel *model = [[CCMemberPostsModel alloc] initWithResponseObject:responseObject];
+            success(model);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeGetMemberPostsFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
+//Member's topics
+
+- (NSURLSessionDataTask *)getTopicsWithPage:(NSInteger)page forMemberName:(NSString *)username success:(void (^)(CCMemberTopicsModel *))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = @"user_actions.json";
+    NSDictionary *parameters = @{
+                                 @"offset":@((page-1)*60),
+                                 @"username":username,
+                                 @"filter":@4,
+                                 @"_":[NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]
+                                 };
+    
+    return [self requestWithMethod:CCRequestMethodFADEXHR URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        if (responseObject && [responseObject objectForKey:@"user_actions"]) {
+            CCMemberTopicsModel *model = [[CCMemberTopicsModel alloc] initWithResponseObject:responseObject];
+            success(model);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeGetMemberTopicsFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
+//User's bookmark
+
+- (NSURLSessionDataTask *)getMyBookmarksWithPage:(NSInteger)page success:(void (^)(CCUserBookmarksModel *))success failure:(void (^)(NSError *))failure{
+    NSString *urlString = @"user_actions.json";
+    NSDictionary *parameters = @{
+                                 @"offset":@((page-1)*60),
+                                 @"username":self.user.member.memberUserName,
+                                 @"filter":@3,
+                                 @"_":[NSString stringWithFormat:@"%lu",(unsigned long)([[NSDate date] timeIntervalSince1970]*1000)]
+                                 };
+    
+    return [self requestWithMethod:CCRequestMethodFADEXHR URLString:urlString parameters:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        if (responseObject && [responseObject objectForKey:@"user_actions"]) {
+            CCUserBookmarksModel *model = [[CCUserBookmarksModel alloc] initWithResponseObject:responseObject];
+            success(model);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeGetUserBookmarksFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #pragma mark - Private Methods

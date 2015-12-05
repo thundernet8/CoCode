@@ -164,6 +164,8 @@
                         
                         self.getTopicListBlock(self.pageCount);
                     };
+                }else{
+                    self.loadMoreBlock = nil;
                 }
             }
             

@@ -8,6 +8,7 @@
 
 #import "CCUserModel.h"
 #import "CCMemberModel.h"
+#import "CCTopicModel.h"
 
 @implementation CCUserModel
 
@@ -24,10 +25,30 @@
 
 + (CCUserModel *)getUserWithLoginRespondObject:(NSDictionary *)respondeObject{
     CCUserModel *user = [[CCUserModel alloc] initWithLoginRespondeObject:respondeObject];
-    CCMemberModel *member = user.member;
-    
-    
+    //CCMemberModel *member = user.member;
     return user;
+}
+
+@end
+
+@implementation CCUserBookmarksModel
+
+- (instancetype)initWithResponseObject:(NSDictionary *)responseObject{
+    
+    if (self = [super init]) {
+        if (responseObject && [responseObject objectForKey:@"user_actions"]) {
+            NSArray *topicsDict = [responseObject objectForKey:@"user_actions"];
+            NSMutableArray *tempTopicsArray = [NSMutableArray array];
+            for (NSDictionary *topicDict in topicsDict) {
+                CCTopicModel *topic = [[CCTopicModel alloc] initWithUserActionsDictionary:topicDict];
+                [tempTopicsArray addObject:topic];
+            }
+            NSArray *list = [NSArray arrayWithArray:tempTopicsArray];
+            self.list = list;
+            return self;
+        }
+    }
+    return nil;
 }
 
 @end

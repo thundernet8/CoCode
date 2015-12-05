@@ -44,6 +44,7 @@
 @property (nonatomic, strong) NSArray *topicPosters;
 @property (nonatomic, assign) CGFloat topicCellHeight;
 @property (nonatomic, assign) NSNumber *topicAuthorID;
+@property (nonatomic, copy) NSString *topicAuthorUserName;
 @property (nonatomic, copy) NSString *topicAuthorName;
 @property (nonatomic, copy) NSString *topicAuthorAvatar;
 
@@ -64,6 +65,7 @@
 @property (nonatomic, strong) CCMemberModel *author;
 
 + (CCTopicModel *)getTopicModelFromResponseObject:(id)responseObject;
+- (instancetype)initWithUserActionsDictionary:(NSDictionary *)dict;
 
 @end
 

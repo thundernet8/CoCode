@@ -150,6 +150,8 @@
                         
                         self.getTopicListBlock(self.pageCount, self.period);
                     };
+                }else{
+                    self.loadMoreBlock = nil;
                 }
             }
             

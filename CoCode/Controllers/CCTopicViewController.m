@@ -31,7 +31,7 @@
 @property (nonatomic, strong) CCTopicViewToolBar *footerToolBar;
 @property (nonatomic, strong) CCTopicViewReplyInput *replyInput;
 
-@property (nonatomic, strong) NSURLSessionDataTask * (^getTopicBlock)();
+@property (nonatomic, copy) NSURLSessionDataTask * (^getTopicBlock)();
 
 @property (nonatomic, strong) CCCategoryModel *topicCategory;
 
@@ -75,6 +75,8 @@
     if (!self.topic.posts) {
         self.getTopicBlock();
     }
+    
+    [self configureToolBar];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -85,7 +87,6 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     
-    [self configureToolBar];
     //[self configureReplyInputView];
 }
 
@@ -484,7 +485,7 @@
     }
     
     //Judge move direction and hide or show footer toolbar
-    if (scrollView.contentOffsetY-_oldContentOffsetY > 0 && scrollView.contentOffsetY > 0 && self.tableView.contentSize.height > kScreenHeight) {
+    if (scrollView.contentOffsetY-_oldContentOffsetY > 0 && scrollView.contentOffsetY > 0 && self.tableView.contentSize.height > kScreenHeight-64) {
         //Up direction, hide the toolbar
         [UIView animateWithDuration:0.3 animations:^{
             self.footerToolBar.y = kScreenHeight;

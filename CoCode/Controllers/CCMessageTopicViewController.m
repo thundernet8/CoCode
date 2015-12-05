@@ -63,7 +63,6 @@
 - (void)viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
     
-    self.hiddenEnabled = YES;
 }
 
 - (void)viewDidAppear:(BOOL)animated{

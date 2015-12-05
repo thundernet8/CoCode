@@ -7,7 +7,8 @@
 //
 
 #import "CCMemberModel.h"
-#import "CCHelper.h"
+#import "CCTopicPostModel.h"
+#import "CCTopicModel.h"
 
 @implementation CCMemberModel
 
@@ -45,6 +46,50 @@
         self.memberLastPostTime = [CCHelper localDateWithString:[dict objectForKey:@"last_posted_at"]];
     }
     return self;
+}
+
+@end
+
+@implementation CCMemberPostsModel
+
+- (instancetype)initWithResponseObject:(NSDictionary *)responseObject{
+    
+    if (self = [super init]) {
+        if (responseObject && [responseObject objectForKey:@"user_actions"]) {
+            NSArray *postsDict = [responseObject objectForKey:@"user_actions"];
+            NSMutableArray *tempPostsArray = [NSMutableArray array];
+            for (NSDictionary *postDict in postsDict) {
+                CCTopicPostModel *post = [[CCTopicPostModel alloc] initWithUserActionsDictionary:postDict];
+                [tempPostsArray addObject:post];
+            }
+            NSArray *list = [NSArray arrayWithArray:tempPostsArray];
+            self.list = list;
+            return self;
+        }
+    }
+    return nil;
+}
+
+@end
+
+@implementation CCMemberTopicsModel
+
+- (instancetype)initWithResponseObject:(NSDictionary *)responseObject{
+    
+    if (self = [super init]) {
+        if (responseObject && [responseObject objectForKey:@"user_actions"]) {
+            NSArray *topicsDict = [responseObject objectForKey:@"user_actions"];
+            NSMutableArray *tempTopicsArray = [NSMutableArray array];
+            for (NSDictionary *topicDict in topicsDict) {
+                CCTopicModel *topic = [[CCTopicModel alloc] initWithUserActionsDictionary:topicDict];
+                [tempTopicsArray addObject:topic];
+            }
+            NSArray *list = [NSArray arrayWithArray:tempTopicsArray];
+            self.list = list;
+            return self;
+        }
+    }
+    return nil;
 }
 
 @end

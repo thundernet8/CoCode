@@ -33,7 +33,10 @@
 @property (nonatomic, assign) BOOL postLiked;
 @property (nonatomic, assign) NSInteger postLikeCount;
 
+@property (nonatomic, copy) NSString *title; //Only for useractions data
+
 - (instancetype)initWithDictionary:(NSDictionary *)dict;
+- (instancetype)initWithUserActionsDictionary:(NSDictionary *)dict;
 
 + (NSArray *)getTopicReplyListWithResponseObject:(NSDictionary *)responseObject; //For fetch comments only
 

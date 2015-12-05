@@ -148,6 +148,8 @@
                     self.pageCount++;
                     
                     self.getNotificationListBlock(self.pageCount, self.username);
+                }else{
+                    self.loadMoreBlock = nil;
                 }
             }
             

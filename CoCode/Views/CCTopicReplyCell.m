@@ -31,7 +31,7 @@
 @property (nonatomic, strong) NSMutableArray *imageUrls;
 @property (nonatomic, strong) NSURL *lastActionLink;
 @property (nonatomic, strong) UIImage *lastActionImage;
-
+@property (nonatomic, strong) UIView *separatorLine;
 @property (nonatomic, strong) CCTopicViewReplyInput *replyInput;
 
 @end
@@ -43,8 +43,12 @@
     if (self) {
         self.clipsToBounds = YES;
         self.selectionStyle = UITableViewCellSelectionStyleNone;
-        self.backgroundColor = kBackgroundColorWhite;
+        self.backgroundColor = kCellHighlightedColor;
         self.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+        self.separatorLine = [[UIView alloc] init];
+        self.separatorLine.backgroundColor = kSeparatorColor;
+        [self addSubview:self.separatorLine];
         
         self.imageUrls = [NSMutableArray array];
         
@@ -76,6 +80,12 @@
         
         self.textView = [self createAttributedTextView];
         
+        @weakify(self);
+        [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+            @strongify(self);
+            self.backgroundColor = kCellHighlightedColor;
+            self.separatorLine.backgroundColor = kSeparatorColor;
+        }];
     }
     
     return self;
@@ -108,6 +118,13 @@
     } forControlEvents:UIControlEventTouchUpInside];
     self.praiseCountLabel.text = [NSString stringWithFormat:@"%d", (int)_post.postLikeCount];
     self.praiseCountLabel.frame = CGRectMake(kScreenWidth-30, 13.0, 30.0, 20.0);
+    
+    self.separatorLine.frame = CGRectMake(0, self.cellHeight, kScreenWidth, 0.5);
+}
+
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSLog(@"dealloc");
 }
 
 - (void)setPost:(CCTopicPostModel *)post{
@@ -151,7 +168,7 @@
 - (DTAttributedTextView *)createAttributedTextView{
     DTAttributedTextView *textView = [[DTAttributedTextView alloc] initWithFrame:CGRectZero];
 
-    textView.backgroundColor = kCellHighlightedColor;
+    textView.backgroundColor = [UIColor clearColor];
     textView.scrollEnabled = NO;
     textView.textDelegate = self;
     textView.shouldDrawImages = NO;

@@ -32,9 +32,12 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypeGetNotificationsFailure  = 913,
     CCErrorTypeGetMessagePostsFailure   = 914,
     CCErrorTypePostActionFailure        = 915,
-    CCErrorTypeGetReplyListError        = 916,
-    CCErrorTypeSubmitReplyError         = 917,
-    CCErrorTypeBookmarkError            = 918,
+    CCErrorTypeGetReplyListFailure      = 916,
+    CCErrorTypeSubmitReplyFailure       = 917,
+    CCErrorTypeBookmarkFailure          = 918,
+    CCErrorTypeGetMemberPostsFailure    = 919,
+    CCErrorTypeGetMemberTopicsFailure   = 920,
+    CCErrorTypeGetUserBookmarksFailure  = 921,
     
 };
 
@@ -136,5 +139,25 @@ typedef NS_ENUM(NSInteger, CCPostActionType) {
                                      replyNested:(BOOL)nestStatus
                                          success:(void (^)(CCTopicPostModel *postModel))success
                                          failure:(void (^)(NSError *error))failure;
+
+//Member's posts
+
+- (NSURLSessionDataTask *)getPostsWithPage:(NSInteger)page
+                             forMemberName:(NSString *)username
+                                   success:(void (^)(CCMemberPostsModel *))success
+                                   failure:(void (^)(NSError *error))failure;
+
+//Member's topics
+
+- (NSURLSessionDataTask *)getTopicsWithPage:(NSInteger)page
+                              forMemberName:(NSString *)username
+                                    success:(void (^)(CCMemberTopicsModel *))success
+                                    failure:(void (^)(NSError *error))failure;
+
+//User's bookmark
+
+- (NSURLSessionDataTask *)getMyBookmarksWithPage:(NSInteger)page
+                                         success:(void (^) (CCUserBookmarksModel *))success
+                                         failure:(void (^)(NSError *))failure;
 
 @end

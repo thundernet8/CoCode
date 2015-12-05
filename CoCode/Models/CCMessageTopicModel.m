@@ -30,7 +30,8 @@
         self.topicAuthorID = [self.topicPosters[0] objectForKey:@"user_id"];
         NSDictionary *authorDict = [[dict objectForKey:@"details"] objectForKey:@"created_by"];
         CCMemberModel *member = [[CCMemberModel alloc] initWithPosterDictionary:authorDict];
-        self.topicAuthorName = member.memberUserName;
+        self.topicAuthorUserName = member.memberUserName;
+        self.topicAuthorName = member.memberName;
         self.topicAuthorAvatar = member.memberAvatarLarge;
         
         //self.topicPostIDs = [[dict objectForKey:@"post_stream"] objectForKey:@"stream"];

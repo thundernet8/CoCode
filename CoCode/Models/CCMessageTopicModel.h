@@ -30,6 +30,7 @@
 @property (nonatomic, strong) NSArray *topicPosters;
 @property (nonatomic, assign) CGFloat topicCellHeight;
 @property (nonatomic, strong) NSNumber *topicAuthorID;
+@property (nonatomic, copy) NSString *topicAuthorUserName;
 @property (nonatomic, copy) NSString *topicAuthorName;
 @property (nonatomic, copy) NSString *topicAuthorAvatar;
 
