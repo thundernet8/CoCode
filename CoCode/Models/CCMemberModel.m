@@ -36,7 +36,8 @@
         self.memberAvatarLarge = avatar;
         self.memberName = [dict objectForKey:@"name"];
         self.memberIntro = [dict objectForKey:@"title"];
-        self.memberWebsite = [dict objectForKey:@"website_name"];
+        self.memberWebsiteName = [dict objectForKey:@"website_name"];
+        self.memberWebsite = [dict objectForKey:@"website"];
         self.memberBadgeCount = [dict objectForKey:@"badge_count"];
         self.memberProfileViewedCount = [dict objectForKey:@"profile_view_count"];
         

@@ -19,6 +19,7 @@
 @property (nonatomic, copy) NSString *password;
 
 + (CCUserModel *)getUserWithLoginRespondObject:(NSDictionary *)respondeObject;
++ (CCUserModel *)getUserWithDetailedRespondObject:(NSDictionary *)respondeObject;
 
 @end
 

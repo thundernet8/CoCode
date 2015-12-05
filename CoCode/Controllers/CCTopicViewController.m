@@ -141,7 +141,8 @@
         [self.tableView beginUpdates];
         [self.tableView reloadRowsAtIndexPaths:@[metaIndexPath, bodyIndexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self.tableView endUpdates];
-
+        
+        self.footerToolBar.model = topic;
     }
 }
 

@@ -745,7 +745,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     
 }
 
-- (NSURLSessionDataTask *)submitReplyWithContent:(NSString *)replyContent toTopic:(CCTopicModel *)topic toPostRankID:(NSNumber *)rankID replyNested:(BOOL)nestStatus success:(void (^)(CCTopicPostModel *))success failure:(void (^)(NSError *))failure{
+- (NSURLSessionDataTask *)submitReplyWithContent:(NSString *)replyContent toTopic:(CCTopicModel *)topic toPostRankID:(NSNumber *)rankID replyNested:(BOOL)nestStatus success:(void (^)(CCTopicPostModel *model))success failure:(void (^)(NSError *error))failure{
     NSString *urlString = @"posts";
     NSDictionary *parameters = @{
                                  @"raw":replyContent,
@@ -785,7 +785,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
 
 //Member's posts
 
-- (NSURLSessionDataTask *)getPostsWithPage:(NSInteger)page forMemberName:(NSString *)username success:(void (^)(CCMemberPostsModel *))success failure:(void (^)(NSError *))failure{
+- (NSURLSessionDataTask *)getPostsWithPage:(NSInteger)page forMemberName:(NSString *)username success:(void (^)(CCMemberPostsModel *model))success failure:(void (^)(NSError *error))failure{
     NSString *urlString = @"user_actions.json";
     NSDictionary *parameters = @{
                                  @"offset":@((page-1)*60),
@@ -811,7 +811,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
 
 //Member's topics
 
-- (NSURLSessionDataTask *)getTopicsWithPage:(NSInteger)page forMemberName:(NSString *)username success:(void (^)(CCMemberTopicsModel *))success failure:(void (^)(NSError *))failure{
+- (NSURLSessionDataTask *)getTopicsWithPage:(NSInteger)page forMemberName:(NSString *)username success:(void (^)(CCMemberTopicsModel *model))success failure:(void (^)(NSError *error))failure{
     NSString *urlString = @"user_actions.json";
     NSDictionary *parameters = @{
                                  @"offset":@((page-1)*60),
@@ -837,7 +837,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
 
 //User's bookmark
 
-- (NSURLSessionDataTask *)getMyBookmarksWithPage:(NSInteger)page success:(void (^)(CCUserBookmarksModel *))success failure:(void (^)(NSError *))failure{
+- (NSURLSessionDataTask *)getMyBookmarksWithPage:(NSInteger)page success:(void (^)(CCUserBookmarksModel *model))success failure:(void (^)(NSError *error))failure{
     NSString *urlString = @"user_actions.json";
     NSDictionary *parameters = @{
                                  @"offset":@((page-1)*60),
@@ -861,6 +861,26 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
     }];
 }
 
+//Current user detail
+
+- (NSURLSessionDataTask *)getCurrentUserDetailSuccess:(void (^)(CCUserModel *model))success failure:(void (^)(NSError *error))failure{
+    NSString *urlString = [NSString stringWithFormat:@"users/%@.json", self.user.member.memberUserName];
+    
+    return [self requestWithMethod:CCRequestMethodFADEXHR URLString:urlString parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        
+        if ([responseObject objectForKey:@"user"]) {
+            CCUserModel *user = [CCUserModel getUserWithDetailedRespondObject:responseObject];
+            self.user = user;
+            success(user);
+        }else{
+            NSError *error = [[NSError alloc] initWithDomain:kBaseUrl code:CCErrorTypeGetUserProfileFailure userInfo:nil];
+            failure(error);
+        }
+        
+    } failure:^(NSError *error) {
+        failure(error);
+    }];
+}
 
 
 
@@ -875,16 +895,7 @@ typedef NS_ENUM(NSInteger, CCRequestMethod){
 
 
 
-
-
-
-
-
-
-
-
-
-
+// ******************************************************************************************************************************* //
 
 #pragma mark - Private Methods
 

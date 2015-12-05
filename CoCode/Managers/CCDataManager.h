@@ -38,6 +38,7 @@ typedef NS_ENUM(NSInteger, CCErrorType) {
     CCErrorTypeGetMemberPostsFailure    = 919,
     CCErrorTypeGetMemberTopicsFailure   = 920,
     CCErrorTypeGetUserBookmarksFailure  = 921,
+    CCErrorTypeGetUserProfileFailure    = 922,
     
 };
 
@@ -144,20 +145,24 @@ typedef NS_ENUM(NSInteger, CCPostActionType) {
 
 - (NSURLSessionDataTask *)getPostsWithPage:(NSInteger)page
                              forMemberName:(NSString *)username
-                                   success:(void (^)(CCMemberPostsModel *))success
+                                   success:(void (^)(CCMemberPostsModel *model))success
                                    failure:(void (^)(NSError *error))failure;
 
 //Member's topics
 
 - (NSURLSessionDataTask *)getTopicsWithPage:(NSInteger)page
                               forMemberName:(NSString *)username
-                                    success:(void (^)(CCMemberTopicsModel *))success
+                                    success:(void (^)(CCMemberTopicsModel *model))success
                                     failure:(void (^)(NSError *error))failure;
 
 //User's bookmark
 
 - (NSURLSessionDataTask *)getMyBookmarksWithPage:(NSInteger)page
-                                         success:(void (^) (CCUserBookmarksModel *))success
+                                         success:(void (^) (CCUserBookmarksModel *model))success
                                          failure:(void (^)(NSError *))failure;
+
+//Current user detail
+
+- (NSURLSessionDataTask *)getCurrentUserDetailSuccess:(void (^)(CCUserModel *model))success failure:(void (^)(NSError *))failure;
 
 @end

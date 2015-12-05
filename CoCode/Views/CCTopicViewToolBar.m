@@ -65,7 +65,7 @@
 - (void)setModel:(CCTopicModel *)model{
     _model = model;
     
-    self.replyCountLabel.text = [NSString stringWithFormat:@"%d", model.topicPostsCount.intValue-1];
+    self.replyCountLabel.text = [NSString stringWithFormat:@"%d", MAX(0, model.topicPostsCount.intValue-1)];
     [self setNeedsLayout];
 }
 

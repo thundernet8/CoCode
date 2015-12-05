@@ -19,6 +19,7 @@
 
 //@property (nonatomic, copy) NSString *memberEmail;
 @property (nonatomic, copy) NSString *memberIntro;
+@property (nonatomic, copy) NSString *memberWebsiteName;
 @property (nonatomic, copy) NSString *memberWebsite;
 
 @property (nonatomic, copy) NSDate *memberLastPostTime;

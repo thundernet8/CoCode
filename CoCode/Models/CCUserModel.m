@@ -23,10 +23,32 @@
     return self;
 }
 
+- (instancetype)initWithDetailedProfileDictionary:(NSDictionary *)dict{
+    self = [super init];
+    
+    if (self) {
+        self.member = [[CCMemberModel alloc] initWithUserDictionary:dict];
+        self.login = YES;
+        self.email = [dict objectForKey:@"email"];
+    }
+    
+    return self;
+}
+
 + (CCUserModel *)getUserWithLoginRespondObject:(NSDictionary *)respondeObject{
     CCUserModel *user = [[CCUserModel alloc] initWithLoginRespondeObject:respondeObject];
     //CCMemberModel *member = user.member;
     return user;
+}
+
++ (CCUserModel *)getUserWithDetailedRespondObject:(NSDictionary *)respondeObject{
+    if ([respondeObject objectForKey:@"user"]) {
+        NSDictionary *userDict = [respondeObject objectForKey:@"user"];
+        CCUserModel *user = [[CCUserModel alloc] initWithDetailedProfileDictionary:userDict];
+        return user;
+    }
+    
+    return nil;
 }
 
 @end

@@ -11,6 +11,7 @@
 #import "SVProgressHUD.h"
 #import "CCSettingManager.h"
 #import "CCSettingCell.h"
+#import "CCMyAccountViewController.h"
 
 @interface CCSettingViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -59,8 +60,6 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     
-    [UIApplication sharedApplication].statusBarStyle = kStatusBarStyle;
-    
 }
 
 - (void)dealloc{
@@ -84,7 +83,9 @@
     self.tableView.separatorColor = kSeparatorColor;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
-    self.tableView.scrollEnabled = NO;
+    if (kScreenHeight > 530) {
+        self.tableView.scrollEnabled = NO;
+    }
     
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
@@ -183,20 +184,13 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     if (indexPath.section == 0 && self.isLogged) {
-        
+        CCMyAccountViewController *myAccountVC = [[CCMyAccountViewController alloc] init];
+        [self.navigationController pushViewController:myAccountVC animated:YES];
     }
     
     if ((indexPath.section == 1 && self.isLogged)||(indexPath.section == 0 && !self.isLogged)) {
         switch (indexPath.row) {
-            case 0:
-                
-                break;
-                
-            case 1:
-                
-                break;
-                
-            case 2:
+            case 3:
                 [self clearCache];
                 break;
                 
@@ -206,7 +200,8 @@
     }
     
     if ((indexPath.section == 2 && self.isLogged)||(indexPath.section == 1 && !self.isLogged)) {
-
+        NSURL *url = [NSURL URLWithString:@"itms-apps://itunes.apple.com/us/app/cocode-she-qu/id1054342776?l=zh&ls=1&mt=8"];
+        [[UIApplication sharedApplication] openURL:url];
     }
     
     if ((indexPath.section == 3 && self.isLogged)||(indexPath.section == 2 && !self.isLogged)) {
@@ -254,7 +249,8 @@
     }
     
     if ((indexPath.section == 2 && self.isLogged)||(indexPath.section == 1 && !self.isLogged)) {
-        cell.textLabel.text = NSLocalizedString(@"About CoCode", nil);
+        //cell.textLabel.text = NSLocalizedString(@"About CoCode", nil);
+        cell.textLabel.text = NSLocalizedString(@"Review CoCode", nil);
     }
     
     if ((indexPath.section == 3 && self.isLogged)||(indexPath.section == 2 && !self.isLogged)) {
@@ -265,7 +261,7 @@
     
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.backgroundColor = kCellHighlightedColor;
-    
+
     return cell;
 }
 
