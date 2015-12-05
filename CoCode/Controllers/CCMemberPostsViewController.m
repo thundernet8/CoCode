@@ -44,6 +44,8 @@
     
     [self configureNotifications];
     [self configureBlocks];
+    
+    [self beginRefresh];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,13 +60,7 @@
 
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    
-    @weakify(self);
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        @strongify(self);
-        [self beginRefresh];
-    });
+
 }
 
 - (void)dealloc{

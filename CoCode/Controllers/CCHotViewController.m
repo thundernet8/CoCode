@@ -7,7 +7,6 @@
 //
 
 #import "CCHotViewController.h"
-#import <NSString+FontAwesome.h>
 #import "UIImage+Tint.h"
 #import "CCDataManager.h"
 #import "CCTopicListCell.h"

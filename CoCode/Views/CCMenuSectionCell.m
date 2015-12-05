@@ -7,7 +7,6 @@
 //
 
 #import "CCMenuSectionCell.h"
-#import <UIImage+FontAwesome.h>
 
 static CGFloat const kCellHeight = 60;
 static CGFloat const kFontSize = 18.0;

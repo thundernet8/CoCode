@@ -8,7 +8,6 @@
 
 #import "CCMessagePostCell.h"
 #import <DTCoreText.h>
-#import <NSAttributedString+YYText.h>
 #import "CCTextAttachment.h"
 #import "NSString+AttachmentParser.h"
 

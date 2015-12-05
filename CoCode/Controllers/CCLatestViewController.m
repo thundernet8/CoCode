@@ -7,7 +7,6 @@
 //
 
 #import "CCLatestViewController.h"
-#import <NSString+FontAwesome.h>
 #import "UIImage+Tint.h"
 #import "CCDataManager.h"
 #import "CCHelper.h"
