@@ -60,7 +60,6 @@ PODS:
   - DTWebArchive/Core (0.0.3)
   - DTWebArchive/iOS (0.0.3):
     - DTWebArchive/Core
-  - FontAwesome+iOS (0.0.1)
   - FrameAccessor (1.3.2)
   - FXKeychain (1.5.3)
   - IDMPhotoBrowser (1.7):
@@ -83,7 +82,6 @@ PODS:
   - TTTAttributedLabel (1.13.4)
   - WeiboSDK (3.1.3)
   - WeixinSDK (1.4.3)
-  - YYText (0.9.4)
 
 DEPENDENCIES:
   - AFNetworking (~> 2.6.0)
@@ -91,7 +89,6 @@ DEPENDENCIES:
   - BlocksKit (~> 2.2.5)
   - DTCoreText (~> 1.6.16)
   - DTRichTextEditor (~> 1.6.11)
-  - FontAwesome+iOS (from `https://raw.githubusercontent.com/WuXueqian/PersonalPodSpec/master/Spec/FontAwesome%2BiOS.podspec`)
   - FrameAccessor (~> 1.3.2)
   - FXKeychain (~> 1.5.3)
   - IDMPhotoBrowser (~> 1.7)
@@ -107,11 +104,8 @@ DEPENDENCIES:
   - TTTAttributedLabel (~> 1.13.4)
   - WeiboSDK (from `https://github.com/sinaweibosdk/weibo_ios_sdk.git`)
   - WeixinSDK (~> 1.4.3)
-  - YYText (~> 0.9.4)
 
 EXTERNAL SOURCES:
-  FontAwesome+iOS:
-    :podspec: https://raw.githubusercontent.com/WuXueqian/PersonalPodSpec/master/Spec/FontAwesome%2BiOS.podspec
   WeiboSDK:
     :git: https://github.com/sinaweibosdk/weibo_ios_sdk.git
 
@@ -130,7 +124,6 @@ SPEC CHECKSUMS:
   DTLoupe: 0f9494c262830401983e50c5bbdda38b9660db5e
   DTRichTextEditor: 0b2288f389df071622dde02b52f7c375e00b91af
   DTWebArchive: 2029610e2e2fda5b6d51a386b13b1484b7b197ba
-  FontAwesome+iOS: bdde1ebae05a0dd683af1759ed7177d77c86e168
   FrameAccessor: 0f7ba6ce37be9a5d0302a27c731dca70af8d438b
   FXKeychain: 2fe54573946ffef634f4e2a2851e6c8f4ea15e76
   IDMPhotoBrowser: 1155caa03f8705b7943c074c26b55aadd43d71da
@@ -147,6 +140,5 @@ SPEC CHECKSUMS:
   TTTAttributedLabel: 0a2ac7b2dd726d32a070dafb01446026b11e624f
   WeiboSDK: 5f2a707c4569a64f4641f4171acd712016f24342
   WeixinSDK: 012c72fbaf8cef68afa7b0d0bb81c67a7a5c9136
-  YYText: 67a80bd0ac293832dae4830c7e25f837ffd99488
 
 COCOAPODS: 0.39.0
