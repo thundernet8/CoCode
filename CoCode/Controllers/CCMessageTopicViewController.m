@@ -81,9 +81,7 @@
 - (void)setMessagePosts:(CCMessageTopicPostsModel *)messagePosts{
     
     if (self.messagePosts.lists.count > 0 && self.pageCount > 1) {
-        NSArray *posts = [NSArray array];
-        
-        posts = [messagePosts.lists arrayByAddingObjectsFromArray:_messagePosts.lists];
+        NSArray *posts = [messagePosts.lists arrayByAddingObjectsFromArray:_messagePosts.lists];
         
         messagePosts.lists = posts;
     }

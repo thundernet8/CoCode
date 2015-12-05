@@ -50,7 +50,7 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil{
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, -20, kScreenWidth, 200)];
+        
     }
     
     return self;
@@ -161,12 +161,14 @@
     self.tableView.backgroundColor = kBackgroundColorWhiteDark;
     self.tableView.separatorColor = kSeparatorColor;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.scrollEnabled = NO;
+    if (kScreenHeight>480) {
+        self.tableView.scrollEnabled = NO;
+    }
     self.tableView.tableFooterView = [UIView new];
     
     self.tableView.tableHeaderView = [self configureTableHeaderView];
     
-    self.tableView.contentInsetTop = 0;
+    self.tableView.contentInsetTop = -20;
     
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
@@ -176,8 +178,9 @@
 }
 
 - (UIView *)configureTableHeaderView{
-    self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, kScreenWidth, 180)];
-
+    self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, kScreenWidth, 200.0)];
+    self.headerView.clipsToBounds = YES;
+    self.backgroundImageView = [[UIImageView alloc] initWithFrame:self.headerView.frame];
     self.backgroundImageView.contentMode = UIViewContentModeScaleAspectFill;
     self.backgroundImageView.image = [[UIImage alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"profile_head_bg" ofType:@"png"]];
     self.backgroundImageView.alpha = kSetting.imageViewAlphaForCurrentTheme;
@@ -198,7 +201,7 @@
     }
     
     
-    self.avatarMaskView = [[UIView alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-kAvatarMaskHeight/2.0, 36.0, kAvatarMaskHeight, kAvatarMaskHeight)];
+    self.avatarMaskView = [[UIView alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-kAvatarMaskHeight/2.0, 50.0, kAvatarMaskHeight, kAvatarMaskHeight)];
     self.avatarMaskView.backgroundColor = [UIColor clearColor];
     self.avatarMaskView.layer.cornerRadius = kAvatarMaskHeight/2.0;
     self.avatarMaskView.layer.borderColor = [UIColor colorWithWhite:1.000 alpha:0.360].CGColor;
@@ -210,7 +213,7 @@
     
     
     if (self.member.memberUserName.length > 0 || self.member.memberName.length > 0) {
-        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-100, kAvatarMaskHeight+36+10, 200.0, 30.0)];
+        self.nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(kScreenWidth/2.0-100, kAvatarMaskHeight+50+10, 200.0, 30.0)];
         self.nameLabel.text = self.member.memberName.length > 0 ? self.member.memberName : self.member.memberUserName;
 
         self.nameLabel.textColor = kWhiteColor;
@@ -287,6 +290,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
     return 50.0;
 }
 
@@ -439,23 +443,37 @@
 }
 
 - (void)pushNotificationListViewController{
+    if (![CCDataManager sharedManager].user.isLogin) {
+        return;
+    }
     CCNotificationListViewController *notificationListVC = [[CCNotificationListViewController alloc] init];
     [self.navigationController pushViewController:notificationListVC animated:YES];
 }
 
 - (void)pushMemberTopicsViewController{
+    if (!self.member) {
+        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Needs login", nil)];
+        return;
+    }
     CCMemberTopicsViewController *memberTopicsVC = [[CCMemberTopicsViewController alloc] init];
     memberTopicsVC.member = self.member;
     [self.navigationController pushViewController:memberTopicsVC animated:YES];
 }
 
 - (void)pushMemberPostsViewController{
+    if (!self.member) {
+        [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_info"] withText:NSLocalizedString(@"Needs login", nil)];
+        return;
+    }
     CCMemberPostsViewController *memberPostsVC = [[CCMemberPostsViewController alloc] init];
     memberPostsVC.member = self.member;
     [self.navigationController pushViewController:memberPostsVC animated:YES];
 }
 
 - (void)pushUserBookmarksViewController{
+    if (![CCDataManager sharedManager].user.isLogin) {
+        return;
+    }
     CCMyBookmarksViewController *userBookmarksVC = [[CCMyBookmarksViewController alloc] init];
     [self.navigationController pushViewController:userBookmarksVC animated:YES];
 }
