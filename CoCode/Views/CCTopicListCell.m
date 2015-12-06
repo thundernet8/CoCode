@@ -135,7 +135,7 @@ static CGFloat const kTitleFontSize = 18.0;
     
     
     NSString *catString;
-    if (kScreenHeight > 480 && !_inCategory && topic.topicCategoryID.integerValue > 0) {
+    if (!_inCategory && topic.topicCategoryID.integerValue > 0) {
         NSDictionary *cat = [CCHelper getCategoryInfoFromPlistForID:topic.topicCategoryID];
         catString = [NSString stringWithFormat:@" · %@", [cat objectForKey:@"NAME"]];
     }else{
@@ -145,10 +145,8 @@ static CGFloat const kTitleFontSize = 18.0;
     self.leftMetaLabel.text = [NSString stringWithFormat:@"%@ · %@%@", topic.topicLastReplier, dateString, catString];
     
     
-    if (kScreenHeight > 480) {
-        //iPhone 4s crash here, I do not know why
-        self.rightMetaLabel.text = [NSString stringWithFormat:@"%d %@   %d %@", topic.topicViews.intValue, NSLocalizedString(@"Views", nil), topic.topicPostsCount.intValue-1, NSLocalizedString(@"Replies", nil)];
-    }
+    
+    self.rightMetaLabel.text = [NSString stringWithFormat:@"%d %@   %d %@", (int)topic.topicViews, NSLocalizedString(@"Views", nil), (int)(topic.topicPostsCount-1), NSLocalizedString(@"Replies", nil)];
     
 }
 

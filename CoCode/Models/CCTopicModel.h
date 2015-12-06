@@ -23,12 +23,12 @@
 
 @interface CCTopicModel : NSObject
 
-@property (nonatomic, assign) NSNumber *topicID;
-@property (nonatomic, assign) NSNumber *postID;
+@property (nonatomic, copy) NSNumber *topicID;
+@property (nonatomic, copy) NSNumber *postID;
 @property (nonatomic, copy) NSString *topicTitle;
 @property (nonatomic, copy) NSString *topicSlug;
 @property (nonatomic, copy) NSString *topicContent;
-@property (nonatomic, assign) NSNumber *topicPostsCount;
+@property (nonatomic, assign) NSInteger topicPostsCount;
 @property (nonatomic, copy) NSString *topicThumbImage;
 @property (nonatomic, copy) NSDate *topicCreatedTime;
 @property (nonatomic, copy) NSDate *topicLastRepliedTime;
@@ -36,14 +36,14 @@
 @property (nonatomic, assign) BOOL isClosed;
 @property (nonatomic, assign) BOOL isBookmarked;
 @property (nonatomic, assign) BOOL isLiked;
-@property (nonatomic, assign) NSNumber *topicViews;
-@property (nonatomic, assign) NSNumber *topicLikeCount;
+@property (nonatomic, assign) NSInteger topicViews;
+@property (nonatomic, assign) NSInteger topicLikeCount;
 @property (nonatomic, copy) NSString *topicLastReplier;
-@property (nonatomic, assign) NSNumber *topicCategoryID;
+@property (nonatomic, copy) NSNumber *topicCategoryID;
 @property (nonatomic, strong) NSArray *topicTags;
 @property (nonatomic, strong) NSArray *topicPosters;
 @property (nonatomic, assign) CGFloat topicCellHeight;
-@property (nonatomic, assign) NSNumber *topicAuthorID;
+@property (nonatomic, copy) NSNumber *topicAuthorID;
 @property (nonatomic, copy) NSString *topicAuthorUserName;
 @property (nonatomic, copy) NSString *topicAuthorName;
 @property (nonatomic, copy) NSString *topicAuthorAvatar;

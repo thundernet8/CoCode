@@ -245,7 +245,7 @@
         cell = [[CCTopicListCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     CCTopicModel *topic = self.topicList.list[indexPath.row];
-    CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", (int)topic.topicAuthorID]];
+    CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", topic.topicAuthorID.intValue]];
     topic.topicAuthorAvatar = author.memberAvatarLarge;
     topic.topicAuthorName = author.memberName;
     
@@ -260,7 +260,7 @@
     
     CCTopicViewController *topicViewController = [[CCTopicViewController alloc] init];
     CCTopicModel *topic = self.topicList.list[indexPath.row];
-    CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", (int)topic.topicAuthorID]];
+    CCMemberModel *author = [self.topicList.posters objectForKey:[NSString stringWithFormat:@"ID%d", topic.topicAuthorID.intValue]];
     topic.topicAuthorAvatar = author.memberAvatarLarge;
     topic.topicAuthorName = author.memberName;
     topicViewController.topic = topic;

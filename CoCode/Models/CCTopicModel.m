@@ -18,7 +18,7 @@
         self.topicID = [dict objectForKey:@"id"];
         self.topicTitle = [dict objectForKey:@"title"];
         self.topicSlug = [dict objectForKey:@"slug"];
-        self.topicPostsCount = [dict objectForKey:@"posts_count"];
+        self.topicPostsCount = [[dict objectForKey:@"posts_count"] integerValue];
         self.topicThumbImage = [dict objectForKey:@"image_url"];
         self.topicCreatedTime = [CCHelper localDateWithString:[dict objectForKey:@"created_at"]];
         self.topicLastRepliedTime = [CCHelper localDateWithString:[dict objectForKey:@"last_posted_at"]];
@@ -26,8 +26,8 @@
         self.isClosed = [[dict objectForKey:@"closed"] boolValue];
         self.isBookmarked = [dict objectForKey:@"bookmarked"] != [NSNull null]?[[dict objectForKey:@"bookmarked"] boolValue]:NO;
         self.isLiked = [dict objectForKey:@"liked"] != [NSNull null]?[[dict objectForKey:@"liked"] boolValue]:NO;
-        self.topicViews = [dict objectForKey:@"views"];
-        self.topicLikeCount = [dict objectForKey:@"like_count"];
+        self.topicViews = [[dict objectForKey:@"views"] integerValue];
+        self.topicLikeCount = [[dict objectForKey:@"like_count"] integerValue];
         self.topicLastReplier = [dict objectForKey:@"last_poster_username"];
         self.topicCategoryID = [dict objectForKey:@"category_id"];
         self.topicTags = [dict objectForKey:@"tags"];
@@ -48,7 +48,7 @@
         self.topicID = [dict objectForKey:@"id"];
         self.topicTitle = [dict objectForKey:@"title"];
         self.topicSlug = [dict objectForKey:@"slug"];
-        self.topicPostsCount = [dict objectForKey:@"posts_count"];
+        self.topicPostsCount = [[dict objectForKey:@"posts_count"] integerValue];
         self.topicCreatedTime = [CCHelper localDateWithString:[dict objectForKey:@"created_at"]];
         self.topicLastRepliedTime = [CCHelper localDateWithString:[dict objectForKey:@"last_posted_at"]];
         self.isPinned = [[dict objectForKey:@"pinned"] boolValue];
@@ -58,8 +58,8 @@
         NSArray *actionArray = [[[[dict objectForKey:@"post_stream"] objectForKey:@"posts"] firstObject] objectForKey:@"actions_summary"];
         
         self.isLiked = [actionArray[0] objectForKey:@"acted"] != [NSNull null]?[[actionArray[0] objectForKey:@"acted"] boolValue]:NO;
-        self.topicViews = [dict objectForKey:@"views"];
-        self.topicLikeCount = [dict objectForKey:@"like_count"];
+        self.topicViews = [[dict objectForKey:@"views"] integerValue];
+        self.topicLikeCount = [[dict objectForKey:@"like_count"] integerValue];
         self.topicCategoryID = [dict objectForKey:@"category_id"];
         self.topicCategory = [[CCCategoryModel alloc] initWithDict:[CCHelper getCategoryInfoFromPlistForID:self.topicCategoryID]];
         self.topicTags = [dict objectForKey:@"tags"];
@@ -148,7 +148,7 @@
         NSMutableDictionary *posterDicts = [NSMutableDictionary dictionary];
         for (NSDictionary *dict in posters) {
             CCMemberModel *poster = [[CCMemberModel alloc] initWithPosterDictionary:dict];
-            [posterDicts setObject:poster forKey:[NSString stringWithFormat:@"ID%d",(int)poster.memberID]];
+            [posterDicts setObject:poster forKey:[NSString stringWithFormat:@"ID%d", poster.memberID.intValue]];
         }
         self.posters = [NSDictionary dictionaryWithDictionary:posterDicts];
     }
