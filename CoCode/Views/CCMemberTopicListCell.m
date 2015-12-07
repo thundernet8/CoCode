@@ -7,6 +7,7 @@
 //
 
 #import "CCMemberTopicListCell.h"
+#import "HTMLParser.h"
 
 @interface CCMemberTopicListCell()
 
@@ -68,7 +69,14 @@
     [super didMoveToSuperview];
     
     self.titleLabel.text = self.topic.topicTitle;
-    self.contentLabel.text = self.topic.topicContent;
+    
+    //TODO clear
+    @autoreleasepool {
+        HTMLParser *parser = [[HTMLParser alloc] initWithString:self.topic.topicContent error:nil];
+        HTMLNode *body = [parser body];
+        self.contentLabel.text = [body allContents];
+    }
+    //self.contentLabel.text = self.topic.topicContent;
     self.timeLabel.text = [CCHelper timeShortIntervalStringWithDate:self.topic.topicCreatedTime];
 }
 

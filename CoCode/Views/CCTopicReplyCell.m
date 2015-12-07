@@ -8,6 +8,7 @@
 
 #import "CCTopicReplyCell.h"
 #import <IDMPhotoBrowser.h>
+#import "CCWebViewController.h"
 #import <UIImageView+WebCache.h>
 #import "CoCodeAppDelegate.h"
 #import "CCDataManager.h"
@@ -182,6 +183,27 @@
 
 #pragma mark - DT Delegate
 
+- (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForLink:(NSURL *)url identifier:(NSString *)identifier frame:(CGRect)frame{
+    
+    DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:frame];
+    button.URL = url;
+    button.minimumHitSize = CGSizeMake(25, 25); // adjusts it's bounds so that button is always large enough
+    button.GUID = identifier;
+    
+    // get image with normal link text
+    UIImage *normalImage = [attributedTextContentView contentImageWithBounds:frame options:DTCoreTextLayoutFrameDrawingDefault];
+    [button setImage:normalImage forState:UIControlStateNormal];
+    
+    // get image for highlighted link text
+    UIImage *highlightImage = [attributedTextContentView contentImageWithBounds:frame options:DTCoreTextLayoutFrameDrawingDrawLinksHighlighted];
+    [button setImage:highlightImage forState:UIControlStateHighlighted];
+    
+    // use normal push action for opening URL
+    [button addTarget:self action:@selector(linkPushed:) forControlEvents:UIControlEventTouchUpInside];
+    
+    return button;
+}
+
 - (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForAttachment:(DTTextAttachment *)attachment frame:(CGRect)frame{
     if ([attachment isKindOfClass:[DTVideoTextAttachment class]])
     {
@@ -301,7 +323,10 @@
     
     if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
     {
-        [[UIApplication sharedApplication] openURL:[URL absoluteURL]];
+        //[[UIApplication sharedApplication] openURL:[URL absoluteURL]];
+        CCWebViewController *webviewVC = [[CCWebViewController alloc] init];
+        webviewVC.url = URL;
+        [self.nav pushViewController:webviewVC animated:YES];
     }
     else
     {

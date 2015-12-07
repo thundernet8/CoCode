@@ -9,6 +9,7 @@
 #import "CCTopicBodyCell.h"
 
 #import <IDMPhotoBrowser.h>
+#import "CCWebViewController.h"
 #import <AnimatedGIFImageSerialization.h>
 #import "CCTopicPostModel.h"
 #import "CoCodeAppDelegate.h"
@@ -108,7 +109,7 @@
         
         NSMutableDictionary *options = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:1.0], NSTextSizeMultiplierDocumentOption, [NSValue valueWithCGSize:CGSizeMake(kScreenWidth, CGFLOAT_MAX)], DTMaxImageSize,
                                         @"Arial", DTDefaultFontFamily, @"blue", DTDefaultLinkHighlightColor, callBackBlock, DTWillFlushBlockCallBack, css, DTDefaultStyleSheet, kFontColorBlackDark, DTDefaultTextColor, nil];
-        [options setObject:[NSURL URLWithString:@"http://cocode.cc"] forKey:NSBaseURLDocumentOption];
+        [options setObject:[NSURL URLWithString:kBaseUrl] forKey:NSBaseURLDocumentOption];
         
         self.bodyLabel.attributedString = [[NSAttributedString alloc] initWithHTMLData:[post.postContent dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
         
@@ -338,39 +339,6 @@
     return YES; // draw standard background
 }
 
-- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange{
-
-    UIApplication *app = [UIApplication sharedApplication];
-    if ([[URL scheme] isEqualToString:@"applewebdata"]) {
-        NSURL *httpUrl = [NSURL URLWithString:[URL.absoluteString stringByReplacingOccurrencesOfString:@"applewebdata://" withString:@"http://"]];
-        
-        NSString *suffix = [httpUrl.absoluteString substringFromIndex:httpUrl.absoluteString.length-4];
-        suffix = [suffix lowercaseString];
-        NSArray *suffixs = @[@".png",@".jpg",@"jpeg",@".gif",@".bmp"];
-        if (![suffixs containsObject:suffix]) {
-            return NO;
-        }
-
-        NSArray *photos = [IDMPhoto photosWithURLs:@[httpUrl]];
-        
-        IDMPhotoBrowser *browser = [[IDMPhotoBrowser alloc] initWithPhotos:photos animatedFromView:self.nav.view];
-        browser.delegate = self;
-        browser.displayActionButton = NO;
-        browser.displayArrowButton = NO;
-        browser.displayCounterLabel = YES;
-        [browser setInitialPageIndex:0];
-        
-        [AppDelegate.window.rootViewController presentViewController:browser animated:YES completion:nil];
-        return YES;
-    }
-    
-    if ([app canOpenURL:URL]) {
-        [app openURL:URL];
-        
-        return YES;
-    }
-    return NO;
-}
 
 #pragma mark - DTLazyImageViewDelegate
 
@@ -438,7 +406,10 @@
     
     if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
     {
-        [[UIApplication sharedApplication] openURL:[URL absoluteURL]];
+        //[[UIApplication sharedApplication] openURL:[URL absoluteURL]];
+        CCWebViewController *webviewVC = [[CCWebViewController alloc] init];
+        webviewVC.url = URL;
+        [self.nav pushViewController:webviewVC animated:YES];
     }
     else
     {

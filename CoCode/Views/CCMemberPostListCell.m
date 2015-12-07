@@ -7,6 +7,7 @@
 //
 
 #import "CCMemberPostListCell.h"
+#import "HTMLParser.h"
 
 @interface CCMemberPostListCell()
 
@@ -67,8 +68,14 @@
 - (void)didMoveToSuperview{
     [super didMoveToSuperview];
     
+    //TODO clear
+    @autoreleasepool {
+        HTMLParser *parser = [[HTMLParser alloc] initWithString:self.post.postContent error:nil];
+        HTMLNode *body = [parser body];
+        self.replyLabel.text = [body allContents];
+    }
     self.titleLabel.text = self.post.title;
-    self.replyLabel.text = self.post.postContent;
+    //self.replyLabel.text = self.post.postContent;
     self.timeLabel.text = [CCHelper timeShortIntervalStringWithDate:self.post.postCreatedTime];
 }
 
