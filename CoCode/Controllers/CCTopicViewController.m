@@ -171,7 +171,7 @@
         @strongify(self);
         [self bookmarkPost];
     }];
-    SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_nav_share2"] style:SCBarButtonItemStylePlain handler:^(id sender) {
+    SCBarButtonItem *bar3 = [[SCBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"icon_nav_share"] style:SCBarButtonItemStylePlain handler:^(id sender) {
         
         @strongify(self);
         
