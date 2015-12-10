@@ -7,12 +7,13 @@
 //
 
 #import "CCTopicModel.h"
+#import "CCTopicViewController.h"
 
 @interface CCTopicBodyCell : UITableViewCell
 
-@property (nonatomic, strong)CCTopicModel *topic;
-@property (nonatomic, assign)UINavigationController *nav;
-
+@property (nonatomic, strong) CCTopicModel *topic;
+@property (nonatomic, assign) UINavigationController *nav;
+@property (nonatomic, assign) CCTopicViewController *topicVC;
 @property (nonatomic, copy) void (^reloadCellBlcok)();
 
 - (CGFloat)getCellHeight;

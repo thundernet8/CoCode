@@ -12,6 +12,7 @@
 @interface CCTopicViewController : SCPullRefreshViewController
 
 @property (nonatomic, strong) CCTopicModel *topic;
+@property (nonatomic, copy) void (^shareBlock)();
 
 //@property (nonatomic, assign, getter = isCreate) BOOL create;
 

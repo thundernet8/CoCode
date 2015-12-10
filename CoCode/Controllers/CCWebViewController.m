@@ -9,6 +9,8 @@
 #import "CCWebViewController.h"
 #import "SCCircularRefreshView.h"
 
+#import "CCShareManager.h"
+
 @interface CCWebViewController () <UIWebViewDelegate>
 
 @property (nonatomic, strong) UIWebView *webView;
@@ -43,7 +45,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
+    [self configureNotification];
 }
 
 - (void)viewWillAppear:(BOOL)animated{
@@ -69,6 +72,13 @@
     [super viewDidAppear:animated];
     
     [self loadContent];
+}
+
+- (void)dealloc{
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSLog(@"dealloc");
+    
 }
 
 #pragma mark - Configuration
@@ -118,12 +128,18 @@
     self.backwardButton.enabled = NO;
     [self.backwardButton setImage:[UIImage imageNamed:@"icon_button_backward"] forState:UIControlStateNormal];
     [self.backwardButton setImage:[[UIImage imageNamed:@"icon_button_backward"] imageWithTintColor:[UIColor colorWithWhite:0.737 alpha:1.000]] forState:UIControlStateDisabled];
+    [self.backwardButton bk_addEventHandler:^(id sender) {
+        [self.webView goBack];
+    } forControlEvents:UIControlEventTouchUpInside];
     [self.toolBar addSubview:self.backwardButton];
     
     self.forwardButton = [[UIButton alloc] init];
     self.forwardButton.enabled = NO;
     [self.forwardButton setImage:[UIImage imageNamed:@"icon_button_backward"] forState:UIControlStateNormal];
     [self.forwardButton setImage:[[UIImage imageNamed:@"icon_button_forward"] imageWithTintColor:[UIColor colorWithWhite:0.737 alpha:1.000]] forState:UIControlStateDisabled];
+    [self.forwardButton bk_addEventHandler:^(id sender) {
+        [self.webView goForward];
+    } forControlEvents:UIControlEventTouchUpInside];
     [self.toolBar addSubview:self.forwardButton];
     
     self.refreshIconView = [[SCCircularRefreshView alloc] init];
@@ -148,11 +164,27 @@
     
 }
 
+- (void)configureNotification{
+    
+    @weakify(self);
+    [[NSNotificationCenter defaultCenter] addObserverForName:kThemeDidChangeNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        @strongify(self);
+        self.toolBar.backgroundColor = kBackgroundColorWhite;
+        self.noticeLabel.textColor = kFontColorBlackLight;
+        self.backgroundView.backgroundColor = kBackgroundColorGray;
+    }];
+}
+
 #pragma mark - Webview Delegate
 
 - (void)webViewDidStartLoad:(UIWebView *)webView{
     
-    self.noticeLabel.text = [NSString stringWithFormat:@"%@ %@ %@", NSLocalizedString(@"Page appears by(left)", nil), webView.request.URL.absoluteString, NSLocalizedString(@"Page appears by(right)", nil)];
+    if(self.sc_navigationItem.title.length==0)self.sc_navigationItem.title = NSLocalizedString(@"Loading...", nil);
+    [self.refreshIconView beginRefreshing];
+    self.refreshIconView.alpha = 1;
+    self.refreshButton.enabled = NO;
+    
+    self.noticeLabel.text = [NSString stringWithFormat:@"%@ %@ %@", NSLocalizedString(@"Page appears by(left)", nil), self.url.host, NSLocalizedString(@"Page appears by(right)", nil)];
     
     self.backwardButton.enabled = webView.canGoBack;
     self.backwardButton.enabled = webView.canGoForward;
@@ -161,7 +193,7 @@
 - (void)webViewDidFinishLoad:(UIWebView *)webView{
     
     NSString *title=[self.webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-    self.sc_navigationItem.title = title;
+    if(title.length)self.sc_navigationItem.title = title;
     
     NSString *readyState = [self.webView stringByEvaluatingJavaScriptFromString:@"document.readyState"];
     
@@ -199,33 +231,38 @@
     if (self.webView.loading) {
         return;
     }
-    
+
     //UIActivityViewController
-    NSString *textToShare = self.sc_navigationItem.title;
-    NSURL *urlToShare = self.webView.request.URL;
-    NSArray *activityItems = @[textToShare, urlToShare];
+//    NSString *textToShare = self.sc_navigationItem.title;
+//    NSURL *urlToShare = self.webView.request.URL;
+//    NSArray *activityItems = @[textToShare, urlToShare];
+//    
+//    UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:activityItems applicationActivities:nil];
+//    UIActivityViewControllerCompletionWithItemsHandler block = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError)
+//    {
+//        NSLog(@"activityType :%@", activityType);
+//        if (completed)
+//        {
+//            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Share Article Successfully", nil)];
+//            NSLog(@"completed");
+//        }
+//        else
+//        {
+//            NSLog(@"cancel");
+//        }
+//        
+//        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+//        
+//    };
+//    
+//    activityVC.completionWithItemsHandler = block;
+//    
+//    [self.navigationController presentViewController:activityVC animated:YES completion:nil];
     
-    UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:activityItems applicationActivities:nil];
-    UIActivityViewControllerCompletionWithItemsHandler block = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError)
-    {
-        NSLog(@"activityType :%@", activityType);
-        if (completed)
-        {
-            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Share Article Successfully", nil)];
-            NSLog(@"completed");
-        }
-        else
-        {
-            NSLog(@"cancel");
-        }
-        
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-        
-    };
-    
-    activityVC.completionWithItemsHandler = block;
-    
-    [self.navigationController presentViewController:activityVC animated:YES completion:nil];
+    //Share Manager
+    CCShareManager *manager = [CCShareManager sharedManager];
+    [manager setShareTitle:[self.webView stringByEvaluatingJavaScriptFromString:@"document.title"] shareContent:@"" image:nil url:self.webView.request.URL.absoluteString];
+    [manager showShareSheet];
     
 }
 

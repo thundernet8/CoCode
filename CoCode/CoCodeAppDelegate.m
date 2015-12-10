@@ -8,6 +8,7 @@
 
 #import "CoCodeAppDelegate.h"
 #import "CCRootViewController.h"
+#import "CCShareManager.h"
 
 @interface CoCodeAppDelegate ()
 
@@ -25,6 +26,7 @@
     
     //Pre load Manager
     [CCSettingManager sharedManager];
+    [CCShareManager sharedManager];
     
     //Configure Window
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
@@ -34,6 +36,16 @@
     [self.window makeKeyAndVisible];
     
     return YES;
+}
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url{
+    
+    return [[CCShareManager sharedManager] handleOpenUrl:url];
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation{
+    
+    return [[CCShareManager sharedManager] handleOpenUrl:url];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

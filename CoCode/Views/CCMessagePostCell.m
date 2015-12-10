@@ -207,6 +207,9 @@ static NSInteger const kFontSize = 15;
         DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:imageView.bounds];
         button.minimumHitSize = CGSizeMake(25, 25);
         button.URL = attachment.hyperLinkURL?attachment.hyperLinkURL:imageView.url;
+        if ([[button.URL.absoluteString substringToIndex:2] isEqualToString:@"//"]) {
+            button.URL = [NSURL URLWithString:[@"http:" stringByAppendingString:button.URL.absoluteString]];
+        }
         
         if (kSetting.nonePicsMode && ![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
             UIImage *placeHolderImage = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"placeholder-image" ofType:@"png"]]];

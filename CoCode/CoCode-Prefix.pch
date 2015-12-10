@@ -15,7 +15,6 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import <AFNetworking.h>
-#import <Reachability.h>
 #import <BlocksKit.h>
 #import <BlocksKit+UIKit.h>
 #import <SDWebImageManager.h>
@@ -84,6 +83,13 @@
 #define kSeparatorColor            kSetting.separatorColor
 
 #define kBackgroundColorGray       kSetting.backgroundColorGray
+
+//Social share key
+
+#define kWeixinAppKey              @"xxx"
+#define kWeixinAppSecret           @"xxx"
+#define kQQKey                     @"xxx"
+#define kQQSecret                  @"xxx"
 
 //Hottopic period
 typedef NS_ENUM(NSInteger, CCHotTopicsPeriod){

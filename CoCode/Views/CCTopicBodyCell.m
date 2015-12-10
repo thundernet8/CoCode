@@ -23,6 +23,7 @@
 #import "SCCircularRefreshView.h"
 
 #import "HTMLParser.h"
+#import "CCShareManager.h"
 
 // dstatic const CGFloat kBodyFontSize = 16.0;
 
@@ -37,6 +38,7 @@
 @property (nonatomic, strong) NSMutableArray *imageArray;
 @property (nonatomic, strong) NSMutableArray *imageButtonArray;
 @property (nonatomic, strong) NSMutableArray *imageUrls;
+@property (nonatomic, strong) NSMutableArray *imageThumbUrls;
 
 @property (nonatomic, strong) NSURL *lastActionLink;
 @property (nonatomic, strong) UIImage *lastActionImage;
@@ -55,6 +57,7 @@
         self.imageArray = [NSMutableArray array];
         self.imageButtonArray = [NSMutableArray array];
         self.imageUrls = [NSMutableArray array];
+        self.imageThumbUrls = [NSMutableArray array];
         
         self.bodyLabel = [self createAttributedTextView];
 
@@ -75,6 +78,8 @@
     [super layoutSubviews];
     
     self.border.frame = CGRectMake(10.0, self.height - 0.5, kScreenWidth - 20, 0.5);
+    
+    [self configureShareBlock];
     
 }
 
@@ -142,25 +147,6 @@
     [self layoutContent];
 }
 
-#pragma mark - Create View
-
-- (UIImageView *)createImageView{
-    UIImageView *imageView = [[UIImageView alloc] init];
-    
-    imageView.backgroundColor = kBackgroundColorWhiteDark;
-    imageView.contentMode = UIViewContentModeCenter;
-    imageView.clipsToBounds = YES;
-    [self addSubview:imageView];
-    
-    UIButton *button = [[UIButton alloc] init];
-    [self addSubview:button];
-    
-    [self.imageArray addObject:imageView];
-    [self.imageButtonArray addObject:button];
-    
-    return imageView;
-}
-
 - (DTAttributedTextView *)createAttributedTextView{
     DTAttributedTextView *textView = [[DTAttributedTextView alloc] initWithFrame:CGRectZero];
     
@@ -217,6 +203,7 @@
 }
 
 - (UIView *)attributedTextContentView:(DTAttributedTextContentView *)attributedTextContentView viewForAttachment:(DTTextAttachment *)attachment frame:(CGRect)frame{
+
     if ([attachment isKindOfClass:[DTVideoTextAttachment class]])
     {
         //NSURL *url = (id)attachment.contentURL;
@@ -241,11 +228,15 @@
         //Collect image urls for gallery
         if (![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
             [self.imageUrls addObject:attachment.hyperLinkURL?attachment.hyperLinkURL:imageView.url];
+            [self.imageThumbUrls addObject:imageView.url];
         }
         
         DTLinkButton *button = [[DTLinkButton alloc] initWithFrame:imageView.bounds];
         button.minimumHitSize = CGSizeMake(25, 25);
         button.URL = attachment.hyperLinkURL?attachment.hyperLinkURL:imageView.url;
+        if ([[button.URL.absoluteString substringToIndex:2] isEqualToString:@"//"]) {
+            button.URL = [NSURL URLWithString:[@"http:" stringByAppendingString:button.URL.absoluteString]];
+        }
         
         if (kSetting.nonePicsMode && ![attachment.contentURL.absoluteString containsString:@"images/emoji"]) {
             UIImage *placeHolderImage = [[UIImage alloc] initWithData:[NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"placeholder-image" ofType:@"png"]]];
@@ -344,8 +335,6 @@
 
 - (void)lazyImageView:(DTLazyImageView *)lazyImageView didChangeImageSize:(CGSize)size {
     
-    NSLog(@"resize");
-    
     NSURL *url = lazyImageView.url;
     
     CGSize imageSize = size;
@@ -375,8 +364,14 @@
 
 #pragma mark - ActionSheet Delegate
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex{
     
+    //Notice
+    //Cocode image link like this "http://xxxx.PNG"
+    //The ext "PNG" must uppercase, as "http://xxx.png" responed 404
+    //But openURL functions cannot recognize it correctly
+    //As a alternative, I add a "#" to the url end
+    self.lastActionLink = [NSURL URLWithString:[self.lastActionLink.absoluteString stringByAppendingString:@"#"]];
     switch (buttonIndex) {
         case 0:
             if ([[UIApplication sharedApplication] canOpenURL:self.lastActionLink]) {
@@ -397,6 +392,29 @@
     }
     
 }
+
+#pragma mark - Share
+- (void)configureShareBlock{
+    
+    if (self.topicVC) {
+        self.topicVC.shareBlock = ^{
+            CCShareManager *manager = [CCShareManager sharedManager];
+            CCShareImage *image = nil;
+            if (self.imageThumbUrls.count) {
+                //Random image
+                int order = arc4random() % (self.imageThumbUrls.count);
+                NSURL *url = self.imageThumbUrls[order];
+                if ([[url.absoluteString substringToIndex:2] isEqualToString:@"//"]) {
+                    url = [NSURL URLWithString:[@"http:" stringByAppendingString:url.absoluteString]];
+                }
+                image = [[CCShareImage alloc] initWithImageUrl:url.absoluteString];
+            }
+            [manager setShareTitle:self.topic.topicTitle shareContent:self.topic.topicContent image:image url:self.topic.topicUrl.absoluteString];
+            [manager showShareSheet];
+        };
+    }
+}
+
 
 #pragma mark Actions
 
@@ -441,26 +459,6 @@
     
     [AppDelegate.window.rootViewController presentViewController:browser animated:YES completion:nil];
     
-//    NSURL *URL = button.URL;
-//
-//    if ([[UIApplication sharedApplication] canOpenURL:[URL absoluteURL]])
-//    {
-//        [[UIApplication sharedApplication] openURL:[URL absoluteURL]];
-//    }
-//    else
-//    {
-//        if (![URL host] && ![URL path])
-//        {
-//            
-//            // possibly a local anchor link
-//            NSString *fragment = [URL fragment];
-//            
-//            if (fragment)
-//            {
-//                [self.bodyLabel scrollToAnchorNamed:fragment animated:NO];
-//            }
-//        }
-//    }
 }
 
 - (void)linkLongPressed:(UILongPressGestureRecognizer *)gesture

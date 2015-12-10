@@ -21,6 +21,7 @@
 #import "CCTopicRepliesViewController.h"
 
 #import "CoCodeAppDelegate.h"
+#import "CCShareManager.h"
 
 @interface CCTopicViewController () <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate>
 
@@ -437,6 +438,7 @@
 - (CCTopicBodyCell *)configureBodyCell:(CCTopicBodyCell *)cell atIndexPath:(NSIndexPath *)indexPath{
     cell.topic = self.topic;
     cell.nav = self.navigationController;
+    cell.topicVC = self;
     @weakify(self);
     cell.reloadCellBlcok = ^{
         @strongify(self);
@@ -605,32 +607,37 @@
     }
     
     //UIActivityViewController
-    NSString *textToShare = self.topic.topicTitle;
-    NSURL *urlToShare = self.topic.topicUrl;
-    NSArray *activityItems = @[textToShare, urlToShare];
+//    NSString *textToShare = self.topic.topicTitle;
+//    NSURL *urlToShare = self.topic.topicUrl;
+//    NSArray *activityItems = @[textToShare, urlToShare];
+//    
+//    UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:activityItems applicationActivities:nil];
+//    UIActivityViewControllerCompletionWithItemsHandler block = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError)
+//    {
+//        NSLog(@"activityType :%@", activityType);
+//        if (completed)
+//        {
+//            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Share Article Successfully", nil)];
+//            NSLog(@"completed");
+//        }
+//        else
+//        {
+//            NSLog(@"cancel");
+//        }
+//        
+//        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+//        
+//    };
+//    
+//    activityVC.completionWithItemsHandler = block;
+//    
+//    [self.navigationController presentViewController:activityVC animated:YES completion:nil];
     
-    UIActivityViewController *activityVC = [[UIActivityViewController alloc]initWithActivityItems:activityItems applicationActivities:nil];
-    UIActivityViewControllerCompletionWithItemsHandler block = ^(NSString *activityType, BOOL completed, NSArray *returnedItems, NSError *activityError)
-    {
-        NSLog(@"activityType :%@", activityType);
-        if (completed)
-        {
-            [CCHelper showBlackHudWithImage:[UIImage imageNamed:@"icon_check"] withText:NSLocalizedString(@"Share Article Successfully", nil)];
-            NSLog(@"completed");
-        }
-        else
-        {
-            NSLog(@"cancel");
-        }
-        
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-        
-    };
+    //Share Manager
     
-    activityVC.completionWithItemsHandler = block;
-    
-    [self.navigationController presentViewController:activityVC animated:YES completion:nil];
-    
+    if (self.shareBlock) {
+        self.shareBlock();
+    }
 }
 
 //Error handle
