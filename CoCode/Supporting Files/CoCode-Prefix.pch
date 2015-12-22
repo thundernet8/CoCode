@@ -86,10 +86,10 @@
 
 //Social share key
 
-#define kWeixinAppKey              @"xxx"
-#define kWeixinAppSecret           @"xxx"
-#define kQQKey                     @"xxx"
-#define kQQSecret                  @"xxx"
+#define kWeixinAppKey              @"wx495db3b220d8eae8"
+#define kWeixinAppSecret           @"81f56d90ea70690b1564fc9800c4bb35"
+#define kQQKey                     @"1104931035"
+#define kQQSecret                  @"nFHknYiUfdwszgpX"
 
 //Hottopic period
 typedef NS_ENUM(NSInteger, CCHotTopicsPeriod){

@@ -83,7 +83,7 @@ static NSInteger const kAvatarHeight = 40;
     }
     
     self.titleLabel.text = self.topic.topicTitle;
-    self.authorNameLabel.text = self.topic.topicAuthorName.length?self.topic.topicAuthorName:self.topic.topicAuthorUserName;
+    self.authorNameLabel.text = (self.topic.topicAuthorName!=(id)[NSNull null]&&self.topic.topicAuthorName.length)?self.topic.topicAuthorName:self.topic.topicAuthorUserName;
     self.timeLabel.text = [CCHelper timeShortIntervalStringWithDate:self.topic.topicCreatedTime];
 }
 
