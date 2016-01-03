@@ -54,6 +54,12 @@
 			CFStringEncoding cfenc = CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding);
 			CFStringRef cfencstr = CFStringConvertEncodingToIANACharSetName(cfenc);
 			const char *enc = CFStringGetCStringPtr(cfencstr, 0);
+            //Fix iOS9 Chinese wrong characters - begin
+            char buffer[255];
+            if (enc == NULL) {
+                if (CFStringGetCString(cfencstr, buffer, 255, kCFStringEncodingUTF8)) enc = buffer;
+            }
+            //Fix iOS9 Chinese wrong characters - end
 			// _doc = htmlParseDoc((xmlChar*)[string UTF8String], enc);
 			int optionsHtml = HTML_PARSE_RECOVER;
 			optionsHtml = optionsHtml | HTML_PARSE_NOERROR; //Uncomment this to see HTML errors

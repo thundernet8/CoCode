@@ -57,7 +57,7 @@
         
         NSArray *actionArray = [[[[dict objectForKey:@"post_stream"] objectForKey:@"posts"] firstObject] objectForKey:@"actions_summary"];
         
-        self.isLiked = [actionArray[0] objectForKey:@"acted"] != [NSNull null]?[[actionArray[0] objectForKey:@"acted"] boolValue]:NO;
+        self.isLiked = actionArray.count>0 && [actionArray[0] objectForKey:@"acted"] != [NSNull null]?[[actionArray[0] objectForKey:@"acted"] boolValue]:NO;
         self.topicViews = [[dict objectForKey:@"views"] integerValue];
         self.topicLikeCount = [[dict objectForKey:@"like_count"] integerValue];
         self.topicCategoryID = [dict objectForKey:@"category_id"];

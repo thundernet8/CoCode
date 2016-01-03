@@ -68,7 +68,6 @@
 - (void)didMoveToSuperview{
     [super didMoveToSuperview];
     
-    //TODO clear
     @autoreleasepool {
         HTMLParser *parser = [[HTMLParser alloc] initWithString:self.post.postContent error:nil];
         HTMLNode *body = [parser body];

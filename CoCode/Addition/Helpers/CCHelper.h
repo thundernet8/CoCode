@@ -37,6 +37,8 @@
 //Bubble Sort CCTextAttachment
 + (NSArray *)bubbleSortMediaAttachArray:(NSArray *)array;
 
+//Get system language
++ (NSString *)getSystemLanguage;
 
 @end
 

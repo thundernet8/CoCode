@@ -14,6 +14,7 @@
 #import "CCShareToEmail.h"
 
 #define kPlatforms @[@{@"image":@"wechat", @"text":NSLocalizedString(@"WeChat", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformWeiChat]},@{@"image":@"wechat_moment", @"text":NSLocalizedString(@"Moments", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformWeiChatMoments]},@{@"image":@"qq", @"text":NSLocalizedString(@"QQ", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformQQ]},@{@"image":@"qzone", @"text":NSLocalizedString(@"Qzone", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformQzone]},@{@"image":@"safari", @"text":NSLocalizedString(@"Safari", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformSafari]}, @{@"image":@"email", @"text":NSLocalizedString(@"Email", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformEmail]}, @{@"image":@"copy", @"text":NSLocalizedString(@"Copy", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformCopy]}]
+#define kEnPlatforms @[@{@"image":@"safari", @"text":NSLocalizedString(@"Safari", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformSafari]}, @{@"image":@"email", @"text":NSLocalizedString(@"Email", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformEmail]}, @{@"image":@"copy", @"text":NSLocalizedString(@"Copy", nil), @"platformTag":[NSNumber numberWithInteger:CCSharePlatformCopy]}]
 
 @interface CCShareManager() <CCSocialShareDelegate>
 
@@ -35,8 +36,12 @@
 }
 
 - (void)showShareSheet{
-    
-    [[CCSocialShareSheet sharedInstance] showShareSheetWithPlatforms:kPlatforms];
+    NSString *lan = [CCHelper getSystemLanguage];
+    if (![lan isEqualToString:@"zh-Hans-CN"]){
+        [[CCSocialShareSheet sharedInstance] showShareSheetWithPlatforms:kEnPlatforms];
+    }else{
+      [[CCSocialShareSheet sharedInstance] showShareSheetWithPlatforms:kPlatforms];
+    }
     [CCSocialShareSheet sharedInstance].delegate = self;
     
 }
